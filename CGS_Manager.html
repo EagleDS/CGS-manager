@@ -299,7 +299,6 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
 .draw-bout-row.flagged{border-color:var(--orange)}
 .draw-bout-row.dragging{opacity:.3;border-style:dashed}
 .draw-bout-row.drag-over{border-color:var(--gold)!important;background:#1a1200!important}
-.draw-bout-row .draw-bout-hdr,.draw-bout-row .draw-bout-body,.draw-bout-row .draw-inline-replace{pointer-events:none}
 .draw-bout-hdr{display:flex;align-items:center;gap:6px;padding:5px 8px;border-bottom:1px solid #111115}
 .draw-fight-num{font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--gold);min-width:32px;line-height:1}
 .draw-disc-tag{font-family:var(--mono);font-size:8px;color:var(--muted);flex:1}
@@ -326,6 +325,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
 .mat-drop-zone.drag-active{border-color:var(--gold);background:var(--gold-bg)}
 .mat-drop-zone-title{font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:2px;color:var(--gold);margin-bottom:6px}
 </style>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
 </head>
 <body>
 
@@ -1630,7 +1630,7 @@ window.renderDraw = function(){
       +'<div class="draw-mat-title">'+mat+'</div>'
       +'<div class="draw-mat-count">'+remaining+' left</div>'
       +'</div>'
-      +'<div class="draw-mat-list">'
+      +'<div class="draw-mat-list" data-mat="'+mat+'">'
       +matBouts.map(b=>drawBoutRow(b)).join('')
       +'</div></div>';
   }).join('');
@@ -1644,8 +1644,7 @@ function drawBoutRow(b){
   const isLive=b.status==='live';
   const isDone=b.status==='completed'||b.status==='cancelled';
   const cls='draw-bout-row'+(isLive?' live':isDone?' done':b.notes==='Age Flag'?' flagged':'');
-  const draggableAttr=(!isDone&&!isLive)?'draggable="true" data-bid2="'+b.id+'"':'';
-  // data-bid2 used as drag selector to avoid attr-without-value parsing issues
+  const draggableAttr='';
   const bidAttr='data-bid="'+b.id+'"';
 
   const flags=[];
@@ -1773,82 +1772,36 @@ function doMove(fromId,toId){
 
 function attachBoutDragDrop(container){
   if(!container) return;
-
-  const rows = container.querySelectorAll('[data-bid2]');
-  rows.forEach(row => {
-    row.addEventListener('dragstart', e => {
-      drawDragId = row.dataset.bid2||row.dataset.bid;
-      e.dataTransfer.effectAllowed = 'move';
-      e.dataTransfer.setData('text/plain', drawDragId);
-      setTimeout(() => row.style.opacity = '.3', 0);
-      const dbg = document.getElementById('dd-debug');
-      if(dbg) dbg.textContent = 'DRAGSTART: ' + drawDragId;
-    });
-
-    row.addEventListener('dragend', () => {
-      row.style.opacity = '';
-      container.querySelectorAll('.drag-over').forEach(x => x.classList.remove('drag-over'));
-      drawDragId = null;
-    });
-
-    row.addEventListener('dragover', e => {
-      e.preventDefault();
-      e.dataTransfer.dropEffect = 'move';
-      if(row.dataset.bid2 === drawDragId) return;
-      container.querySelectorAll('.drag-over').forEach(x => x.classList.remove('drag-over'));
-      row.classList.add('drag-over');
-      const dbg = document.getElementById('dd-debug');
-      if(dbg) dbg.textContent = 'DRAGOVER: ' + (row.dataset.bid2||row.dataset.bid);
-    });
-
-    row.addEventListener('dragleave', e => {
-      // Only remove if leaving the row entirely, not just moving to a child element
-      if(e.relatedTarget && row.contains(e.relatedTarget)) return;
-      row.classList.remove('drag-over');
-    });
-
-    row.addEventListener('drop', e => {
-      e.preventDefault();
-      e.stopPropagation();
-      row.classList.remove('drag-over');
-      row.style.opacity = '';
-      const dbg = document.getElementById('dd-debug');
-      if(dbg) dbg.textContent = 'DROP: ' + drawDragId + ' → ' + (row.dataset.bid2||row.dataset.bid);
-      const rowId=row.dataset.bid2||row.dataset.bid;
-      if(drawDragId && rowId !== drawDragId){
-        doMove(drawDragId, rowId);
+  // Destroy existing Sortable instances on each mat list
+  container.querySelectorAll('.draw-mat-list').forEach(list => {
+    if(list._sortable) list._sortable.destroy();
+    list._sortable = new Sortable(list, {
+      animation: 150,
+      ghostClass: 'drag-over',
+      chosenClass: 'dragging',
+      dragClass: 'dragging',
+      handle: '.draw-handle',
+      filter: '.draw-inline-replace, .undo-btn, .inline-sel, button',
+      preventOnFilter: false,
+      onEnd: function(evt) {
+        if(evt.oldIndex === evt.newIndex) return;
+        const mat = list.dataset.mat || list.closest('.draw-mat-col')?.querySelector('.draw-mat-title')?.textContent;
+        // Reorder bouts array to match new DOM order
+        const matBouts = bouts.filter(b => b.area === mat);
+        const newOrder = [...list.querySelectorAll('[data-bid]')].map(el => el.dataset.bid);
+        // Build new bouts array preserving other mats
+        const otherBouts = bouts.filter(b => b.area !== mat);
+        const reordered = newOrder.map(id => bouts.find(b => b.id === id)).filter(Boolean);
+        // Renumber
+        reordered.forEach((b,i) => b.matFightNum = i+1);
+        // Rebuild full array maintaining mat order
+        const matOrder = [...new Set(bouts.map(b=>b.area))].sort();
+        bouts = matOrder.flatMap(m => m === mat ? reordered : bouts.filter(b=>b.area===m));
+        saveBouts();
+        toast('Reordered', 'gold');
+        // Re-render without losing Sortable instances
+        renderDraw();
       }
-      drawDragId = null;
-    });
-  });
-
-  // Touch support
-  let tId = null, tOver = null;
-  rows.forEach(row => {
-    row.addEventListener('touchstart', e => {
-      tId = row.dataset.bid;
-      row.style.opacity = '.4';
-    }, {passive:true});
-
-    row.addEventListener('touchmove', e => {
-      if(!tId) return;
-      e.preventDefault();
-      const pt = e.touches[0];
-      const el = document.elementFromPoint(pt.clientX, pt.clientY);
-      const target = el && el.closest('[data-bid2]');
-      container.querySelectorAll('.drag-over').forEach(x => x.classList.remove('drag-over'));
-      tOver = null;
-      if(target && target.dataset.bid !== tId){
-        target.classList.add('drag-over');
-        tOver = target.dataset.bid;
-      }
-    }, {passive:false});
-
-    row.addEventListener('touchend', () => {
-      container.querySelectorAll('[data-draggable-bout]').forEach(r => r.style.opacity = '');
-      container.querySelectorAll('.drag-over').forEach(x => x.classList.remove('drag-over'));
-      if(tId && tOver) doMove(tId, tOver);
-      tId = null; tOver = null;
     });
   });
 }
