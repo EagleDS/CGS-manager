@@ -298,6 +298,10 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
 .draw-bout-row.done{opacity:.5;border-color:#0a2010}
 .draw-bout-row.flagged{border-color:var(--orange)}
 .draw-bout-row.dragging{opacity:.3;border-style:dashed}
+.draw-mat-list{user-select:none;-webkit-user-select:none}
+.draw-mat-list *{user-select:none;-webkit-user-select:none}
+.draw-inline-replace select,.draw-inline-replace button,.undo-btn{user-select:auto;pointer-events:auto}
+.draw-bout-row.drag-over{border-color:var(--gold)!important;background:#1a1200!important}
 .draw-bout-row.drag-over{border-color:var(--gold)!important;background:#1a1200!important}
 .draw-bout-hdr{display:flex;align-items:center;gap:6px;padding:5px 8px;border-bottom:1px solid #111115}
 .draw-fight-num{font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--gold);min-width:32px;line-height:1}
@@ -328,6 +332,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
 .mat-drop-zone.drag-active{border-color:var(--gold);background:var(--gold-bg)}
 .mat-drop-zone-title{font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:2px;color:var(--gold);margin-bottom:6px}
 </style>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
 </head>
 <body>
@@ -1775,33 +1780,36 @@ function doMove(fromId,toId){
 
 function attachBoutDragDrop(container){
   if(!container) return;
-  // Destroy existing Sortable instances on each mat list
   container.querySelectorAll('.draw-mat-list').forEach(list => {
     if(list._sortable) list._sortable.destroy();
+    const mat = list.dataset.mat;
     list._sortable = new Sortable(list, {
       animation: 150,
       ghostClass: 'drag-over',
       chosenClass: 'dragging',
-      dragClass: 'dragging',
-      forceFallback: false,
+      delay: 100,
+      delayOnTouchOnly: false,
+      touchStartThreshold: 3,
       onEnd: function(evt) {
         if(evt.oldIndex === evt.newIndex) return;
-        const mat = list.dataset.mat || list.closest('.draw-mat-col')?.querySelector('.draw-mat-title')?.textContent;
-        // Reorder bouts array to match new DOM order
-        const matBouts = bouts.filter(b => b.area === mat);
+        // Get new order from DOM
         const newOrder = [...list.querySelectorAll('[data-bid]')].map(el => el.dataset.bid);
-        // Build new bouts array preserving other mats
-        const otherBouts = bouts.filter(b => b.area !== mat);
+        // Reorder bouts for this mat
         const reordered = newOrder.map(id => bouts.find(b => b.id === id)).filter(Boolean);
-        // Renumber
-        reordered.forEach((b,i) => b.matFightNum = i+1);
-        // Rebuild full array maintaining mat order
+        reordered.forEach((b,i) => { b.matFightNum = i+1; });
+        // Update fight number labels in DOM directly — no full re-render
+        reordered.forEach(b => {
+          const el = document.getElementById('dbr-'+b.id);
+          if(el){
+            const numEl = el.querySelector('.draw-fight-num');
+            if(numEl) numEl.textContent = 'F'+b.matFightNum;
+          }
+        });
+        // Rebuild bouts array
         const matOrder = [...new Set(bouts.map(b=>b.area))].sort();
-        bouts = matOrder.flatMap(m => m === mat ? reordered : bouts.filter(b=>b.area===m));
+        bouts = matOrder.flatMap(m => m===mat ? reordered : bouts.filter(b=>b.area===m));
         saveBouts();
-        toast('Reordered', 'gold');
-        // Re-render without losing Sortable instances
-        renderDraw();
+        toast('Reordered','gold');
       }
     });
   });
