@@ -297,11 +297,12 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
 .draw-bout-row.live{border-color:var(--red)}
 .draw-bout-row.done{opacity:.5;border-color:#0a2010}
 .draw-bout-row.flagged{border-color:var(--orange)}
-.draw-bout-row.dragging{opacity:.3;border-style:dashed}
+.draw-bout-row.dragging{opacity:.3}
 .draw-mat-list{user-select:none;-webkit-user-select:none}
 .draw-mat-list *{user-select:none;-webkit-user-select:none}
 .draw-inline-replace select,.draw-inline-replace button,.undo-btn{user-select:auto;pointer-events:auto}
 .draw-bout-row.drag-over{border-color:var(--gold)!important;background:#1a1200!important}
+.disc-chip.selected{background:var(--gold-bg)!important;border-color:var(--gold)!important;color:var(--gold)!important}
 .draw-bout-row.drag-over{border-color:var(--gold)!important;background:#1a1200!important}
 .draw-bout-hdr{display:flex;align-items:center;gap:6px;padding:5px 8px;border-bottom:1px solid #111115}
 .draw-fight-num{font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--gold);min-width:32px;line-height:1}
@@ -621,8 +622,6 @@ function loadLocal() {
 function saveBouts() {
   localStorage.setItem('cgs-bouts', JSON.stringify(bouts));
   if (db) syncToFirebase();
-  // Don't re-render here — Sortable manages its own DOM
-  // Public content updates via Firebase listener
   renderPublicContent();
 }
 
@@ -1341,7 +1340,8 @@ function renderAll(){
 // ══════════════════════════════════════════
 let matCount = 2;
 let discMatMap = {}; // group key → mat name
-let matGroupOrder = {}; // mat → [group keys in order]
+let matGroupOrder = {};
+let selectedGroups = new Set();
 let boutHistory = {}; // boutId → previous state for undo
 let setupVisible = true;
 
@@ -1396,14 +1396,21 @@ function renderDiscAssignment(){
 
   // Pool of unassigned groups
   let html='<div class="disc-pool" style="max-width:220px;flex-shrink:0">'
-    +'<div class="disc-pool-title">GROUPS — drag to mat</div>';
+    +'<div class="disc-pool-title">GROUPS</div>'
+    +'<div style="display:flex;gap:4px;margin-bottom:6px">'
+    +'<button class="btn btn-ghost btn-xs" style="font-size:8px" onclick="selectAllGroups()">SELECT ALL</button>'
+    +'<button class="btn btn-ghost btn-xs" style="font-size:8px" onclick="clearGroupSelect()">CLEAR</button>'
+    +'</div>';
   groups.forEach(g=>{
     const assigned=discMatMap[g.key];
     const col=g.div==='Female'?'#c060c0':'#4090d0';
-    html+='<div class="disc-chip'+(assigned?' assigned':'')+'"'
+    html+=(selectedGroups.has(g.key)
+      ?'<div class="disc-chip selected"'
+      :'<div class="disc-chip'+(assigned?' assigned':'')+'"')
       +' draggable="true" data-key="'+escA(g.key)+'"'
-      +' style="border-left:3px solid '+col+';font-size:9px">'
-      +'⠿ '+escH(g.disc)+' · '+g.ageGrp+' · '+g.div
+      +' style="border-left:3px solid '+col+';font-size:9px;cursor:pointer"'
+      +' onclick="toggleGroupSelect(event,\''+escA(g.key)+'\')">'
+      +(selectedGroups.has(g.key)?'✓ ':'⠿ ')+escH(g.disc)+' · '+g.ageGrp+' · '+g.div
       +(assigned?' <span style="color:var(--muted)">→ '+assigned+'</span>':'')
       +'</div>';
   });
@@ -1447,6 +1454,20 @@ function renderDiscAssignment(){
 let dragGroupKey=null;
 let dragGroupMat=null; // mat the group is currently in (null if from pool)
 
+window.selectAllGroups = function(){
+  getGroups().filter(function(g){return !discMatMap[g.key];}).forEach(function(g){selectedGroups.add(g.key);});
+  renderDiscAssignment();
+};
+window.clearGroupSelect = function(){
+  selectedGroups.clear();
+  renderDiscAssignment();
+};
+window.toggleGroupSelect = function(e,key){
+  e.stopPropagation();
+  if(selectedGroups.has(key)) selectedGroups.delete(key);
+  else selectedGroups.add(key);
+  renderDiscAssignment();
+};
 window.dzOver = function(e){
   if(!setupVisible) return; // don't intercept during draw mode
   e.preventDefault();
@@ -1459,20 +1480,21 @@ window.dzLeave = function(e){
 window.dzDrop = function(e){
   if(!setupVisible) return;
   e.preventDefault();
-  const mat=e.currentTarget.dataset.mat;
+  var mat=e.currentTarget.dataset.mat;
   e.currentTarget.classList.remove('drag-active');
-  if(!dragGroupKey||!mat) return;
-  // Remove from old mat if it was in one
-  if(dragGroupMat){
-    discMatMap[dragGroupKey]=mat;
-    if(matGroupOrder[dragGroupMat]){
-      matGroupOrder[dragGroupMat]=matGroupOrder[dragGroupMat].filter(k=>k!==dragGroupKey);
-    }
-  } else {
-    discMatMap[dragGroupKey]=mat;
-  }
+  if(!mat) return;
+  var toAssign=new Set(selectedGroups);
+  if(dragGroupKey) toAssign.add(dragGroupKey);
+  if(!toAssign.size) return;
   if(!matGroupOrder[mat]) matGroupOrder[mat]=[];
-  if(!matGroupOrder[mat].includes(dragGroupKey)) matGroupOrder[mat].push(dragGroupKey);
+  toAssign.forEach(function(key){
+    Object.keys(matGroupOrder).forEach(function(m){
+      if(m!==mat) matGroupOrder[m]=(matGroupOrder[m]||[]).filter(function(k){return k!==key;});
+    });
+    discMatMap[key]=mat;
+    if(matGroupOrder[mat].indexOf(key)===-1) matGroupOrder[mat].push(key);
+  });
+  selectedGroups.clear();
   dragGroupKey=null; dragGroupMat=null;
   renderDiscAssignment();
 };
@@ -1781,41 +1803,59 @@ function doMove(fromId,toId){
 
 function attachBoutDragDrop(container){
   if(!container) return;
+  // Destroy existing Sortable instances on each mat list
   container.querySelectorAll('.draw-mat-list').forEach(list => {
     if(list._sortable) list._sortable.destroy();
-    const mat = list.dataset.mat;
     list._sortable = new Sortable(list, {
       animation: 150,
       ghostClass: 'drag-over',
       chosenClass: 'dragging',
+      group: 'bouts',
       delay: 100,
       delayOnTouchOnly: false,
       touchStartThreshold: 3,
       onEnd: function(evt) {
-        if(evt.oldIndex === evt.newIndex) return;
-        // Get new order from DOM
-        const newOrder = [...list.querySelectorAll('[data-bid]')].map(el => el.dataset.bid);
-        const reordered = newOrder.map(id => bouts.find(b => b.id === id)).filter(Boolean);
-        reordered.forEach((b,i) => b.matFightNum = i+1);
-        // Update fight number labels in DOM only — no re-render
-        reordered.forEach(b => {
-          const el = document.getElementById('dbr-'+b.id);
-          if(el){
-            const numEl = el.querySelector('.draw-fight-num');
-            if(numEl) numEl.textContent = 'F'+b.matFightNum;
+        const fromMat = evt.from.dataset.mat;
+        const toMat = evt.to.dataset.mat;
+        const movedId = evt.item.dataset.bid;
+        const moved = bouts.find(function(b){return b.id===movedId;});
+        if(!moved) return;
+        if(fromMat !== toMat) moved.area = toMat;
+        // Renumber both affected mats from DOM
+        var affectedLists = fromMat===toMat ? [evt.from] : [evt.from, evt.to];
+        affectedLists.forEach(function(listEl){
+          var ids = Array.from(listEl.querySelectorAll('[data-bid]')).map(function(el){return el.dataset.bid;});
+          var reordered = ids.map(function(id){return bouts.find(function(b){return b.id===id;});}).filter(Boolean);
+          reordered.forEach(function(b,i){b.matFightNum=i+1;});
+          reordered.forEach(function(b){
+            var el=document.getElementById('dbr-'+b.id);
+            if(el){var n=el.querySelector('.draw-fight-num');if(n)n.textContent='F'+b.matFightNum;}
+          });
+          var col=listEl.closest('.draw-mat-col');
+          if(col){var c=col.querySelector('.draw-mat-count');if(c)c.textContent=reordered.filter(function(b){return b.status==='scheduled'||b.status==='live';}).length+' left';}
+        });
+        // Rebuild bouts from all mat DOM lists
+        var container=document.getElementById('draw-mat-cols');
+        var allMats=Array.from(new Set(bouts.map(function(b){return b.area;}))).sort();
+        var newBouts=[];
+        allMats.forEach(function(m){
+          var listEl=container?container.querySelector('[data-mat="'+m+'"]'):null;
+          if(listEl){
+            Array.from(listEl.querySelectorAll('[data-bid]')).forEach(function(el){
+              var b=bouts.find(function(x){return x.id===el.dataset.bid;});
+              if(b) newBouts.push(b);
+            });
+          } else {
+            bouts.filter(function(b){return b.area===m;}).forEach(function(b){newBouts.push(b);});
           }
         });
-        // Rebuild bouts array order
-        const matOrder = [...new Set(bouts.map(b=>b.area))].sort();
-        bouts = matOrder.flatMap(m => m===mat ? reordered : bouts.filter(b=>b.area===m));
-        // Save without triggering re-render
-        localStorage.setItem('cgs-bouts', JSON.stringify(bouts));
-        if(typeof syncToFirebase === 'function') syncToFirebase();
-        toast('Reordered','gold');
+        bouts=newBouts;
+        localStorage.setItem('cgs-bouts',JSON.stringify(bouts));
+        if(db) syncToFirebase();
+        if(fromMat!==toMat) toast('Moved to '+toMat,'gold');
+        else toast('Reordered','gold');
       }
-    });
-  });
-}
+    });}
 
 
 window.publishDraw = function(){
