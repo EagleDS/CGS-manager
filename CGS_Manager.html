@@ -307,7 +307,9 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
 .draw-club{font-size:9px;color:var(--muted)}
 .draw-vs{font-family:'Bebas Neue',sans-serif;font-size:11px;color:var(--dim);text-align:center}
 .draw-handle{color:var(--dim);font-size:13px;cursor:grab;padding:0 2px;touch-action:none;flex-shrink:0;user-select:none;-webkit-user-select:none}
-.draw-bout-row{user-select:none;-webkit-user-select:none}
+.draw-bout-row{user-select:none;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none}
+.draw-mat-list *{user-select:none;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none}
+.draw-inline-replace select,.draw-inline-replace button{user-select:auto;-webkit-user-select:auto}
 
 /* Inline replace dropdowns on draw */
 .draw-inline-replace{padding:4px 6px 6px;border-top:1px solid #111115;display:flex;gap:4px;flex-wrap:wrap}
@@ -1781,7 +1783,6 @@ function attachBoutDragDrop(container){
       ghostClass: 'drag-over',
       chosenClass: 'dragging',
       dragClass: 'dragging',
-      handle: '.draw-handle',
       forceFallback: false,
       onEnd: function(evt) {
         if(evt.oldIndex === evt.newIndex) return;
