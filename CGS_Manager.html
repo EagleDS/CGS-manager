@@ -621,7 +621,8 @@ function loadLocal() {
 function saveBouts() {
   localStorage.setItem('cgs-bouts', JSON.stringify(bouts));
   if (db) syncToFirebase();
-  if(document.getElementById('marshal-view').classList.contains('show')) renderMarshal();
+  // Don't re-render here — Sortable manages its own DOM
+  // Public content updates via Firebase listener
   renderPublicContent();
 }
 
@@ -1794,10 +1795,9 @@ function attachBoutDragDrop(container){
         if(evt.oldIndex === evt.newIndex) return;
         // Get new order from DOM
         const newOrder = [...list.querySelectorAll('[data-bid]')].map(el => el.dataset.bid);
-        // Reorder bouts for this mat
         const reordered = newOrder.map(id => bouts.find(b => b.id === id)).filter(Boolean);
-        reordered.forEach((b,i) => { b.matFightNum = i+1; });
-        // Update fight number labels in DOM directly — no full re-render
+        reordered.forEach((b,i) => b.matFightNum = i+1);
+        // Update fight number labels in DOM only — no re-render
         reordered.forEach(b => {
           const el = document.getElementById('dbr-'+b.id);
           if(el){
@@ -1805,10 +1805,12 @@ function attachBoutDragDrop(container){
             if(numEl) numEl.textContent = 'F'+b.matFightNum;
           }
         });
-        // Rebuild bouts array
+        // Rebuild bouts array order
         const matOrder = [...new Set(bouts.map(b=>b.area))].sort();
         bouts = matOrder.flatMap(m => m===mat ? reordered : bouts.filter(b=>b.area===m));
-        saveBouts();
+        // Save without triggering re-render
+        localStorage.setItem('cgs-bouts', JSON.stringify(bouts));
+        if(typeof syncToFirebase === 'function') syncToFirebase();
         toast('Reordered','gold');
       }
     });
