@@ -306,7 +306,8 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
 .draw-name{font-weight:600;font-size:12px;line-height:1.2}
 .draw-club{font-size:9px;color:var(--muted)}
 .draw-vs{font-family:'Bebas Neue',sans-serif;font-size:11px;color:var(--dim);text-align:center}
-.draw-handle{color:var(--dim);font-size:13px;cursor:grab;padding:0 2px;touch-action:none;flex-shrink:0}
+.draw-handle{color:var(--dim);font-size:13px;cursor:grab;padding:0 2px;touch-action:none;flex-shrink:0;user-select:none;-webkit-user-select:none}
+.draw-bout-row{user-select:none;-webkit-user-select:none}
 
 /* Inline replace dropdowns on draw */
 .draw-inline-replace{padding:4px 6px 6px;border-top:1px solid #111115;display:flex;gap:4px;flex-wrap:wrap}
@@ -1781,8 +1782,7 @@ function attachBoutDragDrop(container){
       chosenClass: 'dragging',
       dragClass: 'dragging',
       handle: '.draw-handle',
-      filter: '.draw-inline-replace, .undo-btn, .inline-sel, button',
-      preventOnFilter: false,
+      forceFallback: false,
       onEnd: function(evt) {
         if(evt.oldIndex === evt.newIndex) return;
         const mat = list.dataset.mat || list.closest('.draw-mat-col')?.querySelector('.draw-mat-title')?.textContent;
