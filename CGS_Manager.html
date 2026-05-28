@@ -2134,9 +2134,47 @@ window.publishDraw = function(){
   toast('Draw published — public view updated','green');
 };
 
+function getActiveMats(){
+  var seen={}, mats=[];
+  bouts.forEach(function(b){
+    if(b.status!=='completed'&&b.status!=='cancelled'&&!seen[b.area]){
+      seen[b.area]=1; mats.push(b.area);
+    }
+  });
+  return mats.sort();
+}
+
+function getBoutsForMat(mat){
+  var live=bouts.filter(function(b){return b.area===mat&&b.status==='live';});
+  var sched=bouts.filter(function(b){return b.area===mat&&b.status==='scheduled';});
+  var hold=bouts.filter(function(b){return b.area===mat&&b.status==='paused';});
+  var done=bouts.filter(function(b){return b.area===mat&&(b.status==='completed'||b.status==='cancelled');});
+  return live.concat(sched).concat(hold).concat(done.slice(-2));
+}
+
+function detectClashes(){
+  var clashes={};
+  var active=bouts.filter(function(b){return b.status==='scheduled'||b.status==='live';});
+  active.forEach(function(b){
+    [b.red.name,b.blue.name].forEach(function(name){
+      if(!name||name==='TBC') return;
+      if(!clashes[name]) clashes[name]=[];
+      clashes[name].push({boutId:b.id,mat:b.area,disc:b.disc});
+    });
+  });
+  var result={};
+  Object.entries(clashes).forEach(function(entry){
+    var name=entry[0], appearances=entry[1];
+    var mats=[...new Set(appearances.map(function(a){return a.mat;}))];
+    if(mats.length>1) result[name]=appearances;
+  });
+  return result;
+}
+
+
 function renderPublicContent(){
-  var activeMats=[...new Set(bouts.filter(function(b){return b.status!=='completed'&&b.status!=='cancelled';}).map(function(b){return b.area;}))];
-  const mats=activeMats.length?activeMats:['Mat 1'];
+  var mats=getActiveMats();
+  if(!mats.length) mats=['Mat 1'];
   const done=bouts.filter(b=>b.status==='completed').slice(-6).reverse();
   const liveBouts=bouts.filter(b=>b.status==='live');
 
@@ -2255,6 +2293,63 @@ window.goStep = function(n){
   _origGoStep(n);
   if(n===2) renderClubs();
 };
+
+
+window.renderMarshal = function(){
+  var matFilter = document.getElementById('marshal-mat-sel') ? 
+    document.getElementById('marshal-mat-sel').value : '';
+  var clashes = detectClashes();
+  var mats = matFilter ? [matFilter] : getActiveMats();
+  if(!mats.length) mats = ['Mat 1','Mat 2'];
+  var container = document.getElementById('marshal-queues');
+  if(!container) return;
+  container.innerHTML = mats.map(function(mat){
+    return renderMarshalQueue(mat, clashes);
+  }).join('');
+  if(typeof initDragDrop === 'function') initDragDrop();
+};
+
+function renderMarshalQueue(mat, clashes){
+  var matBouts = getBoutsForMat(mat);
+  var remaining = matBouts.filter(function(b){return b.status==='scheduled'||b.status==='live';}).length;
+  var html = '<div class="queue-col">'
+    + '<div class="queue-col-hdr"><div class="queue-mat-name">'+mat+'</div>'
+    + '<div class="queue-count">'+remaining+' remaining</div></div>'
+    + '<div class="queue-list" id="qlist-'+mat.replace(' ','-')+'" data-mat="'+escA(mat)+'">';
+  matBouts.forEach(function(b,idx){
+    var isLive = b.status==='live';
+    var isHold = b.status==='paused';
+    var isDone = b.status==='completed'||b.status==='cancelled';
+    var isNext = !isLive&&!isHold&&!isDone&&idx===0;
+    var hasClash = clashes[b.red.name]||clashes[b.blue.name];
+    var cls = 'queue-item'+(isLive?' live-item':isHold?' hold-item':isDone?' done-item':'')+(hasClash?' flagged':'');
+    var draggable = (!isDone&&!isLive) ? 'draggable="true"' : '';
+    var statusBadge = isLive ? '<span class="flag f-lv">&#9679; LIVE</span>'
+      : isHold ? '<span style="font-family:var(--mono);font-size:8px;padding:2px 4px;border-radius:2px;background:#050d1a;border:1px solid #2a5a8a;color:#60a5fa">&#9208; HOLD</span>'
+      : isDone ? '<span class="flag f-dn">&#10003;</span>'
+      : isNext ? '<span style="font-family:var(--mono);font-size:8px;padding:2px 6px;border-radius:2px;background:#001a08;border:1px solid var(--green);color:var(--green)">UP NEXT</span>' : '';
+    var clashBadge = hasClash ? '<span style="font-family:var(--mono);font-size:8px;padding:2px 4px;border-radius:2px;background:#1a0a00;border:1px solid var(--orange);color:var(--orange)">&#9888; CLASH</span>' : '';
+    html += '<div class="'+cls+'" id="qi-'+b.id+'" data-bid="'+b.id+'" '+draggable+'>'
+      + '<div class="queue-item-top"><div class="queue-num">'+b.id+'</div>'
+      + '<div class="queue-disc">'+escH(b.disc)+' &middot; '+b.ageGrp+'</div>'
+      + statusBadge+clashBadge+'</div>'
+      + '<div class="queue-item-body">'
+      + '<div><div class="qi-name" style="color:var(--red)">'+escH(b.red.name)+'</div><div class="qi-club">'+escH(b.red.club||'')+'</div></div>'
+      + '<div class="qi-vs">VS</div>'
+      + '<div style="text-align:right"><div class="qi-name" style="color:var(--blue)">'+escH(b.blue.name)+'</div><div class="qi-club">'+escH(b.blue.club||'')+'</div></div>'
+      + '</div>';
+    if(!isDone){
+      html += '<div class="queue-item-actions">'
+        + (isLive ? '<button class="btn btn-red btn-xs" data-bid="'+b.id+'" onclick="openScore(this.dataset.bid)">SCORE</button>' : '')
+        + (!isLive ? '<button class="btn btn-gold btn-xs" data-bid="'+b.id+'" onclick="startBout(this.dataset.bid)">&#9654; START</button>' : '')
+        + '<button class="btn btn-ghost btn-xs" data-bid="'+b.id+'" onclick="openDrawEdit(this.dataset.bid)">&#10003; EDIT</button>'
+        + '</div>';
+    }
+    html += '</div>';
+  });
+  html += '</div></div>';
+  return html;
+}
 
 </script>
 </body>
