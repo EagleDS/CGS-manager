@@ -2135,7 +2135,7 @@ window.publishDraw = function(){
 };
 
 function renderPublicContent(){
-  const activeMats=getActiveMats();
+  var activeMats=[...new Set(bouts.filter(function(b){return b.status!=='completed'&&b.status!=='cancelled';}).map(function(b){return b.area;}))];
   const mats=activeMats.length?activeMats:['Mat 1'];
   const done=bouts.filter(b=>b.status==='completed').slice(-6).reverse();
   const liveBouts=bouts.filter(b=>b.status==='live');
