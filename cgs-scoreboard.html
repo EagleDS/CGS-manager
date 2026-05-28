@@ -21,12 +21,12 @@ h1.brand{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.4rem,4vw,2.4rem);
 .card{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:18px;width:100%}
 .btn{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.85rem;letter-spacing:.1em;border:none;border-radius:8px;cursor:pointer;padding:7px 14px;transition:transform .1s;text-transform:uppercase;user-select:none}
 .btn:active{transform:scale(.93)}
-.btn-red{background:var(--red);color:#fff}
-.btn-blue{background:var(--blue);color:#fff}
 .btn-gold{background:var(--gold);color:#1a1200}
 .btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--border)}
 .btn-ghost:hover{border-color:var(--text);color:var(--text)}
 .btn-green{background:var(--green);color:#fff}
+.btn-red{background:var(--red);color:#fff}
+.btn-blue{background:var(--blue);color:#fff}
 .btn-sm{padding:4px 10px;font-size:.75rem}
 .btn-danger{background:#3a1010;color:#ff6060;border:1px solid #5a1515}
 .btn-orange{background:#3a1800;color:var(--orange);border:1px solid #6a2800}
@@ -43,13 +43,13 @@ h1.brand{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.4rem,4vw,2.4rem);
 .link-row input{flex:1;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:monospace;font-size:.68rem;padding:6px 10px}
 
 /* HYBRID BAR */
-.hybrid-bar{display:flex;gap:4px;width:100%;border-radius:10px;overflow:hidden;margin-bottom:4px}
+.hybrid-bar{display:flex;gap:4px;width:100%;border-radius:10px;overflow:hidden}
 .hybrid-seg{flex:1;text-align:center;padding:7px 4px;font-family:'Bebas Neue',sans-serif;font-size:.9rem;letter-spacing:.08em;transition:all .3s}
 .hybrid-seg.active{color:#000;background:var(--gold)}
 .hybrid-seg.done{color:var(--green);background:rgba(29,185,84,.1);border:1px solid rgba(29,185,84,.3)}
 .hybrid-seg.pending{color:var(--muted);background:rgba(255,255,255,.04);border:1px solid var(--border)}
 
-/* HOST LAYOUT */
+/* HOST */
 .host-top{display:flex;gap:10px;align-items:flex-start;width:100%;flex-wrap:wrap}
 .host-top-left{display:flex;flex-direction:column;gap:8px;flex:1;min-width:200px}
 .style-sel{background:rgba(245,197,24,.08);border:1px solid rgba(245,197,24,.3);border-radius:10px;padding:10px 14px;display:flex;flex-direction:column;gap:6px}
@@ -60,14 +60,14 @@ h1.brand{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.4rem,4vw,2.4rem);
 .round-block{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:10px 20px;display:flex;flex-direction:column;align-items:center;gap:4px}
 .round-big{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.4rem,7vw,3.8rem);line-height:1;color:var(--text)}
 .round-lbl{font-size:.65rem;letter-spacing:.3em;color:var(--muted);text-transform:uppercase}
-.round-ruleset{font-size:.7rem;color:var(--gold);letter-spacing:.15em;text-transform:uppercase;min-height:1em}
+.round-ruleset{font-size:.7rem;color:var(--gold);letter-spacing:.15em;text-transform:uppercase;min-height:1em;text-align:center}
 .timer-block{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:10px 14px;display:flex;flex-direction:column;align-items:center;gap:6px}
 .timer-display{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.4rem,7vw,3.8rem);line-height:1;color:var(--gold);text-shadow:0 0 30px rgba(245,197,24,.5)}
 .timer-display.warning{color:#ff6020}
 .timer-controls{display:flex;gap:5px;flex-wrap:wrap;justify-content:center}
 .timer-set-row{display:flex;gap:4px;align-items:center;flex-wrap:wrap;justify-content:center}
 .tnum{width:38px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:'Rajdhani',sans-serif;font-size:.85rem;padding:3px 5px;text-align:center}
-.judges-block{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:10px 14px;display:flex;flex-direction:column;gap:6px}
+.judges-block{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:10px 14px;display:flex;flex-direction:column;gap:6px;min-width:120px}
 .judges-label{font-size:.65rem;letter-spacing:.2em;color:var(--muted);text-transform:uppercase}
 .judge-pills{display:flex;gap:6px;flex-wrap:wrap}
 .judge-pill{font-family:'Bebas Neue',sans-serif;font-size:.85rem;padding:4px 12px;border-radius:20px;border:1px solid var(--border);color:var(--muted);letter-spacing:.08em;transition:all .3s}
@@ -87,16 +87,27 @@ h1.brand{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.4rem,4vw,2.4rem);
 .ninput{background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Rajdhani',sans-serif;font-size:1rem;font-weight:700;text-align:center;padding:6px 10px;width:100%;text-transform:uppercase}
 .ninput:focus{outline:none;border-color:var(--gold)}
 .score-lbl{font-size:.62rem;letter-spacing:.2em;color:var(--muted);text-transform:uppercase}
-.score-big{font-family:'Bebas Neue',sans-serif;font-size:clamp(3.5rem,12vw,6.5rem);line-height:1;transition:transform .15s}
+.score-big{font-family:'Bebas Neue',sans-serif;font-size:clamp(3.5rem,12vw,6.5rem);line-height:1}
 .rp .score-big{color:var(--red);text-shadow:0 0 40px var(--red-glow)}
 .bp .score-big{color:var(--blue);text-shadow:0 0 40px var(--blue-glow)}
-.score-big.pop{transform:scale(1.13)}
+.score-big.pop{animation:sPop .2s ease}
+@keyframes sPop{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
 .pen-status{font-size:.68rem;padding:2px 8px;border-radius:10px;letter-spacing:.08em;font-weight:700;text-transform:uppercase;min-height:1.4em;text-align:center}
 .pen-status.clean{color:var(--muted)}
 .pen-status.deducted{background:rgba(224,32,32,.15);border:1px solid var(--red);color:#ff6060}
 .pen-status.dq{background:rgba(224,32,32,.3);border:1px solid var(--red);color:#ff3030}
 .center-panel{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px}
 .vs-badge{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;color:var(--muted)}
+
+/* HOST TALLY DISPLAY */
+.host-tally{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:12px 16px;width:100%;display:flex;flex-direction:column;gap:8px}
+.ht-row{display:flex;align-items:center;gap:8px}
+.ht-label{font-size:.62rem;letter-spacing:.18em;color:var(--muted);text-transform:uppercase;min-width:60px}
+.ht-bar-wrap{flex:1;height:10px;background:#1a1a24;border-radius:5px;overflow:hidden;position:relative}
+.ht-bar-r{height:100%;background:var(--red);border-radius:5px;transition:width .3s;position:absolute;right:50%;top:0}
+.ht-bar-b{height:100%;background:var(--blue);border-radius:5px;transition:width .3s;position:absolute;left:50%;top:0}
+.ht-counts{display:flex;justify-content:space-between;font-family:'Bebas Neue',sans-serif;font-size:1.1rem}
+.ht-card-preview{text-align:center;font-family:'Bebas Neue',sans-serif;font-size:.9rem;letter-spacing:.1em;padding:4px 12px;border-radius:8px;background:rgba(245,197,24,.08);border:1px solid rgba(245,197,24,.2);color:var(--gold)}
 
 /* PENALTY ROW */
 .pen-row{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:12px 16px;width:100%;display:grid;grid-template-columns:1fr 1fr;gap:12px}
@@ -117,7 +128,7 @@ h1.brand{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.4rem,4vw,2.4rem);
 /* TKD PANEL */
 .tkd-panel{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:12px 16px;width:100%;display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .tkd-col{display:flex;flex-direction:column;align-items:center;gap:6px}
-.tkd-pen-num{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;line-height:1}
+.tkd-pen-num{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;line-height:1}
 .rtkd .tkd-pen-num{color:var(--red)}
 .btkd .tkd-pen-num{color:var(--blue)}
 .tkd-pen-lbl{font-size:.58rem;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;text-align:center}
@@ -137,20 +148,34 @@ h1.brand{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.4rem,4vw,2.4rem);
 .j-strip-score.b{color:var(--blue)}
 .j-strip-label{font-size:.68rem;color:var(--muted);letter-spacing:.2em;text-transform:uppercase}
 .j-strip-vs{font-family:'Bebas Neue',sans-serif;font-size:1rem;color:var(--border)}
-.j-tally-area{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;max-width:560px}
-.j-tally-col{display:flex;flex-direction:column;gap:8px;align-items:center}
+
+/* JUDGE TALLY */
+.j-tally-wrap{width:100%;max-width:560px;display:flex;flex-direction:column;gap:10px}
+.j-tally-fighters{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.j-tally-col{display:flex;flex-direction:column;gap:6px;align-items:center}
 .j-name-tag{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;text-align:center;padding:6px 8px;border-radius:8px;width:100%}
 .j-name-tag.r{background:var(--red-dark);color:#ffcdd2}
 .j-name-tag.b{background:var(--blue-dark);color:#bbdefb}
-.j-tally-btn{border:none;border-radius:14px;cursor:pointer;user-select:none;transition:transform .1s;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:22px 8px;gap:4px;width:100%}
-.j-tally-btn:active{transform:scale(.91)}
-.j-tally-btn.r{background:linear-gradient(135deg,#c01818,#800e0e);box-shadow:0 3px 24px rgba(224,32,32,.4);color:#fff}
-.j-tally-btn.b{background:linear-gradient(135deg,#155db5,#0c3a72);box-shadow:0 3px 24px rgba(26,111,212,.4);color:#fff}
-.j-tally-btn:disabled{opacity:.3;cursor:not-allowed}
-.t-count{font-family:'Bebas Neue',sans-serif;font-size:3.8rem;line-height:1}
-.t-lbl{font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;opacity:.8;font-family:'Rajdhani',sans-serif;font-weight:700}
-.j-tally-btn.flash{animation:jFlash .22s ease}
-@keyframes jFlash{0%,100%{opacity:1}40%{opacity:.1;transform:scale(1.07)}}
+.j-tally-count{font-family:'Bebas Neue',sans-serif;font-size:3.2rem;line-height:1;text-align:center}
+.j-tally-count.r{color:#ff8080}
+.j-tally-count.b{color:#80b0ff}
+.j-action-btns{display:flex;gap:5px;flex-wrap:wrap;justify-content:center;width:100%}
+.j-act-btn{border:none;border-radius:10px;cursor:pointer;user-select:none;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 6px;gap:2px;font-family:'Rajdhani',sans-serif;font-weight:700;transition:transform .1s;min-width:70px;flex:1}
+.j-act-btn:active{transform:scale(.91)}
+.j-act-btn.r{background:linear-gradient(135deg,#c01818,#800e0e);color:#fff;box-shadow:0 2px 12px rgba(224,32,32,.35)}
+.j-act-btn.b{background:linear-gradient(135deg,#155db5,#0c3a72);color:#fff;box-shadow:0 2px 12px rgba(26,111,212,.35)}
+.j-act-btn:disabled{opacity:.3;cursor:not-allowed}
+.j-act-pts{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;line-height:1}
+.j-act-lbl{font-size:.62rem;letter-spacing:.06em;text-transform:uppercase;opacity:.85;text-align:center;line-height:1.2}
+.j-act-btn.flash{animation:jFlash .2s ease}
+@keyframes jFlash{0%,100%{opacity:1}40%{opacity:.1;transform:scale(1.06)}}
+
+/* Card preview on judge */
+.j-card-preview{background:rgba(245,197,24,.08);border:1px solid rgba(245,197,24,.25);border-radius:10px;padding:8px 16px;text-align:center;width:100%;max-width:560px}
+.j-card-score{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:.1em;color:var(--gold)}
+.j-card-lbl{font-size:.65rem;letter-spacing:.2em;color:var(--muted);text-transform:uppercase}
+
+/* TKD judge */
 .j-tkd-area{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;max-width:560px}
 .j-tkd-col{display:flex;flex-direction:column;gap:6px;align-items:center}
 .j-tkd-btn{border:none;border-radius:12px;cursor:pointer;user-select:none;transition:transform .1s;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:14px 8px;gap:3px;width:100%;font-family:'Rajdhani',sans-serif;font-weight:700}
@@ -165,21 +190,18 @@ h1.brand{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.4rem,4vw,2.4rem);
 .j-tkd-btn .lbl{font-size:.7rem;letter-spacing:.06em;text-transform:uppercase;opacity:.85;text-align:center}
 .j-tkd-btn.voted{animation:jFlash .3s ease}
 .j-bonus-row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;width:100%;max-width:560px}
+
 .j-undo-row{display:flex;gap:8px;justify-content:center;width:100%;max-width:560px}
-.j-submit-area{display:flex;flex-direction:column;gap:6px;width:100%;max-width:560px}
-.j-submit-row{display:flex;gap:6px}
-.j-score-btn{flex:1;padding:13px 8px;font-size:.88rem;border-radius:12px;border:none;cursor:pointer;font-family:'Rajdhani',sans-serif;font-weight:700;letter-spacing:.06em;text-transform:uppercase;transition:transform .1s,opacity .2s}
-.j-score-btn:active{transform:scale(.94)}
-.j-score-btn.r{background:linear-gradient(135deg,var(--red),var(--red-dark));color:#fff;box-shadow:0 3px 18px rgba(224,32,32,.35)}
-.j-score-btn.b{background:linear-gradient(135deg,var(--blue),var(--blue-dark));color:#fff;box-shadow:0 3px 18px rgba(26,111,212,.35)}
-.j-score-btn.draw{background:linear-gradient(135deg,#2a2a3a,#1a1a28);color:var(--gold);border:1px solid rgba(245,197,24,.3)}
-.j-score-btn:disabled{opacity:.3;cursor:not-allowed;transform:none}
 .submitted-banner{background:rgba(29,185,84,.1);border:1px solid rgba(29,185,84,.4);border-radius:8px;padding:10px 16px;font-size:.85rem;color:var(--green);text-align:center;width:100%;max-width:560px;display:none}
 .end-round-banner{background:rgba(245,197,24,.12);border:1px solid rgba(245,197,24,.5);border-radius:8px;padding:12px 16px;font-size:1rem;color:var(--gold);text-align:center;width:100%;max-width:560px;display:none;font-family:'Bebas Neue',sans-serif;letter-spacing:.12em;animation:endPulse 1s ease-in-out infinite alternate}
 @keyframes endPulse{from{opacity:.6}to{opacity:1}}
 .j-flip-btn{display:flex;justify-content:center;width:100%;max-width:560px}
 .j-status{font-size:.8rem;color:var(--muted);text-align:center;min-height:1.4em;max-width:480px;line-height:1.5}
 .nohead-banner{background:rgba(240,112,32,.12);border:1px solid var(--orange);border-radius:8px;padding:6px 16px;font-size:.72rem;color:var(--orange);letter-spacing:.15em;text-transform:uppercase;text-align:center;width:100%;max-width:560px}
+.submit-btn{width:100%;max-width:560px;padding:16px;font-size:1.1rem;border-radius:14px;border:none;cursor:pointer;font-family:'Bebas Neue',sans-serif;letter-spacing:.15em;transition:transform .1s,opacity .2s;background:linear-gradient(135deg,#2a2a3a,#1a1a28);color:var(--gold);border:1px solid rgba(245,197,24,.4)}
+.submit-btn:active{transform:scale(.95)}
+.submit-btn:disabled{opacity:.3;cursor:not-allowed;transform:none}
+.submit-btn.ready{background:linear-gradient(135deg,rgba(245,197,24,.2),rgba(245,197,24,.1));border-color:var(--gold);box-shadow:0 3px 20px rgba(245,197,24,.2)}
 
 /* PUBLIC */
 .pub-wrap{width:100%;max-width:960px;display:flex;flex-direction:column;align-items:center;gap:14px}
@@ -224,15 +246,13 @@ h1.brand{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.4rem,4vw,2.4rem);
 @keyframes pulse{from{opacity:.7;transform:scale(.97)}to{opacity:1;transform:scale(1.03)}}
 .ov-sub{font-size:1rem;letter-spacing:.2em;color:var(--muted)}
 .ov-score{font-family:'Bebas Neue',sans-serif;font-size:2rem;color:var(--text)}
-
-/* QR */
 .qr-card{background:#fff;border-radius:12px;padding:14px;display:flex;flex-direction:column;align-items:center;gap:8px;min-width:140px}
 .qr-label{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.85rem;letter-spacing:.1em;text-transform:uppercase;color:#111;text-align:center}
 .qr-sublabel{font-size:.7rem;color:#555;text-align:center}
 
 @media(max-width:600px){
   .scoreboard{grid-template-columns:1fr 1fr}.center-panel{display:none}
-  .setup-form{grid-column:1fr}.host-top{flex-direction:column}
+  .setup-form{grid-template-columns:1fr}.host-top{flex-direction:column}
 }
 @media print{
   body{background:#fff!important;padding:0}.page{display:none!important}
@@ -248,8 +268,8 @@ h1.brand{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.4rem,4vw,2.4rem);
 
 <!-- SETUP -->
 <div class="page" id="page-setup">
-  <h1 class="brand">⚔ CGS Scoreboard</h1>
-  <p class="brand-sub">Combat Games Series · Setup</p>
+  <h1 class="brand">&#9876; CGS Scoreboard</h1>
+  <p class="brand-sub">Combat Games Series &middot; Setup</p>
   <div class="card" style="max-width:720px">
     <form id="setupForm">
       <div class="setup-form">
@@ -257,44 +277,44 @@ h1.brand{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.4rem,4vw,2.4rem);
         <div><label>Number of Judges</label>
           <select id="f-jc">
             <option value="1">1 Judge</option>
-            <option value="2">2 Judges — both must agree</option>
-            <option value="3" selected>3 Judges — 2 of 3</option>
+            <option value="2">2 Judges</option>
+            <option value="3" selected>3 Judges &mdash; 2 of 3</option>
           </select>
         </div>
         <div><label>Age Category</label>
           <select id="f-age">
             <option value="adult">Adult / 18+</option>
             <option value="u18">Under 18</option>
-            <option value="u12">Under 12 — No Head Contact</option>
+            <option value="u12">Under 12 &mdash; No Head Contact</option>
           </select>
         </div>
         <div class="form-full" style="text-align:center;margin-top:10px">
-          <button type="submit" class="btn btn-gold" style="padding:10px 32px;font-size:1rem">⚡ Generate Links</button>
+          <button type="submit" class="btn btn-gold" style="padding:10px 32px;font-size:1rem">&#9889; Generate Links</button>
         </div>
       </div>
     </form>
   </div>
   <div class="card" id="generatedLinks" style="display:none;max-width:720px">
-    <p style="font-size:.78rem;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;margin-bottom:12px">📋 Share these links</p>
+    <p style="font-size:.78rem;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;margin-bottom:12px">Share these links</p>
     <div class="link-box">
-      <div class="link-row"><label>🖥 Host</label><input id="link-host" readonly/><button class="btn btn-ghost btn-sm" onclick="copyLink('link-host',this)">Copy</button></div>
-      <div class="link-row" id="j1r"><label>👁 Judge 1</label><input id="link-j1" readonly/><button class="btn btn-ghost btn-sm" onclick="copyLink('link-j1',this)">Copy</button></div>
-      <div class="link-row" id="j2r"><label>👁 Judge 2</label><input id="link-j2" readonly/><button class="btn btn-ghost btn-sm" onclick="copyLink('link-j2',this)">Copy</button></div>
-      <div class="link-row" id="j3r"><label>👁 Judge 3</label><input id="link-j3" readonly/><button class="btn btn-ghost btn-sm" onclick="copyLink('link-j3',this)">Copy</button></div>
-      <div class="link-row"><label>📺 Public</label><input id="link-pub" readonly/><button class="btn btn-ghost btn-sm" onclick="copyLink('link-pub',this)">Copy</button></div>
+      <div class="link-row"><label>Host</label><input id="link-host" readonly/><button class="btn btn-ghost btn-sm" onclick="copyLink('link-host',this)">Copy</button></div>
+      <div class="link-row" id="j1r"><label>Judge 1</label><input id="link-j1" readonly/><button class="btn btn-ghost btn-sm" onclick="copyLink('link-j1',this)">Copy</button></div>
+      <div class="link-row" id="j2r"><label>Judge 2</label><input id="link-j2" readonly/><button class="btn btn-ghost btn-sm" onclick="copyLink('link-j2',this)">Copy</button></div>
+      <div class="link-row" id="j3r"><label>Judge 3</label><input id="link-j3" readonly/><button class="btn btn-ghost btn-sm" onclick="copyLink('link-j3',this)">Copy</button></div>
+      <div class="link-row"><label>Public</label><input id="link-pub" readonly/><button class="btn btn-ghost btn-sm" onclick="copyLink('link-pub',this)">Copy</button></div>
     </div>
     <p id="linkNote" style="font-size:.78rem;color:var(--muted);margin-top:10px;line-height:1.6"></p>
   </div>
   <div class="card" id="qrSection" style="display:none;max-width:720px">
-    <p style="font-size:.78rem;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;margin-bottom:16px">📷 QR Codes</p>
+    <p style="font-size:.78rem;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;margin-bottom:16px">QR Codes</p>
     <div id="qrGrid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;justify-items:center"></div>
-    <div style="text-align:center;margin-top:12px"><button class="btn btn-ghost btn-sm" onclick="window.print()">🖨 Print QR Codes</button></div>
+    <div style="text-align:center;margin-top:12px"><button class="btn btn-ghost btn-sm" onclick="window.print()">Print QR Codes</button></div>
   </div>
 </div>
 
 <!-- HOST -->
 <div class="page" id="page-host">
-  <h1 class="brand">⚔ CGS Scoreboard</h1>
+  <h1 class="brand">&#9876; CGS Scoreboard</h1>
   <p class="brand-sub" id="h-subtitle">Host View</p>
   <div class="host-top">
     <div class="host-top-left">
@@ -310,12 +330,12 @@ h1.brand{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.4rem,4vw,2.4rem);
       </div>
       <div id="h-hybrid-bar" style="display:none">
         <div class="hybrid-bar" id="h-hbar">
-          <div class="hybrid-seg pending" data-r="1">R1 · Boxing</div>
-          <div class="hybrid-seg pending" data-r="2">R2 · Kickboxing</div>
-          <div class="hybrid-seg pending" data-r="3">R3 · MMA</div>
+          <div class="hybrid-seg pending" data-r="1">R1 &middot; Boxing</div>
+          <div class="hybrid-seg pending" data-r="2">R2 &middot; Kickboxing</div>
+          <div class="hybrid-seg pending" data-r="3">R3 &middot; MMA</div>
         </div>
       </div>
-      <div id="h-nohead" class="nohead-warn" style="display:none">⚠ UNDER-12 · NO HEAD CONTACT</div>
+      <div id="h-nohead" class="nohead-warn" style="display:none">&#9888; UNDER-12 &middot; NO HEAD CONTACT</div>
     </div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-start">
       <div class="round-block">
@@ -323,14 +343,14 @@ h1.brand{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.4rem,4vw,2.4rem);
         <div class="round-big" id="h-round">1</div>
         <div class="round-ruleset" id="h-ruleset-lbl"></div>
         <div style="display:flex;gap:5px;margin-top:2px">
-          <button class="btn btn-ghost btn-sm" id="h-rd">−</button>
+          <button class="btn btn-ghost btn-sm" id="h-rd">&#8722;</button>
           <button class="btn btn-ghost btn-sm" id="h-ru">+</button>
         </div>
       </div>
       <div class="timer-block" id="h-timer-block" style="display:none">
         <div class="timer-display" id="h-timer">2:00</div>
         <div class="timer-controls">
-          <button class="btn btn-gold btn-sm" id="h-ss">▶ Start</button>
+          <button class="btn btn-gold btn-sm" id="h-ss">&#9654; Start</button>
           <button class="btn btn-ghost btn-sm" id="h-rt">Reset</button>
         </div>
         <div class="timer-set-row">
@@ -348,11 +368,29 @@ h1.brand{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.4rem,4vw,2.4rem);
     </div>
   </div>
 
+  <!-- Host tally overview -->
+  <div class="host-tally" id="h-tally-panel">
+    <div class="ht-counts">
+      <span style="color:#ff8080" id="h-ht-r">0</span>
+      <span style="color:var(--muted);font-size:.7rem;letter-spacing:.1em">ROUND TALLY</span>
+      <span style="color:#80b0ff" id="h-ht-b">0</span>
+    </div>
+    <div class="ht-row">
+      <span class="ht-label" style="color:#ff8080">Red</span>
+      <div class="ht-bar-wrap"><div class="ht-bar-r" id="h-bar-r" style="width:0%"></div></div>
+    </div>
+    <div class="ht-row">
+      <span class="ht-label" style="color:#80b0ff">Blue</span>
+      <div class="ht-bar-wrap"><div class="ht-bar-b" id="h-bar-b" style="width:0%"></div></div>
+    </div>
+    <div class="ht-card-preview" id="h-card-preview">Awaiting tally...</div>
+  </div>
+
   <div class="round-cards" id="h-round-cards"></div>
 
   <div class="scoreboard">
     <div class="fp rp">
-      <span class="ctag">🔴 Red Corner</span>
+      <span class="ctag">&#128308; Red Corner</span>
       <input class="ninput" id="h-rn" value="FIGHTER 1"/>
       <div class="score-lbl" id="h-r-lbl">10-PT TOTAL</div>
       <div class="score-big" id="h-rs">0</div>
@@ -360,7 +398,7 @@ h1.brand{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.4rem,4vw,2.4rem);
     </div>
     <div class="center-panel"><span class="vs-badge">VS</span></div>
     <div class="fp bp">
-      <span class="ctag">🔵 Blue Corner</span>
+      <span class="ctag">&#128309; Blue Corner</span>
       <input class="ninput" id="h-bn" value="FIGHTER 2"/>
       <div class="score-lbl" id="h-b-lbl">10-PT TOTAL</div>
       <div class="score-big" id="h-bs">0</div>
@@ -379,8 +417,8 @@ h1.brand{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.4rem,4vw,2.4rem);
       <div style="display:flex;gap:5px;flex-wrap:wrap;justify-content:center">
         <button class="btn btn-danger btn-sm" id="h-rga">+ Gam-jeom</button>
         <button class="btn btn-orange btn-sm" id="h-rka">+ Kyong-go</button>
-        <button class="btn btn-ghost btn-sm" id="h-rpu">↩ Undo</button>
-        <button class="btn btn-danger btn-sm" id="h-rsc-undo">− Score</button>
+        <button class="btn btn-ghost btn-sm" id="h-rpu">&#8617; Undo</button>
+        <button class="btn btn-danger btn-sm" id="h-rsc-undo">&#8722; Score</button>
       </div>
     </div>
     <div class="tkd-col btkd">
@@ -392,8 +430,8 @@ h1.brand{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.4rem,4vw,2.4rem);
       <div style="display:flex;gap:5px;flex-wrap:wrap;justify-content:center">
         <button class="btn btn-danger btn-sm" id="h-bga">+ Gam-jeom</button>
         <button class="btn btn-orange btn-sm" id="h-bka">+ Kyong-go</button>
-        <button class="btn btn-ghost btn-sm" id="h-bpu">↩ Undo</button>
-        <button class="btn btn-danger btn-sm" id="h-bsc-undo">− Score</button>
+        <button class="btn btn-ghost btn-sm" id="h-bpu">&#8617; Undo</button>
+        <button class="btn btn-danger btn-sm" id="h-bsc-undo">&#8722; Score</button>
       </div>
     </div>
   </div>
@@ -421,10 +459,10 @@ h1.brand{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.4rem,4vw,2.4rem);
   </div>
 
   <div class="action-bar">
-    <button class="btn btn-ghost btn-sm" onclick="toggleTimer()">⏱ Toggle Timer</button>
-    <button class="btn btn-ghost btn-sm" onclick="doNewBout()">↺ New Bout</button>
-    <button class="btn btn-gold btn-sm" id="h-er">⏹ End Round</button>
-    <button class="btn btn-green btn-sm" id="h-dw">🏆 Declare Winner</button>
+    <button class="btn btn-ghost btn-sm" id="h-timer-toggle" onclick="toggleTimer()">&#9201; Toggle Timer</button>
+    <button class="btn btn-ghost btn-sm" onclick="doNewBout()">&#8635; New Bout</button>
+    <button class="btn btn-gold btn-sm" id="h-er">&#9209; End Round</button>
+    <button class="btn btn-green btn-sm" id="h-dw">&#127942; Declare Winner</button>
   </div>
 
   <div class="overlay" id="h-ro">
@@ -432,13 +470,13 @@ h1.brand{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.4rem,4vw,2.4rem);
     <div class="ov-winner" id="h-rw" style="color:var(--gold)"></div>
     <div class="ov-score" id="h-rsc"></div>
     <div class="ov-sub" id="h-rsb"></div>
-    <button class="btn btn-gold" style="margin-top:12px" id="h-nr">▶ Next Round</button>
+    <button class="btn btn-gold" style="margin-top:12px" id="h-nr">&#9654; Next Round</button>
   </div>
   <div class="overlay" id="h-wo">
     <div class="ov-title">Match Winner</div>
     <div class="ov-winner" id="h-wt" style="color:var(--gold)"></div>
     <div class="ov-sub">by Points Decision</div>
-    <button class="btn btn-ghost" style="margin-top:10px" id="h-cw">✕ Close</button>
+    <button class="btn btn-ghost" style="margin-top:10px" id="h-cw">&#10005; Close</button>
   </div>
 </div>
 
@@ -454,12 +492,12 @@ h1.brand{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.4rem,4vw,2.4rem);
   </div>
   <div id="j-hybrid-bar" style="display:none;width:100%;max-width:560px">
     <div class="hybrid-bar" id="j-hbar">
-      <div class="hybrid-seg pending" data-r="1">R1 · Boxing</div>
-      <div class="hybrid-seg pending" data-r="2">R2 · Kickboxing</div>
-      <div class="hybrid-seg pending" data-r="3">R3 · MMA</div>
+      <div class="hybrid-seg pending" data-r="1">R1 &middot; Boxing</div>
+      <div class="hybrid-seg pending" data-r="2">R2 &middot; Kickboxing</div>
+      <div class="hybrid-seg pending" data-r="3">R3 &middot; MMA</div>
     </div>
   </div>
-  <div id="j-nohead-banner" class="nohead-banner" style="display:none">⚠ UNDER-12 · NO HEAD CONTACT</div>
+  <div id="j-nohead-banner" class="nohead-banner" style="display:none">&#9888; UNDER-12 &middot; NO HEAD CONTACT</div>
   <div class="j-strip">
     <div style="text-align:center">
       <div class="j-strip-score r" id="j-rs">0</div>
@@ -471,45 +509,48 @@ h1.brand{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.4rem,4vw,2.4rem);
       <div class="j-strip-label" id="j-bns">FIGHTER 2</div>
     </div>
   </div>
-  <div class="j-tally-area" id="j-tally-area">
-    <div class="j-tally-col" id="j-leftCol"></div>
-    <div class="j-tally-col" id="j-rightCol"></div>
+
+  <!-- Tally area (non-TKD) -->
+  <div class="j-tally-wrap" id="j-tally-wrap">
+    <div class="j-tally-fighters">
+      <div class="j-tally-col" id="j-left-col"></div>
+      <div class="j-tally-col" id="j-right-col"></div>
+    </div>
+    <div class="j-card-preview" id="j-card-preview">
+      <div class="j-card-lbl">Projected Card</div>
+      <div class="j-card-score" id="j-card-score">— vs —</div>
+    </div>
   </div>
-  <div class="j-undo-row" id="j-undo-row">
-    <button class="btn btn-danger btn-sm" id="j-undoL">↩ Undo Left</button>
-    <button class="btn btn-danger btn-sm" id="j-undoR">↩ Undo Right</button>
-  </div>
+
+  <!-- TKD area -->
   <div class="j-tkd-area" id="j-tkd-area" style="display:none">
     <div class="j-tkd-col" id="j-tkd-left"></div>
     <div class="j-tkd-col" id="j-tkd-right"></div>
   </div>
   <div class="j-bonus-row" id="j-bonus-row" style="display:none">
-    <div style="font-size:.68rem;color:var(--muted);letter-spacing:.15em;text-transform:uppercase;width:100%;text-align:center">Bonus — Spinning Kicks (+2)</div>
+    <div style="font-size:.68rem;color:var(--muted);letter-spacing:.15em;text-transform:uppercase;width:100%;text-align:center">Bonus &mdash; Spinning Kicks (+2)</div>
     <button class="btn btn-red" id="j-bonusR">+2 Red</button>
     <button class="btn btn-blue" id="j-bonusB">+2 Blue</button>
   </div>
-  <div class="end-round-banner" id="j-end-banner">⏹ ROUND OVER — SUBMIT YOUR SCORECARD NOW</div>
-  <div class="submitted-banner" id="j-submitted-banner"></div>
-  <div class="j-submit-area" id="j-submit-area">
-    <div style="font-size:.65rem;letter-spacing:.2em;color:var(--muted);text-transform:uppercase;text-align:center">— Submit Round Scorecard —</div>
-    <div class="j-submit-row">
-      <button class="j-score-btn r" id="j-subR9">Red 10–9</button>
-      <button class="j-score-btn draw" id="j-subEven">10–10 Even</button>
-      <button class="j-score-btn b" id="j-subB9">Blue 10–9</button>
-    </div>
-    <div class="j-submit-row">
-      <button class="j-score-btn r" id="j-subR8" style="font-size:.78rem">Red 10–8 Dominant</button>
-      <button class="j-score-btn b" id="j-subB8" style="font-size:.78rem">Blue 10–8 Dominant</button>
-    </div>
+
+  <div class="j-undo-row" id="j-undo-row">
+    <button class="btn btn-danger btn-sm" id="j-undoL">&#8617; Undo Left</button>
+    <button class="btn btn-danger btn-sm" id="j-undoR">&#8617; Undo Right</button>
   </div>
-  <div class="j-flip-btn"><button class="btn btn-ghost btn-sm" id="j-flip">🔄 Swap Red / Blue Sides</button></div>
+
+  <div class="end-round-banner" id="j-end-banner">&#9209; ROUND OVER &mdash; SUBMIT YOUR CARD NOW</div>
+  <div class="submitted-banner" id="j-submitted-banner"></div>
+
+  <button class="submit-btn" id="j-submit-btn" disabled>SUBMIT CARD</button>
+
+  <div class="j-flip-btn"><button class="btn btn-ghost btn-sm" id="j-flip">&#128260; Swap Red / Blue Sides</button></div>
   <div class="j-status" id="j-status"></div>
 </div>
 
 <!-- PUBLIC -->
 <div class="page" id="page-pub">
   <div class="pub-wrap">
-    <h1 class="brand">⚔ Combat Games Series</h1>
+    <h1 class="brand">&#9876; Combat Games Series</h1>
     <div id="p-style-name" style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;letter-spacing:.2em;color:var(--gold);text-align:center"></div>
     <div id="p-timer-wrap" style="display:none;text-align:center">
       <div class="pub-timer" id="p-timer">2:00</div>
@@ -555,41 +596,79 @@ const SES  = params.get("session") || "mat-1";
 const JC   = parseInt(params.get("judges") || "3");
 const AGE  = params.get("age") || "adult";
 
-const FB_CFG = {
-  apiKey:            "AIzaSyAOXZTzYEiWzuRUJMPBfsQ_cfyXCN4qZPQ",
-  authDomain:        "taekwondo-scoreboard-e58ec.firebaseapp.com",
-  databaseURL:       "https://taekwondo-scoreboard-e58ec-default-rtdb.firebaseio.com",
-  projectId:         "taekwondo-scoreboard-e58ec",
-  storageBucket:     "taekwondo-scoreboard-e58ec.firebasestorage.app",
-  messagingSenderId: "860797231977",
-  appId:             "1:860797231977:web:119477bd111e24349453f8"
+const FB = {
+  apiKey:"AIzaSyAOXZTzYEiWzuRUJMPBfsQ_cfyXCN4qZPQ",
+  authDomain:"taekwondo-scoreboard-e58ec.firebaseapp.com",
+  databaseURL:"https://taekwondo-scoreboard-e58ec-default-rtdb.firebaseio.com",
+  projectId:"taekwondo-scoreboard-e58ec",
+  storageBucket:"taekwondo-scoreboard-e58ec.firebasestorage.app",
+  messagingSenderId:"860797231977",
+  appId:"1:860797231977:web:119477bd111e24349453f8"
 };
 
-const STYLE_LABELS = { boxing:"Boxing Light", k1:"K1 Light", mma:"MMA", hybrid:"Hybrid Light", tkd:"Taekwondo" };
-const HYBRID_NAMES = ["Boxing","Kickboxing","MMA"];
-function styleLabel(s){ return STYLE_LABELS[s] || s; }
-function hybridName(r){ return HYBRID_NAMES[r-1] || ""; }
-function mkHash(c){ return "#"+Object.entries(c).map(([k,v])=>`${k}=${encodeURIComponent(v)}`).join("&"); }
-function el(id){ return document.getElementById(id); }
-function T(id,val){ const e=el(id); if(e) e.textContent=val; }
-function I(id,val){ const e=el(id); if(e&&document.activeElement!==e) e.value=val; }
-function v(id){ const e=el(id); return e?e.value.trim():""; }
-function fmt(s){ s=Math.max(0,s||0); return Math.floor(s/60)+":"+String(s%60).padStart(2,"0"); }
+// Style config: label, maxRounds, hybridRounds
+const STYLES = {
+  boxing: {label:"Boxing Light",   rounds:3, hybrid:false},
+  k1:     {label:"K1 Light",       rounds:3, hybrid:false},
+  mma:    {label:"MMA",            rounds:1, hybrid:false},
+  hybrid: {label:"Hybrid Light",   rounds:3, hybrid:true,  hybridNames:["Boxing","Kickboxing","MMA"]},
+  tkd:    {label:"Taekwondo",      rounds:3, hybrid:false}
+};
+
+// Scoring actions per style (non-TKD): {label, pts}
+const ACTIONS = {
+  boxing: [{label:"Clean Strike",pts:1}],
+  k1:     [{label:"Clean Strike",pts:1}],
+  mma:    [{label:"Clean Strike",pts:1},{label:"Takedown",pts:2}],
+  hybrid: {
+    1: [{label:"Clean Strike",pts:1}],
+    2: [{label:"Clean Strike",pts:1}],
+    3: [{label:"Clean Strike",pts:1},{label:"Takedown",pts:2}]
+  }
+};
+
+function styleLabel(s){return STYLES[s]?.label||s;}
+function hybridName(r){return STYLES.hybrid.hybridNames[r-1]||"";}
+function maxRounds(s){return STYLES[s]?.rounds||3;}
+function actionsForRound(style,round){
+  if(style==="hybrid") return ACTIONS.hybrid[round]||ACTIONS.hybrid[1];
+  return ACTIONS[style]||ACTIONS.boxing;
+}
+// Auto card calculation from tally gap
+function calcCard(redTally,blueTally){
+  const gap=Math.abs(redTally-blueTally);
+  const winner=redTally>blueTally?"red":blueTally>redTally?"blue":"draw";
+  const pts=gap>=10?8:9;
+  if(winner==="draw") return {winner:"draw",redPts:10,bluePts:10,label:"10–10 EVEN"};
+  const winPts=10, losePts=pts;
+  return {
+    winner,
+    redPts:winner==="red"?winPts:losePts,
+    bluePts:winner==="blue"?winPts:losePts,
+    label:winner==="red"?`Red 10–${pts}`:`Blue 10–${pts}`
+  };
+}
+
+function mkHash(c){return "#"+Object.entries(c).map(([k,v])=>`${k}=${encodeURIComponent(v)}`).join("&");}
+function el(id){return document.getElementById(id);}
+function T(id,val){const e=el(id);if(e)e.textContent=val;}
+function I(id,val){const e=el(id);if(e&&document.activeElement!==e)e.value=val;}
+function v(id){const e=el(id);return e?e.value.trim():"";}
+function fmt(s){s=Math.max(0,s||0);return Math.floor(s/60)+":"+String(s%60).padStart(2,"0");}
 
 document.querySelectorAll(".page").forEach(e=>e.style.display="none");
-if      (MODE==="host")  { el("page-host").style.display="flex";  initHost(); }
-else if (MODE==="judge") { el("page-judge").style.display="flex"; initJudge(); }
-else if (MODE==="pub")   { el("page-pub").style.display="flex";   initPub(); }
-else                     { el("page-setup").style.display="flex"; initSetup(); }
+if      (MODE==="host")  {el("page-host").style.display="flex";  initHost();}
+else if (MODE==="judge") {el("page-judge").style.display="flex"; initJudge();}
+else if (MODE==="pub")   {el("page-pub").style.display="flex";   initPub();}
+else                     {el("page-setup").style.display="flex"; initSetup();}
 
-// ── SETUP ──────────────────────────────────────────────────────────
+// ── SETUP ──
 function initSetup(){
   setTimeout(()=>el("setupForm").dispatchEvent(new Event("submit",{cancelable:true,bubbles:true})),120);
-  el("setupForm").onsubmit = e => {
+  el("setupForm").onsubmit=e=>{
     e.preventDefault();
-    const ses=v("f-session")||"mat-1", jc=parseInt(el("f-jc").value)||3, age=el("f-age").value;
-    const base=location.origin+location.pathname, hash=mkHash(FB_CFG);
-    const q=`?session=${ses}&judges=${jc}&age=${age}`;
+    const ses=v("f-session")||"mat-1",jc=parseInt(el("f-jc").value)||3,age=el("f-age").value;
+    const base=location.origin+location.pathname,hash=mkHash(FB),q=`?session=${ses}&judges=${jc}&age=${age}`;
     el("link-host").value=`${base}${q}&mode=host${hash}`;
     el("link-j1").value=`${base}${q}&mode=judge&judge=1${hash}`;
     el("link-j2").value=`${base}${q}&mode=judge&judge=2${hash}`;
@@ -598,33 +677,33 @@ function initSetup(){
     el("j1r").style.display="flex";
     el("j2r").style.display=jc>=2?"flex":"none";
     el("j3r").style.display=jc>=3?"flex":"none";
-    T("linkNote", jc===1?"⚡ 1 judge — result applies as soon as they submit their card."
-      :jc===2?"⚡ Both judges submit a scorecard each round — majority decides."
-      :"⚡ All 3 judges submit a scorecard each round — 2 of 3 decides the round.");
+    T("linkNote",jc===1?"1 judge — result applies as soon as they submit."
+      :jc===2?"Both judges submit each round — majority decides."
+      :"All 3 judges submit — 2 of 3 decides the round.");
     el("generatedLinks").style.display="block";
     generateQRCodes([
-      {label:"🖥 Host",   sublabel:"Full controls",  url:el("link-host").value,color:"#b8860b"},
-      ...(jc>=1?[{label:"👁 Judge 1",sublabel:"Scoring pad",url:el("link-j1").value,color:"#9b1414"}]:[]),
-      ...(jc>=2?[{label:"👁 Judge 2",sublabel:"Scoring pad",url:el("link-j2").value,color:"#9b1414"}]:[]),
-      ...(jc>=3?[{label:"👁 Judge 3",sublabel:"Scoring pad",url:el("link-j3").value,color:"#9b1414"}]:[]),
-      {label:"📺 Public", sublabel:"Display screen", url:el("link-pub").value, color:"#0f4a8e"},
+      {label:"Host",sublabel:"Full controls",url:el("link-host").value,color:"#b8860b"},
+      ...(jc>=1?[{label:"Judge 1",sublabel:"Scoring pad",url:el("link-j1").value,color:"#9b1414"}]:[]),
+      ...(jc>=2?[{label:"Judge 2",sublabel:"Scoring pad",url:el("link-j2").value,color:"#9b1414"}]:[]),
+      ...(jc>=3?[{label:"Judge 3",sublabel:"Scoring pad",url:el("link-j3").value,color:"#9b1414"}]:[]),
+      {label:"Public",sublabel:"Display screen",url:el("link-pub").value,color:"#0f4a8e"},
     ]);
   };
 }
 
-// ── HOST ───────────────────────────────────────────────────────────
-let db, timerRunning=false, timerInterval=null, lastTick=null, cachedSecs=120;
+// ── HOST ──
+let db,timerRunning=false,timerInterval=null,lastTick=null,cachedSecs=120;
 
 function initHost(){
-  const app=initializeApp(FB_CFG,"host");
+  const app=initializeApp(FB,"host");
   db=getDatabase(app);
-
   if(AGE==="u12") el("h-nohead").style.display="block";
 
-  el("h-ss").onclick=async()=>{ const r=ref(db,`sessions/${SES}/state/timerRunning`); await set(r,!(await get(r)).val()); };
+  // wire up controls
+  el("h-ss").onclick=async()=>{const r=ref(db,`sessions/${SES}/state/timerRunning`);await set(r,!(await get(r)).val());};
   el("h-rt").onclick=()=>doResetTimer();
   el("h-st").onclick=async()=>{
-    const m=parseInt(el("h-tm").value)||0, s2=parseInt(el("h-ts").value)||0, t=m*60+s2;
+    const m=parseInt(el("h-tm").value)||0,s2=parseInt(el("h-ts").value)||0,t=m*60+s2;
     await set(ref(db,`sessions/${SES}/state/timerMax`),t);
     await set(ref(db,`sessions/${SES}/state/timerSeconds`),t);
     await set(ref(db,`sessions/${SES}/state/timerRunning`),false);
@@ -634,7 +713,7 @@ function initHost(){
   el("h-er").onclick=()=>endRound();
   el("h-dw").onclick=()=>declareWinner();
   el("h-nr").onclick=()=>el("h-ro").classList.remove("show");
-  el("h-cw").onclick=async()=>{ await set(ref(db,`sessions/${SES}/state/winner`),""); el("h-wo").classList.remove("show"); };
+  el("h-cw").onclick=async()=>{await set(ref(db,`sessions/${SES}/state/winner`),"");el("h-wo").classList.remove("show");};
   el("h-rn").oninput=e=>set(ref(db,`sessions/${SES}/state/redName`),e.target.value);
   el("h-bn").oninput=e=>set(ref(db,`sessions/${SES}/state/blueName`),e.target.value);
   el("h-rga").onclick=()=>addGam("red");
@@ -646,59 +725,62 @@ function initHost(){
   el("h-rsc-undo").onclick=()=>chScore("red",-1);
   el("h-bsc-undo").onclick=()=>chScore("blue",-1);
 
-  get(ref(db,`sessions/${SES}/state`)).then(s=>{ if(!s.exists()) initState("boxing"); });
-  onValue(ref(db,`sessions/${SES}/state`),snap=>{ if(snap.exists()) renderHost(snap.val()); });
-  onValue(ref(db,`sessions/${SES}/judgeCards`),snap=>{ const c=snap.val()||{}; renderJudgePills(c); tryProcessCards(c); });
+  get(ref(db,`sessions/${SES}/state`)).then(s=>{if(!s.exists())initState("boxing");});
+  onValue(ref(db,`sessions/${SES}/state`),snap=>{if(snap.exists())renderHost(snap.val());});
+  onValue(ref(db,`sessions/${SES}/judgeCards`),snap=>{const c=snap.val()||{};renderJudgePills(c);tryProcessCards(c);});
+  onValue(ref(db,`sessions/${SES}/tallies`),snap=>{renderHostTallies(snap.val()||{});});
 
   // Timer engine
   onValue(ref(db,`sessions/${SES}/state`),snap=>{
-    if(!snap.exists()) return;
-    const s=snap.val(); cachedSecs=s.timerSeconds??120;
+    if(!snap.exists())return;
+    const s=snap.val();cachedSecs=s.timerSeconds??120;
     if(s.timerRunning&&!timerRunning){
-      timerRunning=true; lastTick=Date.now();
+      timerRunning=true;lastTick=Date.now();
       timerInterval=setInterval(async()=>{
         const elapsed=Math.floor((Date.now()-lastTick)/1000);
-        if(elapsed<1) return;
-        lastTick=Date.now(); cachedSecs=Math.max(0,cachedSecs-elapsed);
+        if(elapsed<1)return;
+        lastTick=Date.now();cachedSecs=Math.max(0,cachedSecs-elapsed);
         await set(ref(db,`sessions/${SES}/state/timerSeconds`),cachedSecs);
-        if(cachedSecs<=0) await set(ref(db,`sessions/${SES}/state/timerRunning`),false);
+        if(cachedSecs<=0)await set(ref(db,`sessions/${SES}/state/timerRunning`),false);
       },250);
-    } else if(!s.timerRunning&&timerRunning){ clearInterval(timerInterval); timerRunning=false; }
+    }else if(!s.timerRunning&&timerRunning){clearInterval(timerInterval);timerRunning=false;}
   });
 }
 
 function initState(style){
   set(ref(db,`sessions/${SES}/state`),{
-    redName:"FIGHTER 1", blueName:"FIGHTER 2",
-    redScore:0, blueScore:0,
-    redGam:0, blueGam:0, redKyong:0, blueKyong:0,
-    redDeductions:0, blueDeductions:0,
-    round:1, style:style||"boxing",
-    timerSeconds:120, timerMax:120, timerRunning:false, timerVisible:false,
-    winner:"", roundResults:[], roundEnded:0
+    redName:"FIGHTER 1",blueName:"FIGHTER 2",
+    redScore:0,blueScore:0,
+    redGam:0,blueGam:0,redKyong:0,blueKyong:0,
+    redDeductions:0,blueDeductions:0,
+    round:1,style:style||"boxing",
+    timerSeconds:120,timerMax:120,timerRunning:false,timerVisible:false,
+    winner:"",roundResults:[],roundEnded:0
   });
   set(ref(db,`sessions/${SES}/judgeCards`),null);
+  set(ref(db,`sessions/${SES}/tallies`),null);
 }
 
 function renderHost(s){
   const style=s.style||"boxing";
   const isTKD=style==="tkd";
-  if(el("h-style-sel").value!==style) el("h-style-sel").value=style;
-  T("h-subtitle", styleLabel(style)+" · Host View");
-  T("h-rs",s.redScore??0); T("h-bs",s.blueScore??0);
+  if(el("h-style-sel").value!==style)el("h-style-sel").value=style;
+  T("h-subtitle",styleLabel(style)+" · Host View");
+  T("h-rs",s.redScore??0);T("h-bs",s.blueScore??0);
   T("h-round",s.round??1);
-  I("h-rn",s.redName||"FIGHTER 1"); I("h-bn",s.blueName||"FIGHTER 2");
+  I("h-rn",s.redName||"FIGHTER 1");I("h-bn",s.blueName||"FIGHTER 2");
   T("h-rpn",(s.redName||"FIGHTER 1").toUpperCase());
   T("h-bpn",(s.blueName||"FIGHTER 2").toUpperCase());
   T("h-r-lbl",isTKD?"SCORE":"10-PT TOTAL");
   T("h-b-lbl",isTKD?"SCORE":"10-PT TOTAL");
   el("h-tkd-panel").style.display=isTKD?"grid":"none";
   el("h-pen-panel").style.display=isTKD?"none":"grid";
+  el("h-tally-panel").style.display=isTKD?"none":"flex";
   if(isTKD){
-    T("h-rg",s.redGam??0); T("h-bg",s.blueGam??0);
-    T("h-rk",s.redKyong??0); T("h-bk",s.blueKyong??0);
-    el("h-rpen-status").textContent=""; el("h-bpen-status").textContent="";
-  } else {
+    T("h-rg",s.redGam??0);T("h-bg",s.blueGam??0);
+    T("h-rk",s.redKyong??0);T("h-bk",s.blueKyong??0);
+    el("h-rpen-status").textContent="";el("h-bpen-status").textContent="";
+  }else{
     renderPenStatus("h-rpen-status",s.redDeductions||0);
     renderPenStatus("h-bpen-status",s.blueDeductions||0);
     renderPenStatus("h-rpen2",s.redDeductions||0);
@@ -712,25 +794,44 @@ function renderHost(s){
       seg.className="hybrid-seg "+(sr<r?"done":sr===r?"active":"pending");
     });
     T("h-ruleset-lbl","R"+(s.round??1)+": "+hybridName(s.round??1));
-  } else { T("h-ruleset-lbl",""); }
+  }else{T("h-ruleset-lbl","");}
+  // Timer visibility — read from state
   el("h-timer-block").style.display=s.timerVisible?"flex":"none";
   T("h-timer",fmt(s.timerSeconds??120));
   el("h-timer").classList.toggle("warning",(s.timerSeconds??120)<=30);
   el("h-ss").textContent=s.timerRunning?"⏸ Pause":"▶ Start";
   renderRoundCards(s.roundResults||[],s.round??1,style);
-  if(s.winner){ T("h-wt",s.winner); el("h-wo").classList.add("show"); }
+  if(s.winner){T("h-wt",s.winner);el("h-wo").classList.add("show");}
+}
+
+function renderHostTallies(tallies){
+  // Sum all judge tallies for display
+  let redTotal=0,blueTotal=0;
+  Object.values(tallies).forEach(t=>{redTotal+=t.red||0;blueTotal+=t.blue||0;});
+  const avg=Object.keys(tallies).length||1;
+  const redAvg=Math.round(redTotal/avg),blueAvg=Math.round(blueTotal/avg);
+  T("h-ht-r",redTotal);T("h-ht-b",blueTotal);
+  const maxVal=Math.max(redTotal,blueTotal,1);
+  const rPct=Math.min(100,(redTotal/maxVal)*50);
+  const bPct=Math.min(100,(blueTotal/maxVal)*50);
+  const rb=el("h-bar-r"),bb=el("h-bar-b");
+  if(rb)rb.style.width=rPct+"%";
+  if(bb)bb.style.width=bPct+"%";
+  if(redTotal===0&&blueTotal===0){T("h-card-preview","Awaiting tally...");return;}
+  const card=calcCard(redTotal,blueTotal);
+  T("h-card-preview","Projected: "+card.label);
 }
 
 function renderPenStatus(id,deductions){
-  const e=el(id); if(!e) return;
-  if(!deductions){ e.textContent=""; e.className="pen-status clean"; }
-  else if(deductions===1){ e.textContent="⚠ 1 Point Deducted"; e.className="pen-status deducted"; }
-  else { e.textContent="⚠ DQ — 2 Deductions"; e.className="pen-status dq"; }
+  const e=el(id);if(!e)return;
+  if(!deductions){e.textContent="";e.className="pen-status clean";}
+  else if(deductions===1){e.textContent="⚠ 1 Point Deducted";e.className="pen-status deducted";}
+  else{e.textContent="⚠ DQ — 2 Deductions";e.className="pen-status dq";}
 }
 
 function renderJudgePills(cards){
-  const c=el("h-judge-pills"); if(!c) return;
-  const now=Date.now(); let html="";
+  const c=el("h-judge-pills");if(!c)return;
+  const now=Date.now();let html="";
   for(let j=1;j<=JC;j++){
     const card=cards["judge"+j];
     const fresh=card&&(now-card.ts)<300000;
@@ -742,9 +843,9 @@ function renderJudgePills(cards){
 }
 
 function renderRoundCards(results,currentRound,style){
-  const c=el("h-round-cards"); if(!c) return;
-  let html="";
-  for(let r=1;r<=3;r++){
+  const c=el("h-round-cards");if(!c)return;
+  const mr=maxRounds(style);let html="";
+  for(let r=1;r<=mr;r++){
     const res=results[r-1];
     const active=r===currentRound;
     const sub=style==="hybrid"?" · "+hybridName(r):"";
@@ -752,81 +853,77 @@ function renderRoundCards(results,currentRound,style){
     if(res){
       const col=res.winner==="red"?"var(--red)":res.winner==="blue"?"var(--blue)":"var(--gold)";
       html+=`<div class="rc-score" style="color:${col}">${res.red}–${res.blue}</div>`;
-    } else { html+=`<div class="rc-score" style="color:var(--muted)">—</div>`; }
+    }else{html+=`<div class="rc-score" style="color:var(--muted)">—</div>`;}
     html+="</div>";
   }
   c.innerHTML=html;
 }
 
 async function tryProcessCards(cards){
-  if(!cards||!Object.keys(cards).length) return;
+  if(!cards||!Object.keys(cards).length)return;
   const stSnap=await get(ref(db,`sessions/${SES}/state`));
-  if(!stSnap.exists()) return;
+  if(!stSnap.exists())return;
   const st=stSnap.val();
   const style=st.style||"boxing";
-  if(style==="tkd"){ await procTKDVotes(st,cards); return; }
-  const currentRound=st.round||1, now=Date.now();
+  if(style==="tkd"){await procTKDVotes(st,cards);return;}
+  const currentRound=st.round||1,now=Date.now();
   const fresh=Object.values(cards).filter(c=>c.round===currentRound&&(now-c.ts)<300000);
-  if(fresh.length<JC) return;
-  const votes={red:0,blue:0,draw:0}, pts8={red:0,blue:0};
-  fresh.forEach(c=>{ votes[c.winner]=(votes[c.winner]||0)+1; if(c.pts==="8") pts8[c.winner]=(pts8[c.winner]||0)+1; });
-  const need=JC===1?1:2;
-  let winner="draw", pts="9";
-  if(votes.red>=need){ winner="red"; pts=pts8.red>=need?"8":"9"; }
-  else if(votes.blue>=need){ winner="blue"; pts=pts8.blue>=need?"8":"9"; }
-  await applyRoundResult(st,winner,pts);
+  if(fresh.length<JC)return;
+  // Average the tallies from all judges
+  const avgRed=Math.round(fresh.reduce((a,c)=>a+(c.redTally||0),0)/fresh.length);
+  const avgBlue=Math.round(fresh.reduce((a,c)=>a+(c.blueTally||0),0)/fresh.length);
+  const card=calcCard(avgRed,avgBlue);
+  // Apply any deductions
+  let rPts=card.redPts,bPts=card.bluePts;
+  if(card.winner==="red") rPts=Math.max(0,rPts-(st.redDeductions||0));
+  if(card.winner==="blue") bPts=Math.max(0,bPts-(st.blueDeductions||0));
+  await applyRoundResult(st,card.winner,rPts,bPts);
   await set(ref(db,`sessions/${SES}/judgeCards`),null);
+  await set(ref(db,`sessions/${SES}/tallies`),null);
 }
 
-async function applyRoundResult(st,winner,pts){
+async function applyRoundResult(st,winner,redPts,bluePts){
   const round=st.round||1;
   const results=[...(st.roundResults||[])];
-  let redPts=winner==="red"?10:winner==="draw"?10:parseInt(pts)||9;
-  let bluePts=winner==="blue"?10:winner==="draw"?10:parseInt(pts)||9;
-  // Apply point deductions to the winning score
-  const rDed=st.redDeductions||0, bDed=st.blueDeductions||0;
-  if(winner==="red") redPts=Math.max(0,redPts-rDed);
-  if(winner==="blue") bluePts=Math.max(0,bluePts-bDed);
   results[round-1]={red:redPts,blue:bluePts,winner};
-  let redTotal=0, blueTotal=0;
-  results.forEach(r=>{ if(r){ redTotal+=r.red; blueTotal+=r.blue; } });
+  let redTotal=0,blueTotal=0;
+  results.forEach(r=>{if(r){redTotal+=r.red;blueTotal+=r.blue;}});
   await set(ref(db,`sessions/${SES}/state/roundResults`),results);
   await set(ref(db,`sessions/${SES}/state/redScore`),redTotal);
   await set(ref(db,`sessions/${SES}/state/blueScore`),blueTotal);
   await set(ref(db,`sessions/${SES}/state/redDeductions`),0);
   await set(ref(db,`sessions/${SES}/state/blueDeductions`),0);
-  const rn=st.redName||"RED", bn=st.blueName||"BLUE";
+  const rn=st.redName||"RED",bn=st.blueName||"BLUE";
   const wname=winner==="draw"?"DRAW":(winner==="red"?rn:bn).toUpperCase()+" WINS ROUND!";
   const wcol=winner==="red"?"var(--red)":winner==="blue"?"var(--blue)":"var(--gold)";
-  el("h-rw").textContent=wname; el("h-rw").style.color=wcol;
+  el("h-rw").textContent=wname;el("h-rw").style.color=wcol;
   T("h-rsc",`${redPts} – ${bluePts}`);
-  T("h-rsb",round>=3?"3 rounds complete — declare winner below":"Next: Round "+(round+1));
+  const mr=maxRounds(st.style||"boxing");
+  T("h-rsb",round>=mr?"Complete — declare winner below":"Next: Round "+(round+1));
   el("h-ro").classList.add("show");
-  if(round<3){
+  if(round<mr){
     await set(ref(db,`sessions/${SES}/state/round`),round+1);
     await set(ref(db,`sessions/${SES}/judgeCards`),null);
+    await set(ref(db,`sessions/${SES}/tallies`),null);
     await doResetTimer();
   }
 }
 
 async function endRound(){
-  // Signal judges
   await set(ref(db,`sessions/${SES}/state/roundEnded`),Date.now());
   const stSnap=await get(ref(db,`sessions/${SES}/state`));
-  if(!stSnap.exists()) return;
+  if(!stSnap.exists())return;
   const st=stSnap.val();
   if(st.style==="tkd"){
-    // TKD: end round based on current scores
-    const rs=st.redScore||0, bs=st.blueScore||0;
+    const rs=st.redScore||0,bs=st.blueScore||0;
     const winner=rs>bs?"red":bs>rs?"blue":"draw";
     const results=[...(st.roundResults||[])];
     const round=st.round||1;
     results[round-1]={red:rs,blue:bs,winner};
     const rn=st.redName||"RED",bn=st.blueName||"BLUE";
     const wname=winner==="draw"?"DRAW":(winner==="red"?rn:bn).toUpperCase()+" WINS ROUND!";
-    el("h-rw").textContent=wname; el("h-rw").style.color=winner==="red"?"var(--red)":winner==="blue"?"var(--blue)":"var(--gold)";
-    T("h-rsc",`${rs} – ${bs}`);
-    T("h-rsb",round>=3?"Complete — declare winner":"Next: Round "+(round+1));
+    el("h-rw").textContent=wname;el("h-rw").style.color=winner==="red"?"var(--red)":winner==="blue"?"var(--blue)":"var(--gold)";
+    T("h-rsc",`${rs} – ${bs}`);T("h-rsb",round>=3?"Complete":"Next: Round "+(round+1));
     el("h-ro").classList.add("show");
     await set(ref(db,`sessions/${SES}/state/roundResults`),results);
     if(round<3){
@@ -841,14 +938,13 @@ async function endRound(){
       await doResetTimer();
     }
   }
-  // For 10pt styles: judge cards will come in — wait for tryProcessCards
+  // For 10pt styles judges will submit — tryProcessCards handles it
 }
 
 async function declareWinner(){
-  const stSnap=await get(ref(db,`sessions/${SES}/state`));
-  if(!stSnap.exists()) return;
+  const stSnap=await get(ref(db,`sessions/${SES}/state`));if(!stSnap.exists())return;
   const s=stSnap.val();
-  const r=s.redScore||0, b=s.blueScore||0;
+  const r=s.redScore||0,b=s.blueScore||0;
   const msg=r>b?(s.redName||"RED").toUpperCase()+" WINS!":b>r?(s.blueName||"BLUE").toUpperCase()+" WINS!":"IT'S A DRAW!";
   await set(ref(db,`sessions/${SES}/state/winner`),msg);
 }
@@ -856,121 +952,88 @@ async function declareWinner(){
 window.applyDeduct=async function(side){
   const r=ref(db,`sessions/${SES}/state/${side}Deductions`);
   const cur=(await get(r)).val()||0;
-  if(cur>=1){ window.applyDQ(side); return; }
+  if(cur>=1){window.applyDQ(side);return;}
   await set(r,cur+1);
 };
-
 window.applyDQ=async function(side){
-  const stSnap=await get(ref(db,`sessions/${SES}/state`));
-  const s=stSnap.val();
+  const stSnap=await get(ref(db,`sessions/${SES}/state`));const s=stSnap.val();
   const winner=side==="red"?"blue":"red";
-  const wname=(winner==="red"?s.redName||"RED":s.blueName||"BLUE").toUpperCase()+" WINS BY DQ!";
-  await set(ref(db,`sessions/${SES}/state/winner`),wname);
+  await set(ref(db,`sessions/${SES}/state/winner`),(winner==="red"?s.redName||"RED":s.blueName||"BLUE").toUpperCase()+" WINS BY DQ!");
 };
 
-async function chScore(side,d){
-  const r=ref(db,`sessions/${SES}/state/${side}Score`);
-  await set(r,Math.max(0,((await get(r)).val()||0)+d));
-}
-async function addGam(side){
-  const opp=side==="red"?"blue":"red";
-  const r=ref(db,`sessions/${SES}/state/${side}Gam`);
-  const n=((await get(r)).val()||0)+1; await set(r,n); await chScore(opp,1);
-}
-async function addKyong(side){
-  const opp=side==="red"?"blue":"red";
-  const r=ref(db,`sessions/${SES}/state/${side}Kyong`);
-  const n=((await get(r)).val()||0)+1; await set(r,n);
-  if(n%2===0) await chScore(opp,1);
-}
+async function chScore(side,d){const r=ref(db,`sessions/${SES}/state/${side}Score`);await set(r,Math.max(0,((await get(r)).val()||0)+d));}
+async function addGam(side){const opp=side==="red"?"blue":"red";const r=ref(db,`sessions/${SES}/state/${side}Gam`);const n=((await get(r)).val()||0)+1;await set(r,n);await chScore(opp,1);}
+async function addKyong(side){const opp=side==="red"?"blue":"red";const r=ref(db,`sessions/${SES}/state/${side}Kyong`);const n=((await get(r)).val()||0)+1;await set(r,n);if(n%2===0)await chScore(opp,1);}
 async function undoPen(side){
   const gr=ref(db,`sessions/${SES}/state/${side}Gam`),kr=ref(db,`sessions/${SES}/state/${side}Kyong`);
   const gv=(await get(gr)).val()||0,kv=(await get(kr)).val()||0;
-  if(gv>0) await set(gr,gv-1); else if(kv>0) await set(kr,kv-1);
+  if(gv>0)await set(gr,gv-1);else if(kv>0)await set(kr,kv-1);
 }
 async function procTKDVotes(st,cards){
-  const now=Date.now(), byJ={};
-  Object.entries(cards).forEach(([k,v2])=>{ if(now-v2.ts<3000){if(!byJ[v2.jid]||v2.ts>byJ[v2.jid].ts)byJ[v2.jid]=v2;} });
+  const now=Date.now(),byJ={};
+  Object.entries(cards).forEach(([k,v2])=>{if(now-v2.ts<3000){if(!byJ[v2.jid]||v2.ts>byJ[v2.jid].ts)byJ[v2.jid]=v2;}});
   const sides={red:[],blue:[]};
-  Object.values(byJ).forEach(v2=>{ if(sides[v2.side])sides[v2.side].push(v2); });
+  Object.values(byJ).forEach(v2=>{if(sides[v2.side])sides[v2.side].push(v2);});
   const need=JC===1?1:2;
   for(const side of["red","blue"]){
     if(sides[side].length>=need){
       const pts=Math.round(sides[side].reduce((a,v2)=>a+(v2.pts||1),0)/sides[side].length);
-      await chScore(side,pts);
-      await set(ref(db,`sessions/${SES}/judgeCards`),null);
-      return;
+      await chScore(side,pts);await set(ref(db,`sessions/${SES}/judgeCards`),null);return;
     }
   }
-  const fr={};
-  Object.entries(cards).forEach(([k,v2])=>{ if(now-v2.ts<3000)fr[k]=v2; });
-  if(Object.keys(fr).length!==Object.keys(cards).length)
-    await set(ref(db,`sessions/${SES}/judgeCards`),Object.keys(fr).length?fr:null);
+  const fr={};Object.entries(cards).forEach(([k,v2])=>{if(now-v2.ts<3000)fr[k]=v2;});
+  if(Object.keys(fr).length!==Object.keys(cards).length)await set(ref(db,`sessions/${SES}/judgeCards`),Object.keys(fr).length?fr:null);
 }
-async function adjRound(d){
-  const r=ref(db,`sessions/${SES}/state/round`);
-  const cur=(await get(r)).val()||1;
-  await set(r,Math.max(1,Math.min(3,cur+d)));
-}
-async function doResetTimer(){
-  const maxSnap=await get(ref(db,`sessions/${SES}/state/timerMax`));
-  const max=maxSnap.val()||120;
-  await set(ref(db,`sessions/${SES}/state/timerSeconds`),max);
-  await set(ref(db,`sessions/${SES}/state/timerRunning`),false);
-}
+async function adjRound(d){const r=ref(db,`sessions/${SES}/state/round`);const cur=(await get(r)).val()||1;await set(r,Math.max(1,Math.min(9,cur+d)));}
+async function doResetTimer(){const maxSnap=await get(ref(db,`sessions/${SES}/state/timerMax`));const max=maxSnap.val()||120;await set(ref(db,`sessions/${SES}/state/timerSeconds`),max);await set(ref(db,`sessions/${SES}/state/timerRunning`),false);}
+
 window.toggleTimer=async function(){
   const r=ref(db,`sessions/${SES}/state/timerVisible`);
-  await set(r,!((await get(r)).val()||false));
+  const cur=(await get(r)).val();
+  await set(r,!cur);
 };
-window.doNewBout=function(){
-  if(!confirm("Start new bout? This clears all scores.")) return;
-  initState(el("h-style-sel")?.value||"boxing");
-};
-window.onStyleChange=function(){
-  const style=el("h-style-sel").value;
-  if(!confirm("Change to "+styleLabel(style)+"? This resets scores.")) return;
-  initState(style);
-};
+window.doNewBout=function(){if(!confirm("Start new bout? Clears all scores."))return;initState(el("h-style-sel")?.value||"boxing");};
+window.onStyleChange=function(){const style=el("h-style-sel").value;if(!confirm("Change to "+styleLabel(style)+"? Resets scores."))return;initState(style);};
 
-// ── JUDGE ──────────────────────────────────────────────────────────
+// ── JUDGE ──
 function initJudge(){
-  const app=initializeApp(FB_CFG,"judge"+JID), db2=getDatabase(app);
-  let flipped=false, redTally=0, blueTally=0, currentRound=1, submitted=false;
-  let rn="Fighter 1", bn="Fighter 2", currentStyle="boxing";
+  const app=initializeApp(FB,"judge"+JID);const db2=getDatabase(app);
+  let flipped=false,currentRound=1,submitted=false;
+  let rn="Fighter 1",bn="Fighter 2",currentStyle="boxing";
+  // Per-side tally stored locally
+  let tally={red:0,blue:0};
 
   T("j-badge","JUDGE "+JID);
-  if(AGE==="u12") el("j-nohead-banner").style.display="block";
+  if(AGE==="u12")el("j-nohead-banner").style.display="block";
 
   onValue(ref(db2,`sessions/${SES}/state`),snap=>{
-    if(!snap.exists()) return;
+    if(!snap.exists())return;
     const s=snap.val();
-    currentStyle=s.style||"boxing";
+    const newStyle=s.style||"boxing";
+    const styleChanged=newStyle!==currentStyle;
+    currentStyle=newStyle;
     const isTKD=currentStyle==="tkd";
-    T("j-rs",s.redScore??0); T("j-bs",s.blueScore??0);
+    T("j-rs",s.redScore??0);T("j-bs",s.blueScore??0);
     T("j-round",s.round??1);
-    rn=s.redName||"Fighter 1"; bn=s.blueName||"Fighter 2";
-    T("j-rns",rn.toUpperCase()); T("j-bns",bn.toUpperCase());
+    rn=s.redName||"Fighter 1";bn=s.blueName||"Fighter 2";
+    T("j-rns",rn.toUpperCase());T("j-bns",bn.toUpperCase());
     T("j-style-tag","· "+styleLabel(currentStyle));
-    if(s.timerVisible){
-      el("j-timer").style.display="inline";
-      T("j-timer",fmt(s.timerSeconds??120));
-      el("j-timer").classList.toggle("warning",(s.timerSeconds??120)<=30);
-    } else { el("j-timer").style.display="none"; }
-    el("j-tally-area").style.display=isTKD?"none":"grid";
+    if(s.timerVisible){el("j-timer").style.display="inline";T("j-timer",fmt(s.timerSeconds??120));el("j-timer").classList.toggle("warning",(s.timerSeconds??120)<=30);}
+    else{el("j-timer").style.display="none";}
+    el("j-tally-wrap").style.display=isTKD?"none":"flex";
     el("j-undo-row").style.display=isTKD?"none":"flex";
-    el("j-submit-area").style.display=isTKD?"none":"flex";
+    el("j-submit-btn").style.display=isTKD?"none":"block";
     el("j-tkd-area").style.display=isTKD?"grid":"none";
     el("j-bonus-row").style.display=(isTKD&&JC===1)?"flex":"none";
-    if((s.round??1)!==currentRound){
-      currentRound=s.round??1; redTally=0; blueTally=0; submitted=false;
-      setSubmitEnabled(true);
+    // New round or style change — reset
+    if((s.round??1)!==currentRound||styleChanged){
+      currentRound=s.round??1;
+      tally={red:0,blue:0};submitted=false;
+      el("j-submit-btn").disabled=false;el("j-submit-btn").style.opacity="1";
       el("j-submitted-banner").style.display="none";
       el("j-end-banner").style.display="none";
     }
-    // End round signal from host
-    if(s.roundEnded&&!submitted&&!isTKD){
-      if(Date.now()-s.roundEnded<60000) el("j-end-banner").style.display="block";
-    }
+    if(s.roundEnded&&!submitted&&!isTKD){if(Date.now()-s.roundEnded<60000)el("j-end-banner").style.display="block";}
     el("j-hybrid-bar").style.display=currentStyle==="hybrid"?"block":"none";
     if(currentStyle==="hybrid"){
       document.querySelectorAll("#j-hbar .hybrid-seg").forEach(seg=>{
@@ -978,143 +1041,201 @@ function initJudge(){
         seg.className="hybrid-seg "+(sr<currentRound?"done":sr===currentRound?"active":"pending");
       });
     }
-    if(isTKD) buildTKDButtons(db2,flipped,rn,bn);
-    else buildTallyButtons(flipped,rn,bn);
+    if(isTKD)buildTKDButtons(db2,flipped,rn,bn);
+    else buildTallyUI(flipped,rn,bn);
   });
 
+  // TKD vote count listener
   onValue(ref(db2,`sessions/${SES}/judgeCards`),snap=>{
-    if(currentStyle!=="tkd") return;
-    const votes=snap.val()||{}, now=Date.now();
+    if(currentStyle!=="tkd")return;
+    const votes=snap.val()||{},now=Date.now();
     let rv=0,bv=0;
-    Object.values(votes).forEach(v2=>{ if(now-v2.ts<3000){if(v2.side==="red")rv++;else bv++;} });
-    const rvc=el("vc-red"); if(rvc) rvc.textContent=rv?`${rv}/${JC} judges`:"";
-    const bvc=el("vc-blue"); if(bvc) bvc.textContent=bv?`${bv}/${JC} judges`:"";
+    Object.values(votes).forEach(v2=>{if(now-v2.ts<3000){if(v2.side==="red")rv++;else bv++;}});
+    const rvc=el("vc-red");if(rvc)rvc.textContent=rv?`${rv}/${JC} judges`:"";
+    const bvc=el("vc-blue");if(bvc)bvc.textContent=bv?`${bv}/${JC} judges`:"";
   });
 
-  function buildTallyButtons(flip,rn2,bn2){
-    const lside=flip?"blue":"red", rside=flip?"red":"blue";
-    const lname=flip?bn2:rn2, rname=flip?rn2:bn2;
-    const lc=lside==="red"?"r":"b", rc=rside==="red"?"r":"b";
-    const lVal=lside==="red"?redTally:blueTally, rVal=rside==="red"?redTally:blueTally;
-    const lCol=el("j-leftCol"), rCol=el("j-rightCol");
-    lCol.innerHTML=""; rCol.innerHTML="";
-    const lt=document.createElement("div"); lt.className=`j-name-tag ${lc}`; lt.textContent=lname; lCol.appendChild(lt);
-    const rt=document.createElement("div"); rt.className=`j-name-tag ${rc}`; rt.textContent=rname; rCol.appendChild(rt);
-    lCol.appendChild(mkTallyBtn(lc,lVal,()=>{ if(lside==="red")redTally++;else blueTally++; refreshSubmitLabels(); buildTallyButtons(flip,rn2,bn2); }));
-    rCol.appendChild(mkTallyBtn(rc,rVal,()=>{ if(rside==="red")redTally++;else blueTally++; refreshSubmitLabels(); buildTallyButtons(flip,rn2,bn2); }));
-    refreshSubmitLabels();
+  function buildTallyUI(flip,rn2,bn2){
+    const lside=flip?"blue":"red",rside=flip?"red":"blue";
+    const lname=flip?bn2:rn2,rname=flip?rn2:bn2;
+    const lc=lside==="red"?"r":"b",rc=rside==="red"?"r":"b";
+    const lVal=tally[lside],rVal=tally[rside];
+    const lCol=el("j-left-col"),rCol=el("j-right-col");
+    lCol.innerHTML="";rCol.innerHTML="";
+
+    // Name tag
+    const lt=document.createElement("div");lt.className=`j-name-tag ${lc}`;lt.textContent=lname;lCol.appendChild(lt);
+    const rt=document.createElement("div");rt.className=`j-name-tag ${rc}`;rt.textContent=rname;rCol.appendChild(rt);
+
+    // Tally count display
+    const lCount=document.createElement("div");lCount.className=`j-tally-count ${lc}`;lCount.textContent=lVal;lCol.appendChild(lCount);
+    const rCount=document.createElement("div");rCount.className=`j-tally-count ${rc}`;rCount.textContent=rVal;rCol.appendChild(rCount);
+
+    // Action buttons for this style/round
+    const actions=actionsForRound(currentStyle,currentRound);
+    const lBtns=document.createElement("div");lBtns.className="j-action-btns";
+    const rBtns=document.createElement("div");rBtns.className="j-action-btns";
+    actions.forEach(action=>{
+      const lb=mkActionBtn(lc,action,lside);
+      const rb=mkActionBtn(rc,action,rside);
+      lBtns.appendChild(lb);rBtns.appendChild(rb);
+    });
+    lCol.appendChild(lBtns);rCol.appendChild(rBtns);
+    updateCardPreview();
+    updateSubmitBtn();
   }
-  function mkTallyBtn(color,val,cb){
+
+  function mkActionBtn(color,action,side){
     const b=document.createElement("button");
-    b.className=`j-tally-btn ${color}`; b.disabled=submitted;
-    b.innerHTML=`<div class="t-count">${val}</div><div class="t-lbl">+1 Scoring Action</div>`;
-    b.onclick=()=>{ if(submitted)return; cb(); b.classList.add("flash"); setTimeout(()=>b.classList.remove("flash"),240); };
+    b.className=`j-act-btn ${color}`;
+    b.disabled=submitted;
+    b.innerHTML=`<div class="j-act-pts">+${action.pts}</div><div class="j-act-lbl">${action.label}</div>`;
+    b.onclick=()=>{
+      if(submitted)return;
+      tally[side]+=action.pts;
+      b.classList.add("flash");setTimeout(()=>b.classList.remove("flash"),220);
+      buildTallyUI(flipped,rn,bn);
+      // Write tally to Firebase so host can see live
+      set(ref(db2,`sessions/${SES}/tallies/judge${JID}`),{...tally,ts:Date.now()});
+    };
     return b;
   }
+
+  function updateCardPreview(){
+    const card=calcCard(tally.red,tally.blue);
+    const preview=el("j-card-score");if(!preview)return;
+    preview.textContent=card.label;
+    const container=el("j-card-preview");
+    if(container){
+      container.style.borderColor=tally.red===0&&tally.blue===0?"rgba(245,197,24,.25)":"rgba(245,197,24,.6)";
+    }
+  }
+
+  function updateSubmitBtn(){
+    const btn=el("j-submit-btn");if(!btn)return;
+    const hasData=tally.red>0||tally.blue>0;
+    btn.classList.toggle("ready",hasData&&!submitted);
+    if(hasData&&!submitted){
+      const card=calcCard(tally.red,tally.blue);
+      btn.textContent="SUBMIT: "+card.label;
+    }else if(!submitted){
+      btn.textContent="SUBMIT CARD";
+    }
+  }
+
+  function submitCard(){
+    if(submitted)return;
+    const card=calcCard(tally.red,tally.blue);
+    submitted=true;
+    el("j-submit-btn").disabled=true;el("j-submit-btn").style.opacity="0.3";
+    set(ref(db2,`sessions/${SES}/judgeCards/judge${JID}`),{
+      jid:JID,winner:card.winner,redTally:tally.red,blueTally:tally.blue,
+      round:currentRound,ts:Date.now()
+    });
+    const banner=el("j-submitted-banner");
+    banner.textContent="✓ Submitted: "+card.label+" ("+tally.red+" vs "+tally.blue+")";
+    banner.style.display="block";
+    el("j-end-banner").style.display="none";
+    buildTallyUI(flipped,rn,bn);
+  }
+
+  el("j-submit-btn").onclick=submitCard;
+  el("j-undoL").onclick=()=>{
+    if(submitted)return;
+    const lside=flipped?"blue":"red";
+    const actions=actionsForRound(currentStyle,currentRound);
+    const minPts=Math.min(...actions.map(a=>a.pts));
+    if(tally[lside]>=minPts){tally[lside]-=minPts;}
+    buildTallyUI(flipped,rn,bn);
+    set(ref(db2,`sessions/${SES}/tallies/judge${JID}`),{...tally,ts:Date.now()});
+  };
+  el("j-undoR").onclick=()=>{
+    if(submitted)return;
+    const rside=flipped?"red":"blue";
+    const actions=actionsForRound(currentStyle,currentRound);
+    const minPts=Math.min(...actions.map(a=>a.pts));
+    if(tally[rside]>=minPts){tally[rside]-=minPts;}
+    buildTallyUI(flipped,rn,bn);
+    set(ref(db2,`sessions/${SES}/tallies/judge${JID}`),{...tally,ts:Date.now()});
+  };
+
   function buildTKDButtons(db2,flip,rn2,bn2){
-    const lside=flip?"blue":"red", rside=flip?"red":"blue";
-    const lname=flip?bn2:rn2, rname=flip?rn2:bn2;
-    const lc=lside==="red"?"r":"b", rc=rside==="red"?"r":"b";
-    const lCol=el("j-tkd-left"), rCol=el("j-tkd-right");
-    lCol.innerHTML=""; rCol.innerHTML="";
-    const lt=document.createElement("div"); lt.className=`j-name-tag ${lc}`; lt.textContent=lname; lCol.appendChild(lt);
-    const rt=document.createElement("div"); rt.className=`j-name-tag ${rc}`; rt.textContent=rname; rCol.appendChild(rt);
-    [[1,"Punch\nBody"],[2,"Kick\nBody"],[3,"Kick\nHead"]].forEach(([pts,lbl])=>{
+    const lside=flip?"blue":"red",rside=flip?"red":"blue";
+    const lname=flip?bn2:rn2,rname=flip?rn2:bn2;
+    const lc=lside==="red"?"r":"b",rc=rside==="red"?"r":"b";
+    const lCol=el("j-tkd-left"),rCol=el("j-tkd-right");
+    lCol.innerHTML="";rCol.innerHTML="";
+    const lt=document.createElement("div");lt.className=`j-name-tag ${lc}`;lt.textContent=lname;lCol.appendChild(lt);
+    const rt=document.createElement("div");rt.className=`j-name-tag ${rc}`;rt.textContent=rname;rCol.appendChild(rt);
+    [[1,"Punch
+Body"],[2,"Kick
+Body"],[3,"Kick
+Head"]].forEach(([pts,lbl])=>{
       lCol.appendChild(mkTKDBtn(`${lc}${pts}`,pts,lbl,lside,db2));
       rCol.appendChild(mkTKDBtn(`${rc}${pts}`,pts,lbl,rside,db2));
     });
-    const lvc=document.createElement("div"); lvc.id="vc-"+lside; lvc.style.cssText="font-size:.7rem;color:rgba(255,255,255,.6);text-align:center;min-height:1em"; lCol.appendChild(lvc);
-    const rvc=document.createElement("div"); rvc.id="vc-"+rside; rvc.style.cssText="font-size:.7rem;color:rgba(255,255,255,.6);text-align:center;min-height:1em"; rCol.appendChild(rvc);
+    const lvc=document.createElement("div");lvc.id="vc-"+lside;lvc.style.cssText="font-size:.7rem;color:rgba(255,255,255,.6);text-align:center;min-height:1em";lCol.appendChild(lvc);
+    const rvc=document.createElement("div");rvc.id="vc-"+rside;rvc.style.cssText="font-size:.7rem;color:rgba(255,255,255,.6);text-align:center;min-height:1em";rCol.appendChild(rvc);
     if(JC===1){
-      el("j-bonusR").onclick=async()=>{ await set(ref(db2,`sessions/${SES}/judgeCards/judge${JID}`),{jid:JID,side:"red",pts:2,ts:Date.now()}); };
-      el("j-bonusB").onclick=async()=>{ await set(ref(db2,`sessions/${SES}/judgeCards/judge${JID}`),{jid:JID,side:"blue",pts:2,ts:Date.now()}); };
+      el("j-bonusR").onclick=async()=>{await set(ref(db2,`sessions/${SES}/judgeCards/judge${JID}`),{jid:JID,side:"red",pts:2,ts:Date.now()});};
+      el("j-bonusB").onclick=async()=>{await set(ref(db2,`sessions/${SES}/judgeCards/judge${JID}`),{jid:JID,side:"blue",pts:2,ts:Date.now()});};
     }
   }
   function mkTKDBtn(cls,pts,lbl,side,db2){
-    const b=document.createElement("button"); b.className=`j-tkd-btn ${cls}`;
-    b.innerHTML=`<div class="pts">+${pts}</div><div class="lbl">${lbl.replace("\n","<br>")}</div>`;
-    b.onclick=async()=>{ await set(ref(db2,`sessions/${SES}/judgeCards/judge${JID}`),{jid:JID,side,pts,ts:Date.now()}); b.classList.add("voted"); setTimeout(()=>b.classList.remove("voted"),320); };
+    const b=document.createElement("button");b.className=`j-tkd-btn ${cls}`;
+    b.innerHTML=`<div class="pts">+${pts}</div><div class="lbl">${lbl.replace("
+","<br>")}</div>`;
+    b.onclick=async()=>{await set(ref(db2,`sessions/${SES}/judgeCards/judge${JID}`),{jid:JID,side,pts,ts:Date.now()});b.classList.add("voted");setTimeout(()=>b.classList.remove("voted"),320);};
     return b;
   }
-  function refreshSubmitLabels(){
-    const margin=Math.abs(redTally-blueTally), sugPts=margin>=10?"8":"9";
-    const leading=redTally>blueTally?"red":blueTally>redTally?"blue":null;
-    el("j-subR9").textContent=`Red 10–${leading==="red"?sugPts:"9"} (${redTally}v${blueTally})`;
-    el("j-subB9").textContent=`Blue 10–${leading==="blue"?sugPts:"9"} (${blueTally}v${redTally})`;
-  }
-  function submitCard(winner,pts){
-    if(submitted){ T("j-status","Already submitted — wait for next round."); return; }
-    submitted=true; setSubmitEnabled(false);
-    set(ref(db2,`sessions/${SES}/judgeCards/judge${JID}`),{jid:JID,winner,pts,round:currentRound,ts:Date.now()});
-    const wlabel=winner==="draw"?"10–10 Even":winner==="red"?`Red 10–${pts}`:`Blue 10–${pts}`;
-    const banner=el("j-submitted-banner");
-    banner.textContent="✓ Submitted: "+wlabel;
-    banner.style.display="block";
-    el("j-end-banner").style.display="none";
-    T("j-status","Card submitted — waiting for other judges.");
-    buildTallyButtons(flipped,rn,bn);
-  }
-  function setSubmitEnabled(enabled){
-    ["j-subR9","j-subB9","j-subEven","j-subR8","j-subB8"].forEach(id=>{
-      const b=el(id); if(!b) return; b.disabled=!enabled; b.style.opacity=enabled?"1":"0.3";
-    });
-  }
-  el("j-undoL").onclick=()=>{ if(submitted)return; if(!flipped&&redTally>0)redTally--;else if(flipped&&blueTally>0)blueTally--; buildTallyButtons(flipped,rn,bn); };
-  el("j-undoR").onclick=()=>{ if(submitted)return; if(!flipped&&blueTally>0)blueTally--;else if(flipped&&redTally>0)redTally--; buildTallyButtons(flipped,rn,bn); };
-  el("j-subR9").onclick=()=>submitCard("red",redTally-blueTally>=10?"8":"9");
-  el("j-subB9").onclick=()=>submitCard("blue",blueTally-redTally>=10?"8":"9");
-  el("j-subEven").onclick=()=>submitCard("draw","9");
-  el("j-subR8").onclick=()=>submitCard("red","8");
-  el("j-subB8").onclick=()=>submitCard("blue","8");
-  el("j-flip").onclick=()=>{ flipped=!flipped; if(currentStyle==="tkd")buildTKDButtons(db2,flipped,rn,bn);else buildTallyButtons(flipped,rn,bn); };
-  T("j-status",JC===1?"You are the sole judge.":JC===2?"Both judges must submit a card each round.":"Submit your card at round end — 2 of 3 judges decide.");
+  el("j-flip").onclick=()=>{flipped=!flipped;if(currentStyle==="tkd")buildTKDButtons(db2,flipped,rn,bn);else buildTallyUI(flipped,rn,bn);};
+  T("j-status",JC===1?"You are the sole judge.":JC===2?"Both judges submit each round.":"Submit your card at round end — 2 of 3 judges decide.");
 }
 
-// ── PUBLIC ─────────────────────────────────────────────────────────
+// ── PUBLIC ──
 function initPub(){
-  const app=initializeApp(FB_CFG,"pub"), db3=getDatabase(app);
+  const app=initializeApp(FB,"pub");const db3=getDatabase(app);
   onValue(ref(db3,`sessions/${SES}/state`),snap=>{
-    if(!snap.exists()) return;
+    if(!snap.exists())return;
     const s=snap.val();
-    const style=s.style||"boxing", isTKD=style==="tkd";
+    const style=s.style||"boxing",isTKD=style==="tkd";
     const ageStr=AGE==="u12"?" · Under-12":AGE==="u18"?" · Under-18":"";
     T("p-style-name",styleLabel(style)+ageStr);
     T("p-rn",(s.redName||"FIGHTER 1").toUpperCase());
     T("p-bn",(s.blueName||"FIGHTER 2").toUpperCase());
     T("p-round",s.round??1);
     el("p-timer-wrap").style.display=s.timerVisible?"block":"none";
-    if(s.timerVisible){ T("p-timer",fmt(s.timerSeconds??120)); el("p-timer").classList.toggle("warning",(s.timerSeconds??120)<=30); }
+    if(s.timerVisible){T("p-timer",fmt(s.timerSeconds??120));el("p-timer").classList.toggle("warning",(s.timerSeconds??120)<=30);}
     T("p-ruleset",style==="hybrid"?"Round "+(s.round??1)+" · "+hybridName(s.round??1):styleLabel(style));
-    const prevR=el("p-rs").textContent, prevB=el("p-bs").textContent;
-    T("p-rs",s.redScore??0); T("p-bs",s.blueScore??0);
-    if(String(s.redScore??0)!==prevR){ el("p-rs").classList.add("pop"); setTimeout(()=>el("p-rs").classList.remove("pop"),250); }
-    if(String(s.blueScore??0)!==prevB){ el("p-bs").classList.add("pop"); setTimeout(()=>el("p-bs").classList.remove("pop"),250); }
+    const prevR=el("p-rs").textContent,prevB=el("p-bs").textContent;
+    T("p-rs",s.redScore??0);T("p-bs",s.blueScore??0);
+    if(String(s.redScore??0)!==prevR){el("p-rs").classList.add("pop");setTimeout(()=>el("p-rs").classList.remove("pop"),250);}
+    if(String(s.blueScore??0)!==prevB){el("p-bs").classList.add("pop");setTimeout(()=>el("p-bs").classList.remove("pop"),250);}
     if(isTKD){
-      el("p-rdots").style.display="flex"; el("p-bdots").style.display="flex";
-      el("p-rpen").style.display="none"; el("p-bpen").style.display="none";
+      el("p-rdots").style.display="flex";el("p-bdots").style.display="flex";
+      el("p-rpen").style.display="none";el("p-bpen").style.display="none";
       penDotsPub("p-rdots",s.redGam||0,"r",s.redKyong||0);
       penDotsPub("p-bdots",s.blueGam||0,"b",s.blueKyong||0);
-    } else {
-      el("p-rdots").style.display="none"; el("p-bdots").style.display="none";
-      el("p-rpen").style.display="block"; el("p-bpen").style.display="block";
+    }else{
+      el("p-rdots").style.display="none";el("p-bdots").style.display="none";
+      el("p-rpen").style.display="block";el("p-bpen").style.display="block";
       T("p-rpen",(s.redDeductions||0)>0?"⚠ Point Deducted":"");
       T("p-bpen",(s.blueDeductions||0)>0?"⚠ Point Deducted":"");
     }
     renderPubChips(s.roundResults||[],style);
-    if(s.winner){ T("p-wt",s.winner); el("p-wo").classList.add("show"); }
+    if(s.winner){T("p-wt",s.winner);el("p-wo").classList.add("show");}
     else el("p-wo").classList.remove("show");
   });
 }
 function penDotsPub(cid,gamCount,side,kyongCount){
-  const c=el(cid); if(!c) return; c.innerHTML="";
-  for(let i=0;i<Math.min(gamCount,5);i++){ const d=document.createElement("div"); d.className=`pub-dot a${side}`; c.appendChild(d); }
-  for(let i=0;i<Math.min(kyongCount,5);i++){ const d=document.createElement("div"); d.className="pub-dot aw"; c.appendChild(d); }
+  const c=el(cid);if(!c)return;c.innerHTML="";
+  for(let i=0;i<Math.min(gamCount,5);i++){const d=document.createElement("div");d.className=`pub-dot a${side}`;c.appendChild(d);}
+  for(let i=0;i<Math.min(kyongCount,5);i++){const d=document.createElement("div");d.className="pub-dot aw";c.appendChild(d);}
 }
 function renderPubChips(results,style){
-  const c=el("p-chips"); if(!c) return;
-  let html="";
+  const c=el("p-chips");if(!c)return;let html="";
   results.forEach((r,i)=>{
-    if(!r) return;
+    if(!r)return;
     const cls=r.winner==="red"?"rw":r.winner==="blue"?"bw":"draw";
     const sub=style==="hybrid"?" · "+hybridName(i+1):"";
     html+=`<div class="pub-round-chip ${cls}">R${i+1}${sub}: ${r.red}–${r.blue}</div>`;
@@ -1125,18 +1246,14 @@ function renderPubChips(results,style){
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
-function copyLink(id,btn){
-  navigator.clipboard.writeText(document.getElementById(id).value).then(()=>{
-    btn.textContent="✓ Copied"; setTimeout(()=>btn.textContent="Copy",1600);
-  });
-}
+function copyLink(id,btn){navigator.clipboard.writeText(document.getElementById(id).value).then(()=>{btn.textContent="Copied";setTimeout(()=>btn.textContent="Copy",1600);});}
 function generateQRCodes(links){
-  const grid=document.getElementById("qrGrid"); grid.innerHTML="";
+  const grid=document.getElementById("qrGrid");grid.innerHTML="";
   links.forEach(({label,sublabel,url,color})=>{
-    const card=document.createElement("div"); card.className="qr-card";
-    const qrDiv=document.createElement("div"); card.appendChild(qrDiv);
+    const card=document.createElement("div");card.className="qr-card";
+    const qrDiv=document.createElement("div");card.appendChild(qrDiv);
     new QRCode(qrDiv,{text:url,width:160,height:160,colorDark:color||"#000",colorLight:"#ffffff",correctLevel:QRCode.CorrectLevel.M});
-    const lbl=document.createElement("div"); lbl.className="qr-label"; lbl.textContent=label; card.appendChild(lbl);
+    const lbl=document.createElement("div");lbl.className="qr-label";lbl.textContent=label;card.appendChild(lbl);
     if(sublabel){const sub=document.createElement("div");sub.className="qr-sublabel";sub.textContent=sublabel;card.appendChild(sub);}
     grid.appendChild(card);
   });
