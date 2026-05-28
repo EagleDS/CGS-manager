@@ -1280,7 +1280,8 @@ function renderNeedsMatch(){
 window.withdrawDisplaced = function(i){needsMatch.splice(i,1);renderNeedsMatch();};
 
 window.sendToDrawTab = function(){
-  // Convert processor matches to draw bouts
+  // Always start fresh — replace any existing bouts
+  bouts = [];
   let boutNum=1;
   const newBouts=[];
   const styleOrder=[...STYLE_ORDER,...[...new Set(matches.map(m=>m.style))].filter(s=>!STYLE_ORDER.includes(s))];
