@@ -538,7 +538,7 @@ h1.brand{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.4rem,4vw,2.4rem);
     <button class="btn btn-danger btn-sm" id="j-undoR">&#8617; Undo Right</button>
   </div>
 
-  <div class="end-round-banner" id="j-end-banner">&#9209; ROUND OVER &mdash; SUBMIT YOUR CARD NOW</div>
+  <div class="end-round-banner" id="j-end-banner" style="display:none">&#9209; ROUND OVER &mdash; SUBMIT YOUR CARD NOW</div>
   <div class="submitted-banner" id="j-submitted-banner"></div>
 
   <button class="submit-btn" id="j-submit-btn" disabled>SUBMIT CARD</button>
@@ -726,14 +726,15 @@ function initHost(){
   el("h-bsc-undo").onclick=()=>chScore("blue",-1);
 
   get(ref(db,`sessions/${SES}/state`)).then(s=>{if(!s.exists())initState("boxing");});
-  onValue(ref(db,`sessions/${SES}/state`),snap=>{if(snap.exists())renderHost(snap.val());});
   onValue(ref(db,`sessions/${SES}/judgeCards`),snap=>{const c=snap.val()||{};renderJudgePills(c);tryProcessCards(c);});
   onValue(ref(db,`sessions/${SES}/tallies`),snap=>{renderHostTallies(snap.val()||{});});
 
-  // Timer engine
+  // Single state listener: render + timer engine
   onValue(ref(db,`sessions/${SES}/state`),snap=>{
     if(!snap.exists())return;
-    const s=snap.val();cachedSecs=s.timerSeconds??120;
+    const s=snap.val();
+    renderHost(s);
+    cachedSecs=s.timerSeconds??120;
     if(s.timerRunning&&!timerRunning){
       timerRunning=true;lastTick=Date.now();
       timerInterval=setInterval(async()=>{
