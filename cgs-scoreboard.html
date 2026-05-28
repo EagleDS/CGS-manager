@@ -646,10 +646,11 @@ function initSetup(){
 }
 
 // ── HOST ───────────────────────────────────────────────────────────
-let db, timerRunning=false, timerInterval=null, lastTick=null, cachedSecs=120;
+// Initialize db at module level so all functions always have it
+const db = getDatabase(fbApp("cgs-host"));
+let timerRunning=false, timerInterval=null, lastTick=null, cachedSecs=120;
 
 function initHost(){
-  db = getDatabase(fbApp("cgs-host"));
   if(AGE==="u12") el("h-nohead").style.display="block";
 
   // init state if needed
