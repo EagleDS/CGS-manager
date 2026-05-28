@@ -1400,11 +1400,11 @@ function renderDiscAssignment(){
     const assigned=discMatMap[g.key];
     const col=g.div==='Female'?'#c060c0':'#4090d0';
     var chipCls='disc-chip'+(assigned?' assigned':'')+(selectedGroups.has(g.key)?' selected':'');
-    html+='<div class="'+chipCls+'"'
-      +' draggable="true" data-key="'+escA(g.key)+'"'
+    html+='<div class="'+chipCls+'" draggable="true"'
+      +' data-key="'+escA(g.key)+'"'
       +' style="border-left:3px solid '+col+';font-size:9px;cursor:pointer"'
-      +' onclick="toggleGroupSelect(event,\''+escA(g.key)+'\')">'  
-      +(selectedGroups.has(g.key)?'&#10003; ':'&#8285; ')+escH(g.disc)+' · '+g.ageGrp+' · '+g.div
+      +' onclick="handleChipClick(this)">'
+      +(selectedGroups.has(g.key)?'\u2713 ':'\u22EE ')+escH(g.disc)+' &middot; '+g.ageGrp+' &middot; '+g.div
       +(assigned?' <span style="color:var(--muted)">&rarr; '+assigned+'</span>':'')
       +'</div>';
   });
@@ -1454,6 +1454,20 @@ window.selectAllGroups = function(){
 };
 window.clearGroupSelect = function(){
   selectedGroups.clear();
+  renderDiscAssignment();
+};
+window.handleChipClick = function(el){
+  var key=el.dataset.key;
+  if(!key) return;
+  if(selectedGroups.has(key)) selectedGroups.delete(key);
+  else selectedGroups.add(key);
+  renderDiscAssignment();
+};
+window.handleChipClick = function(el){
+  var key=el.getAttribute('data-key');
+  if(!key) return;
+  if(selectedGroups.has(key)) selectedGroups.delete(key);
+  else selectedGroups.add(key);
   renderDiscAssignment();
 };
 window.toggleGroupSelect = function(e,key){
