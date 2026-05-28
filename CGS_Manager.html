@@ -1855,26 +1855,19 @@ function attachBoutDragDrop(container){
             }
           }
         });
-        var wrap = document.getElementById('draw-mat-cols');
-        var allMats = [];
-        bouts.forEach(function(b) {
-          if (allMats.indexOf(b.area) === -1) allMats.push(b.area);
-        });
-        allMats.sort();
-        var nb = [];
-        allMats.forEach(function(m) {
-          var sel = '[data-mat="' + m + '"]';
-          var lEl = wrap ? wrap.querySelector(sel) : null;
-          if (lEl) {
-            Array.from(lEl.querySelectorAll('[data-bid]')).forEach(function(el) {
-              var b = bouts.find(function(x){ return x.id === el.dataset.bid; });
-              if (b) nb.push(b);
-            });
-          } else {
-            bouts.filter(function(b){ return b.area === m; }).forEach(function(b){ nb.push(b); });
+        // Simple array swap — just move the item in bouts array
+        var fromIdx = bouts.findIndex(function(b){ return b.id === movedId; });
+        if (fromIdx > -1) {
+          // Calculate target index based on oldIndex/newIndex from Sortable
+          var matBouts = bouts.filter(function(b){ return b.area === toMat; });
+          var targetBout = matBouts[evt.newIndex];
+          if (targetBout && targetBout.id !== movedId) {
+            var toIdx = bouts.findIndex(function(b){ return b.id === targetBout.id; });
+            bouts.splice(fromIdx, 1);
+            var newToIdx = bouts.findIndex(function(b){ return b.id === targetBout.id; });
+            bouts.splice(newToIdx, 0, moved);
           }
-        });
-        bouts = nb;
+        }
         localStorage.setItem('cgs-bouts', JSON.stringify(bouts));
         if (db) syncToFirebase();
         toast(fromMat !== toMat ? 'Moved to ' + toMat : 'Reordered', 'gold');
