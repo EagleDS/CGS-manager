@@ -600,17 +600,7 @@ function showPage(id){
   if(p) p.style.display="flex";
 }
 
-// Route
-try{
-  if      (MODE==="host")  {showPage("page-host");  initHost();}
-  else if (MODE==="judge") {showPage("page-judge"); initJudge();}
-  else if (MODE==="pub")   {showPage("page-pub");   initPub();}
-  else                     {showPage("page-setup"); initSetup();}
-}catch(err){
-  showPage("page-setup");
-  showErr("setup-err","Startup error: "+err.message+". Try refreshing.");
-  console.error(err);
-}
+// (routing moved to end)
 
 // ── SETUP ──────────────────────────────────────────────────────────
 function initSetup(){
@@ -1130,6 +1120,18 @@ function pubChips(results,style){
     html+=`<div class="pub-round-chip ${cls}">R${i+1}${sub}: ${r.red}\u2013${r.blue}</div>`;
   });
   c.innerHTML=html;
+}
+
+// Route
+try{
+  if      (MODE==="host")  {showPage("page-host");  initHost();}
+  else if (MODE==="judge") {showPage("page-judge"); initJudge();}
+  else if (MODE==="pub")   {showPage("page-pub");   initPub();}
+  else                     {showPage("page-setup"); initSetup();}
+}catch(err){
+  showPage("page-setup");
+  showErr("setup-err","Startup error: "+err.message+". Try refreshing.");
+  console.error(err);
 }
 </script>
 </body>
