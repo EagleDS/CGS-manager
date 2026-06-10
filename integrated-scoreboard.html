@@ -180,42 +180,42 @@ h1.brand{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.4rem,4vw,2.4rem);
 .submit-btn:active{transform:scale(.95)}
 .submit-btn:disabled{opacity:.35;cursor:not-allowed;transform:none}
 .submit-btn.ready{background:linear-gradient(135deg,rgba(245,197,24,.18),rgba(245,197,24,.08));border-color:var(--gold);color:var(--gold);box-shadow:0 3px 20px rgba(245,197,24,.15)}
-.pub-wrap{width:100%;max-width:960px;display:flex;flex-direction:column;align-items:center;gap:14px}
-.pub-timer{font-family:'Bebas Neue',sans-serif;font-size:clamp(4rem,15vw,8rem);color:var(--gold);text-shadow:0 0 60px rgba(245,197,24,.6);line-height:1}
+.pub-wrap{width:100%;max-width:1200px;display:flex;flex-direction:column;align-items:center;gap:20px}
+.pub-timer{font-family:'Bebas Neue',sans-serif;font-size:clamp(6rem,20vw,14rem);color:var(--gold);text-shadow:0 0 60px rgba(245,197,24,.6);line-height:1}
 .pub-timer.warning{color:#ff6020}
-.pub-round{font-family:'Bebas Neue',sans-serif;font-size:clamp(2rem,7vw,4rem);color:var(--text);text-align:center}
-.pub-round-label{font-size:.8rem;letter-spacing:.3em;color:var(--muted);text-transform:uppercase}
-.pub-ruleset{font-size:.75rem;letter-spacing:.25em;color:var(--gold);text-transform:uppercase;min-height:1.2em;text-align:center}
-.pub-round-chips{display:flex;gap:6px;justify-content:center;flex-wrap:wrap}
-.pub-round-chip{font-family:'Bebas Neue',sans-serif;font-size:1rem;padding:3px 12px;border-radius:8px;border:1px solid var(--border)}
+.pub-round{font-family:'Bebas Neue',sans-serif;font-size:clamp(3rem,10vw,7rem);color:var(--text);text-align:center}
+.pub-round-label{font-size:1rem;letter-spacing:.3em;color:var(--muted);text-transform:uppercase}
+.pub-ruleset{font-size:1rem;letter-spacing:.25em;color:var(--gold);text-transform:uppercase;min-height:1.2em;text-align:center}
+.pub-round-chips{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.pub-round-chip{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;padding:6px 20px;border-radius:10px;border:1px solid var(--border)}
 .pub-round-chip.rw{background:rgba(224,32,32,.2);border-color:var(--red);color:var(--red)}
 .pub-round-chip.bw{background:rgba(26,111,212,.2);border-color:var(--blue);color:var(--blue)}
 .pub-round-chip.draw{background:rgba(245,197,24,.1);border-color:rgba(245,197,24,.3);color:var(--gold)}
 .pub-scores{display:grid;grid-template-columns:1fr auto 1fr;gap:0;width:100%;border-radius:18px;overflow:hidden;border:1px solid var(--border)}
-.pub-side{padding:24px 16px;display:flex;flex-direction:column;align-items:center;gap:8px;position:relative;overflow:hidden}
+.pub-side{padding:40px 24px;display:flex;flex-direction:column;align-items:center;gap:10px;position:relative;overflow:hidden}
 .pub-side.pub-red{background:linear-gradient(135deg,rgba(155,20,20,.25),transparent)}
 .pub-side.pub-blue{background:linear-gradient(135deg,transparent,rgba(15,74,142,.25))}
 .pub-side.pub-red::before{content:'';position:absolute;inset:0;box-shadow:inset 0 0 80px rgba(224,32,32,.12);pointer-events:none}
 .pub-side.pub-blue::before{content:'';position:absolute;inset:0;box-shadow:inset 0 0 80px rgba(26,111,212,.12);pointer-events:none}
-.pub-name{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.2rem,4vw,2.2rem);letter-spacing:.1em;text-align:center}
+.pub-name{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.8rem,5vw,4rem);letter-spacing:.1em;text-align:center}
 .pub-name.r{color:#ff6060}.pub-name.b{color:#60a0ff}
-.pub-score{font-family:'Bebas Neue',sans-serif;font-size:clamp(5rem,18vw,9rem);line-height:1}
+.pub-score{font-family:'Bebas Neue',sans-serif;font-size:clamp(8rem,25vw,18rem);line-height:1}
 .pub-score.r{color:var(--red);text-shadow:0 0 80px var(--red-glow)}
 .pub-score.b{color:var(--blue);text-shadow:0 0 80px var(--blue-glow)}
 .pub-score.pop{animation:pubPop .22s ease}
 @keyframes pubPop{0%,100%{transform:scale(1)}50%{transform:scale(1.09)}}
-.pub-pen{font-size:.72rem;color:var(--orange);letter-spacing:.1em;min-height:1em;text-align:center}
-.pub-center{background:var(--panel);display:flex;align-items:center;justify-content:center;padding:0 14px}
-.pub-vs{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.4rem,4vw,2.4rem);color:var(--muted)}
-.pub-dots{display:flex;gap:5px;justify-content:center;flex-wrap:wrap}
-.pub-dot{width:10px;height:10px;border-radius:50%;border:1.5px solid var(--border)}
+.pub-pen{font-size:1rem;color:var(--orange);letter-spacing:.1em;min-height:1em;text-align:center}
+.pub-center{background:var(--panel);display:flex;align-items:center;justify-content:center;padding:0 20px}
+.pub-vs{font-family:'Bebas Neue',sans-serif;font-size:clamp(2rem,5vw,4rem);color:var(--muted)}
+.pub-dots{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.pub-dot{width:16px;height:16px;border-radius:50%;border:2px solid var(--border)}
 .pub-dot.ar{background:var(--red);border-color:var(--red)}
 .pub-dot.ab{background:var(--blue);border-color:var(--blue)}
 .pub-dot.aw{background:#ffb800;border-color:#ffb800}
 .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.93);z-index:100;align-items:center;justify-content:center;flex-direction:column;gap:16px;padding:20px;text-align:center}
 .overlay.show{display:flex}
-.ov-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(1rem,3vw,1.5rem);letter-spacing:.3em;color:var(--muted)}
-.ov-winner{font-family:'Bebas Neue',sans-serif;font-size:clamp(3rem,12vw,6rem);letter-spacing:.08em;text-shadow:0 0 60px currentColor;animation:pulse 1s ease-in-out infinite alternate}
+.ov-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.2rem,4vw,2rem);letter-spacing:.3em;color:var(--muted)}
+.ov-winner{font-family:'Bebas Neue',sans-serif;font-size:clamp(4rem,14vw,9rem);letter-spacing:.08em;text-shadow:0 0 60px currentColor;animation:pulse 1s ease-in-out infinite alternate}
 @keyframes pulse{from{opacity:.7;transform:scale(.97)}to{opacity:1;transform:scale(1.03)}}
 .ov-sub{font-size:1rem;letter-spacing:.2em;color:var(--muted)}
 .ov-score{font-family:'Bebas Neue',sans-serif;font-size:2rem;color:var(--text)}
@@ -277,6 +277,16 @@ h1.brand{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.4rem,4vw,2.4rem);
   <p class="brand-sub" id="h-subtitle">Host View</p>
   <div class="integrated-badge">&#10003; CGS-Manager Database</div>
   <div class="err-banner" id="host-err"></div>
+
+  <!-- DOMINANT ROUND CONTROL -->
+  <div style="width:100%;display:flex;gap:8px;align-items:stretch">
+    <button id="h-round-toggle" onclick="CGS.toggleRound()"
+      style="flex:1;padding:18px 24px;font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:.15em;border:none;border-radius:14px;cursor:pointer;background:var(--gold);color:#1a1200;touch-action:manipulation;transition:background .2s,color .2s">
+      &#9654; START ROUND <span id="h-round-in-btn" style="opacity:.6">· R1</span>
+    </button>
+    <button id="h-pause-btn" onclick="CGS.pauseRound()" style="display:none;padding:18px 16px;font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:.1em;border:none;border-radius:14px;cursor:pointer;background:#1a1a2a;color:var(--gold);border:1px solid rgba(245,197,24,.3);touch-action:manipulation">&#9646;&#9646;<br>PAUSE</button>
+    <button id="h-undo-btn" onclick="CGS.undoRound()" style="display:none;padding:18px 16px;font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:.1em;border:none;border-radius:14px;cursor:pointer;background:#1a0808;color:#ff6060;border:1px solid #5a1515;touch-action:manipulation">&#8617;<br>UNDO</button>
+  </div>
   <div class="host-top">
     <div class="host-top-left">
       <div class="style-sel">
@@ -401,9 +411,6 @@ h1.brand{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.4rem,4vw,2.4rem);
   <div class="action-bar">
     <button class="btn btn-ghost btn-sm" onclick="CGS.toggleTimer()">&#9201; Toggle Timer</button>
     <button class="btn btn-ghost btn-sm" onclick="CGS.newBout()">&#8635; New Bout</button>
-    <button class="btn btn-gold btn-sm" id="h-round-toggle" onclick="CGS.toggleRound()">&#9654; Start Round</button>
-    <button class="btn btn-ghost btn-sm" id="h-pause-btn" onclick="CGS.pauseRound()" style="display:none">&#9646;&#9646; Pause</button>
-    <button class="btn btn-danger btn-sm" id="h-undo-btn" onclick="CGS.undoRound()" style="display:none">&#8617; Undo</button>
     <button class="btn btn-green btn-sm" onclick="CGS.declareWinner()">&#127942; Declare Winner</button>
   </div>
   <div class="overlay" id="h-wo">
@@ -479,20 +486,20 @@ h1.brand{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.4rem,4vw,2.4rem);
       <div class="pub-ruleset" id="p-ruleset"></div>
     </div>
     <div class="pub-round-chips" id="p-chips"></div>
-    <div id="p-tally-wrap" style="display:none;width:100%;max-width:700px;background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:16px 24px;text-align:center;margin:0 auto">
-      <div style="font-family:monospace;font-size:.7rem;letter-spacing:.25em;color:var(--muted);text-transform:uppercase;margin-bottom:10px">Live Round Tally</div>
-      <div style="display:flex;align-items:center;gap:12px;justify-content:center">
-        <div style="font-family:'Bebas Neue',sans-serif;font-size:2.4rem;color:#ff8080" id="p-tally-r">0</div>
-        <div style="flex:1;max-width:260px">
-          <div style="position:relative;height:10px;background:#1a1a24;border-radius:5px;overflow:hidden">
-            <div id="p-tbar-r" style="position:absolute;right:50%;top:0;height:100%;background:var(--red);border-radius:5px;transition:width .4s;width:0%"></div>
-            <div id="p-tbar-b" style="position:absolute;left:50%;top:0;height:100%;background:var(--blue);border-radius:5px;transition:width .4s;width:0%"></div>
+    <div id="p-tally-wrap" style="display:none;width:100%;max-width:900px;background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:24px 32px;text-align:center;margin:0 auto">
+      <div style="font-family:monospace;font-size:.85rem;letter-spacing:.25em;color:var(--muted);text-transform:uppercase;margin-bottom:14px">Live Round Tally</div>
+      <div style="display:flex;align-items:center;gap:16px;justify-content:center">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:4rem;color:#ff8080" id="p-tally-r">0</div>
+        <div style="flex:1;max-width:400px">
+          <div style="position:relative;height:14px;background:#1a1a24;border-radius:7px;overflow:hidden">
+            <div id="p-tbar-r" style="position:absolute;right:50%;top:0;height:100%;background:var(--red);border-radius:7px;transition:width .4s;width:0%"></div>
+            <div id="p-tbar-b" style="position:absolute;left:50%;top:0;height:100%;background:var(--blue);border-radius:7px;transition:width .4s;width:0%"></div>
           </div>
         </div>
-        <div style="font-family:'Bebas Neue',sans-serif;font-size:2.4rem;color:#80b0ff" id="p-tally-b">0</div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:4rem;color:#80b0ff" id="p-tally-b">0</div>
       </div>
-      <div id="p-projected" style="font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:.15em;margin-top:8px;color:var(--gold)"></div>
-      <div id="p-judge-leanings" style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:12px;padding-top:10px;border-top:1px solid #1a1a24"></div>
+      <div id="p-projected" style="font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:.15em;margin-top:10px;color:var(--gold)"></div>
+      <div id="p-judge-leanings" style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:16px;padding-top:14px;border-top:1px solid #1a1a24"></div>
     </div>
     <div class="pub-scores">
       <div class="pub-side pub-red">
@@ -741,16 +748,19 @@ function renderHost(s){
   T("h-timer",fmt(s.timerSeconds??120));
   el("h-timer").classList.toggle("warning",(s.timerSeconds??120)<=30);
   el("h-ss").textContent=s.timerRunning?"\u23f8 Pause":"\u25b6 Start";
-  // Single round toggle button
+  // Dominant round toggle button
   const roundActive=s.roundActive||false;
+  const roundNum=s.round??1;
   const toggleBtn=el("h-round-toggle");
   if(toggleBtn){
     if(roundActive){
-      toggleBtn.textContent="\u23f9 End Round";
-      toggleBtn.className="btn btn-red btn-sm";
+      toggleBtn.innerHTML=`\u23f9 END ROUND <span style="opacity:.6">\u00b7 R${roundNum}</span>`;
+      toggleBtn.style.background="var(--red)";
+      toggleBtn.style.color="#fff";
     } else {
-      toggleBtn.textContent="\u25b6 Start Round";
-      toggleBtn.className="btn btn-gold btn-sm";
+      toggleBtn.innerHTML=`\u25b6 START ROUND <span style="opacity:.6">\u00b7 R${roundNum}</span>`;
+      toggleBtn.style.background="var(--gold)";
+      toggleBtn.style.color="#1a1200";
     }
   }
   el("h-pause-btn").style.display=roundActive?"inline-flex":"none";
@@ -1180,13 +1190,13 @@ function initPub(){
         let html="";
         for(let j=1;j<=JC;j++){
           const t=tallies["judge"+j];
-          if(!t){html+=`<div style="font-family:'Bebas Neue',sans-serif;font-size:.85rem;letter-spacing:.12em;padding:4px 14px;border-radius:20px;background:#0f0f0f;border:1px solid #2a2a3a;color:#444">J${j} —</div>`;continue;}
+          if(!t){html+=`<div style="font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:.12em;padding:8px 22px;border-radius:20px;background:#0f0f0f;border:1px solid #2a2a3a;color:#444">J${j} —</div>`;continue;}
           const jcard=calcCard(t.red||0,t.blue||0);
           const col=jcard.winner==="red"?"var(--red)":jcard.winner==="blue"?"var(--blue)":"var(--gold)";
           const bg=jcard.winner==="red"?"rgba(224,32,32,.12)":jcard.winner==="blue"?"rgba(26,111,212,.12)":"rgba(245,197,24,.08)";
           const border=jcard.winner==="red"?"rgba(224,32,32,.4)":jcard.winner==="blue"?"rgba(26,111,212,.4)":"rgba(245,197,24,.3)";
           const lbl=jcard.winner==="draw"?"EVEN":jcard.winner.toUpperCase();
-          html+=`<div style="font-family:'Bebas Neue',sans-serif;font-size:.85rem;letter-spacing:.12em;padding:4px 14px;border-radius:20px;background:${bg};border:1px solid ${border};color:${col}">J${j} · ${lbl}</div>`;
+          html+=`<div style="font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:.12em;padding:8px 22px;border-radius:20px;background:${bg};border:1px solid ${border};color:${col}">J${j} · ${lbl}</div>`;
         }
         leanDiv.innerHTML=html;
       }
