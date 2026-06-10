@@ -667,9 +667,9 @@ let dragGroupKey=null,dragGroupMat=null;
 window.selectAllGroups=function(){getGroups().filter(g=>!discMatMap[g.key]).forEach(g=>selectedGroups.add(g.key));renderDiscAssignment();};
 window.clearGroupSelect=function(){selectedGroups.clear();renderDiscAssignment();};
 window.handleChipClick=function(el){const key=el.getAttribute('data-key');if(!key)return;if(selectedGroups.has(key))selectedGroups.delete(key);else selectedGroups.add(key);renderDiscAssignment();};
-window.dzOver=function(e){if(!setupVisible)return;e.preventDefault();e.currentTarget.classList.add('drag-active');};
+window.dzOver=function(e){e.preventDefault();e.currentTarget.classList.add('drag-active');};
 window.dzLeave=function(e){if(!e.currentTarget.contains(e.relatedTarget))e.currentTarget.classList.remove('drag-active');};
-window.dzDrop=function(e){if(!setupVisible)return;e.preventDefault();const mat=e.currentTarget.dataset.mat;e.currentTarget.classList.remove('drag-active');if(!mat)return;const toAssign=new Set(selectedGroups);if(dragGroupKey)toAssign.add(dragGroupKey);if(!toAssign.size)return;if(!matGroupOrder[mat])matGroupOrder[mat]=[];toAssign.forEach(key=>{Object.keys(matGroupOrder).forEach(m=>{if(m!==mat)matGroupOrder[m]=(matGroupOrder[m]||[]).filter(k=>k!==key);});discMatMap[key]=mat;if(matGroupOrder[mat].indexOf(key)===-1)matGroupOrder[mat].push(key);});selectedGroups.clear();dragGroupKey=null;dragGroupMat=null;renderDiscAssignment();};
+window.dzDrop=function(e){e.preventDefault();const mat=e.currentTarget.dataset.mat;e.currentTarget.classList.remove('drag-active');if(!mat)return;const toAssign=new Set(selectedGroups);if(dragGroupKey)toAssign.add(dragGroupKey);if(!toAssign.size)return;if(!matGroupOrder[mat])matGroupOrder[mat]=[];toAssign.forEach(key=>{Object.keys(matGroupOrder).forEach(m=>{if(m!==mat)matGroupOrder[m]=(matGroupOrder[m]||[]).filter(k=>k!==key);});discMatMap[key]=mat;if(matGroupOrder[mat].indexOf(key)===-1)matGroupOrder[mat].push(key);});selectedGroups.clear();dragGroupKey=null;dragGroupMat=null;renderDiscAssignment();};
 window.removeGroup=function(key){delete discMatMap[key];Object.keys(matGroupOrder).forEach(m=>{matGroupOrder[m]=(matGroupOrder[m]||[]).filter(k=>k!==key);});renderDiscAssignment();};
 
 function initGroupDragDrop(){
