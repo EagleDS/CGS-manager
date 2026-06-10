@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>CGS Integrated Scoreboard</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <style>
@@ -454,9 +454,6 @@ h1.brand{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.4rem,4vw,2.4rem);
     <button class="btn btn-danger btn-sm" id="j-undoL">&#8617; Undo Left</button>
     <button class="btn btn-danger btn-sm" id="j-undoR">&#8617; Undo Right</button>
   </div>
-  <div class="end-round-banner" id="j-end-banner">&#9209; ROUND OVER &mdash; SUBMIT YOUR CARD NOW</div>
-  <div class="submitted-banner" id="j-submitted-banner"></div>
-  <button class="submit-btn" id="j-submit-btn" disabled>SUBMIT CARD</button>
   <div class="j-flip-btn"><button class="btn btn-ghost btn-sm" id="j-flip">&#128260; Swap Red / Blue Sides</button></div>
   <div class="j-status" id="j-status"></div>
 </div>
@@ -962,7 +959,7 @@ async function toggleTimer(){const r=ref(db,`sessions/${SES}/state/timerVisible`
 
 function initJudge(){
   const db2=getDatabase(fbApp("cgs-judge"+JID));
-  let flipped=false,curRound=1,submitted=false,curStyle="boxing";
+  let flipped=false,curRound=1,curStyle="boxing";
   let tally={red:0,blue:0},rn="Fighter 1",bn="Fighter 2";
   T("j-badge","JUDGE "+JID);
   if(AGE==="u12")el("j-nohead-banner").style.display="block";
@@ -987,12 +984,12 @@ function initJudge(){
       el("j-tkd-area").style.display=isTKD?"grid":"none";
       el("j-bonus-row").style.display=(isTKD&&JC===1)?"flex":"none";
       if((s.round??1)!==curRound||styleChanged){
-        curRound=s.round??1;tally={red:0,blue:0};submitted=false;
-        el("j-submit-btn").disabled=false;el("j-submit-btn").style.opacity="1";
-        el("j-submitted-banner").style.display="none";el("j-end-banner").style.display="none";
+        curRound=s.round??1;tally={red:0,blue:0};
       }
-      if(s.roundEnded&&!submitted&&!isTKD&&(Date.now()-s.roundEnded)<60000)
-        el("j-end-banner").style.display="block";
+      if(s.roundEnded&&!isTKD&&(Date.now()-s.roundEnded)<60000){
+        // Round ended — clear local tally display, host handled submission
+        tally={red:0,blue:0};
+      }
       el("j-hybrid-bar").style.display=curStyle==="hybrid"?"block":"none";
       if(curStyle==="hybrid"){
         document.querySelectorAll("#j-hbar .hybrid-seg").forEach(seg=>{
@@ -1025,14 +1022,13 @@ function initJudge(){
     const rBtns=document.createElement("div");rBtns.className="j-action-btns";
     acts.forEach(act=>{lBtns.appendChild(mkActBtn(lc,act,ls));rBtns.appendChild(mkActBtn(rc,act,rs));});
     lCol.appendChild(lBtns);rCol.appendChild(rBtns);
-    updateCard();updateSubmit();
+    updateCard();
   }
   function mkActBtn(color,act,side){
     const b=document.createElement("button");
-    b.className=`j-act-btn ${color}`;b.disabled=submitted;
+    b.className=`j-act-btn ${color}`;
     b.innerHTML=`<div class="j-act-pts">+${act.pts}</div><div class="j-act-lbl">${act.label}</div>`;
     b.onclick=()=>{
-      if(submitted)return;
       tally[side]+=act.pts;
       b.classList.add("flash");setTimeout(()=>b.classList.remove("flash"),220);
       buildTally(flipped);
@@ -1041,28 +1037,7 @@ function initJudge(){
     return b;
   }
   function updateCard(){const card=calcCard(tally.red,tally.blue);T("j-card-score",card.label);}
-  function updateSubmit(){
-    const btn=el("j-submit-btn");if(!btn)return;
-    const has=tally.red>0||tally.blue>0;
-    btn.classList.toggle("ready",has&&!submitted);
-    if(has&&!submitted){const card=calcCard(tally.red,tally.blue);btn.textContent="SUBMIT: "+card.label;}
-    else if(!submitted)btn.textContent="SUBMIT CARD";
-  }
-  el("j-submit-btn").onclick=()=>{
-    if(submitted)return;
-    const card=calcCard(tally.red,tally.blue);
-    submitted=true;
-    const btn=el("j-submit-btn");btn.disabled=true;btn.style.opacity="0.3";
-    set(ref(db2,`sessions/${SES}/judgeCards/judge${JID}`),{
-      jid:JID,winner:card.winner,redTally:tally.red,blueTally:tally.blue,round:curRound,ts:Date.now()
-    }).catch(()=>{});
-    const banner=el("j-submitted-banner");
-    banner.textContent="\u2713 Submitted: "+card.label+" ("+tally.red+" vs "+tally.blue+")";
-    banner.style.display="block";el("j-end-banner").style.display="none";
-    buildTally(flipped);
-  };
   el("j-undoL").onclick=()=>{
-    if(submitted)return;
     const side=flipped?"blue":"red";const acts=actionsFor(curStyle,curRound);
     const min=Math.min(...acts.map(a=>a.pts));
     if(tally[side]>=min)tally[side]-=min;
@@ -1070,7 +1045,6 @@ function initJudge(){
     set(ref(db2,`sessions/${SES}/tallies/judge${JID}`),{...tally,ts:Date.now()}).catch(()=>{});
   };
   el("j-undoR").onclick=()=>{
-    if(submitted)return;
     const side=flipped?"red":"blue";const acts=actionsFor(curStyle,curRound);
     const min=Math.min(...acts.map(a=>a.pts));
     if(tally[side]>=min)tally[side]-=min;
