@@ -3,6 +3,22 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<style>
+  /* Prevent iOS tap highlight and text selection on scoring buttons */
+  * { -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; }
+</style>
+<script>
+  // Block pinch-zoom and double-tap zoom on iOS Safari (ignores viewport meta)
+  document.addEventListener('touchstart', function(e){
+    if(e.touches.length > 1) e.preventDefault();
+  }, {passive: false});
+  let lastTap = 0;
+  document.addEventListener('touchend', function(e){
+    const now = Date.now();
+    if(now - lastTap < 300) e.preventDefault();
+    lastTap = now;
+  }, {passive: false});
+</script>
 <title>CGS Integrated Scoreboard</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <style>
