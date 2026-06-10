@@ -652,9 +652,6 @@ function initHost(){
       }else if(!s.timerRunning&&timerRunning){clearInterval(timerInterval);timerRunning=false;}
     }catch(err){showErr("host-err","Render error: "+err.message);console.error(err);}
   });
-  onValue(ref(db,`sessions/${SES}/judgeCards`),snap=>{
-    try{const c=snap.val()||{};renderJudgePills(c);tryProcessCards(c);}catch(e){}
-  });
   onValue(ref(db,`sessions/${SES}/tallies`),snap=>{
     try{renderHostTallies(snap.val()||{});}catch(e){}
   });
@@ -667,8 +664,7 @@ function initHost(){
     toggleTimer:()=>toggleTimer(),
     newBout:()=>{if(confirm("Start new bout? Clears all scores."))initState(el("h-style-sel")?.value||"boxing");},
     onStyleChange:()=>{const s=el("h-style-sel").value;if(confirm("Change to "+styleLabel(s)+"? Resets scores."))initState(s);},
-    endRound:()=>endRound(),
-    startRound:()=>startRound(),
+    endRound:()=>endRoundNow(null),
     toggleRound:()=>toggleRound(),
     pauseRound:()=>pauseRound(),
     undoRound:()=>undoRound(),
@@ -800,116 +796,120 @@ function renderRoundCards(results,cur,style){
   c.innerHTML=html;
 }
 
-async function tryProcessCards(cards){
-  if(!Object.keys(cards).length)return;
-  const stSnap=await get(ref(db,`sessions/${SES}/state`));if(!stSnap.exists())return;
-  const st=stSnap.val(),style=st.style||"boxing";
-  if(style==="tkd"){await procTKDVotes(st,cards);return;}
-  const cur=st.round||1,now=Date.now();
-  const fresh=Object.values(cards).filter(c=>c.round===cur&&(now-c.ts)<300000);
-  if(fresh.length<JC)return;
-  const ra=Math.round(fresh.reduce((a,c)=>a+(c.redTally||0),0)/fresh.length);
-  const ba=Math.round(fresh.reduce((a,c)=>a+(c.blueTally||0),0)/fresh.length);
-  const card=calcCard(ra,ba);
-  let rp=card.redPts,bp=card.bluePts;
-  if(card.winner==="red")rp=Math.max(0,rp-(st.redDeductions||0));
-  if(card.winner==="blue")bp=Math.max(0,bp-(st.blueDeductions||0));
-  await applyRoundResult(st,card.winner,rp,bp);
-  await set(ref(db,`sessions/${SES}/judgeCards`),null);
-  await set(ref(db,`sessions/${SES}/tallies`),null);
-}
-
-async function applyRoundResult(st,winner,rp,bp){
-  const round=st.round||1,results=[...(st.roundResults||[])];
-  results[round-1]={red:rp,blue:bp,winner};
-  let rt=0,bt=0;results.forEach(r=>{if(r){rt+=r.red;bt+=r.blue;}});
-  await set(ref(db,`sessions/${SES}/state/roundResults`),results);
-  await set(ref(db,`sessions/${SES}/state/redScore`),rt);
-  await set(ref(db,`sessions/${SES}/state/blueScore`),bt);
-  await set(ref(db,`sessions/${SES}/state/redDeductions`),0);
-  await set(ref(db,`sessions/${SES}/state/blueDeductions`),0);
-  const mr=maxRounds(st.style||"boxing");
-  if(round<mr){
-    await set(ref(db,`sessions/${SES}/state/round`),round+1);
-    await set(ref(db,`sessions/${SES}/state/roundActive`),false);
-    await set(ref(db,`sessions/${SES}/judgeCards`),null);
-    await set(ref(db,`sessions/${SES}/tallies`),null);
-    await timerReset();
-  }
-}
-
-async function startRound(){
-  await set(ref(db,`sessions/${SES}/state/roundActive`),true);
-  await set(ref(db,`sessions/${SES}/judgeCards`),null);
-  await set(ref(db,`sessions/${SES}/tallies`),null);
-  if((await get(ref(db,`sessions/${SES}/state/timerVisible`))).val()){
-    await timerReset();
-    await set(ref(db,`sessions/${SES}/state/timerRunning`),true);
-  }
-}
-
 async function toggleRound(){
-  const active=(await get(ref(db,`sessions/${SES}/state/roundActive`))).val()||false;
-  if(active) await endRound(); else await startRound();
+  const stSnap=await get(ref(db,`sessions/${SES}/state`));if(!stSnap.exists())return;
+  const st=stSnap.val();
+  if(st.roundActive) await endRoundNow(st); else await startRoundNow(st);
+}
+
+async function startRoundNow(st){
+  // Clear tallies, mark active, start timer if visible
+  await set(ref(db,`sessions/${SES}/judgeCards`),null);
+  await set(ref(db,`sessions/${SES}/tallies`),null);
+  const updates={roundActive:true,roundEnded:0};
+  if(st.timerVisible){
+    updates.timerSeconds=st.timerMax||120;
+    updates.timerRunning=true;
+  }
+  await set(ref(db,`sessions/${SES}/state`),{...st,...updates});
+}
+
+async function endRoundNow(st){
+  const style=st.style||"boxing";
+  const round=st.round||1;
+  const mr=maxRounds(style);
+  const isTKD=style==="tkd";
+  const isLastRound=round>=mr;
+
+  // Stop timer immediately
+  await set(ref(db,`sessions/${SES}/state/timerRunning`),false);
+  await set(ref(db,`sessions/${SES}/state/roundActive`),false);
+
+  // ── Score calculation ──────────────────────────────────────
+  let rp=0,bp=0,winner="draw";
+
+  if(isTKD){
+    // TKD: scores are on state directly
+    const rs=st.redScore||0,bs=st.blueScore||0;
+    winner=rs>bs?"red":bs>rs?"blue":"draw";
+    rp=rs;bp=bs;
+  } else {
+    // Points styles: read tallies directly, no listener dependency
+    const talliesSnap=await get(ref(db,`sessions/${SES}/tallies`));
+    const tallies=talliesSnap.val()||{};
+    const keys=Object.keys(tallies);
+    if(keys.length){
+      let rt=0,bt=0;
+      keys.forEach(k=>{rt+=tallies[k].red||0;bt+=tallies[k].blue||0;});
+      const ra=Math.round(rt/keys.length),ba=Math.round(bt/keys.length);
+      const card=calcCard(ra,ba);
+      winner=card.winner;
+      rp=card.redPts;bp=card.bluePts;
+      if(winner==="red")rp=Math.max(0,rp-(st.redDeductions||0));
+      if(winner==="blue")bp=Math.max(0,bp-(st.blueDeductions||0));
+    } else {
+      // No judge data — round scores as 10-10 draw
+      rp=10;bp=10;winner="draw";
+    }
+  }
+
+  // ── Commit round result ────────────────────────────────────
+  const results=[...(st.roundResults||[])];
+  results[round-1]={red:rp,blue:bp,winner};
+
+  // Running fight totals
+  let rt=0,bt=0;results.forEach(r=>{if(r){rt+=r.red;bt+=r.blue;}});
+
+  // ── Build next state ───────────────────────────────────────
+  const next={
+    ...st,
+    roundActive:false,
+    roundEnded:Date.now(),
+    roundResults:results,
+    redDeductions:0,
+    blueDeductions:0,
+    timerRunning:false,
+  };
+
+  if(isLastRound){
+    // Final round — calculate and set winner, stay on last round number
+    next.redScore=rt;next.blueScore=bt;
+    next.winner=rt>bt?(st.redName||"RED").toUpperCase()+" WINS!":
+                bt>rt?(st.blueName||"BLUE").toUpperCase()+" WINS!":
+                "IT'S A DRAW!";
+  } else {
+    // Advance to next round, reset per-round state
+    next.round=round+1;
+    next.redScore=rt;next.blueScore=bt;
+    if(isTKD){
+      // TKD resets per-round scores
+      next.redScore=0;next.blueScore=0;
+      next.redGam=0;next.blueGam=0;
+      next.redKyong=0;next.blueKyong=0;
+      // Store totals separately for TKD
+      next.redTotalScore=rt;next.blueTotalScore=bt;
+    }
+    if(st.timerVisible) next.timerSeconds=st.timerMax||120;
+  }
+
+  await set(ref(db,`sessions/${SES}/state`),next);
+  await set(ref(db,`sessions/${SES}/judgeCards`),null);
+  await set(ref(db,`sessions/${SES}/tallies`),null);
 }
 
 async function pauseRound(){
-  // Pause = stop timer but keep round active (judges can still score)
   const running=(await get(ref(db,`sessions/${SES}/state/timerRunning`))).val()||false;
   await set(ref(db,`sessions/${SES}/state/timerRunning`),!running);
-  const btn=el("h-pause-btn");
-  if(btn) btn.textContent=running?"\u23f8 Paused \u2014 Resume":"\u23f4\u23f4 Pause";
 }
 
 async function undoRound(){
-  // Undo: cancel the active round, restore tallies cleared at start
-  if(!confirm("Undo round start? This resets the round and clears judge tallies.")) return;
+  if(!confirm("Undo — cancel this round and clear judge tallies?")) return;
   await set(ref(db,`sessions/${SES}/state/roundActive`),false);
   await set(ref(db,`sessions/${SES}/state/timerRunning`),false);
   await set(ref(db,`sessions/${SES}/judgeCards`),null);
   await set(ref(db,`sessions/${SES}/tallies`),null);
-  if((await get(ref(db,`sessions/${SES}/state/timerVisible`))).val()) await timerReset();
-}
-
-async function endRound(){
-  await set(ref(db,`sessions/${SES}/state/timerRunning`),false);
-  await set(ref(db,`sessions/${SES}/state/roundActive`),false);
-  await set(ref(db,`sessions/${SES}/state/roundEnded`),Date.now());
-  const stSnap=await get(ref(db,`sessions/${SES}/state`));if(!stSnap.exists())return;
-  const st=stSnap.val();
-  // Auto-submit: pull current tallies and build judgeCards from them
-  const talliesSnap=await get(ref(db,`sessions/${SES}/tallies`));
-  const tallies=talliesSnap.val()||{};
-  const tallyKeys=Object.keys(tallies);
-  if(st.style!=="tkd"&&tallyKeys.length>0){
-    const now=Date.now();const cards={};
-    tallyKeys.forEach(k=>{
-      const t=tallies[k];const jid=k.replace("judge","");
-      const card=calcCard(t.red||0,t.blue||0);
-      cards["judge"+jid]={jid,winner:card.winner,redTally:t.red||0,blueTally:t.blue||0,round:st.round||1,ts:now};
-    });
-    // Fill in any missing judges with a draw card to prevent blocking
-    for(let j=1;j<=JC;j++){
-      if(!cards["judge"+j]){
-        cards["judge"+j]={jid:j,winner:"draw",redTally:0,blueTally:0,round:st.round||1,ts:now,autoFilled:true};
-      }
-    }
-    await set(ref(db,`sessions/${SES}/judgeCards`),cards);
-    return;
-  }
-  if(st.style==="tkd"){
-    const rs=st.redScore||0,bs=st.blueScore||0,winner=rs>bs?"red":bs>rs?"blue":"draw";
-    const results=[...(st.roundResults||[])],round=st.round||1;
-    results[round-1]={red:rs,blue:bs,winner};
-    await set(ref(db,`sessions/${SES}/state/roundResults`),results);
-    if(round<3){
-      await set(ref(db,`sessions/${SES}/state/round`),round+1);
-      for(const k of["redScore","blueScore","redGam","blueGam","redKyong","blueKyong"])
-        await set(ref(db,`sessions/${SES}/state/${k}`),0);
-      await set(ref(db,`sessions/${SES}/judgeCards`),null);
-      await timerReset();
-    }
-  }
+  const mx=(await get(ref(db,`sessions/${SES}/state/timerMax`))).val()||120;
+  await set(ref(db,`sessions/${SES}/state/timerSeconds`),mx);
 }
 
 async function declareWinner(){
@@ -959,11 +959,11 @@ async function toggleTimer(){const r=ref(db,`sessions/${SES}/state/timerVisible`
 
 function initJudge(){
   const db2=getDatabase(fbApp("cgs-judge"+JID));
-  let flipped=false,curRound=1,curStyle="boxing";
+  let flipped=false,curRound=1,curStyle="boxing",roundActive=false;
   let tally={red:0,blue:0},rn="Fighter 1",bn="Fighter 2";
   T("j-badge","JUDGE "+JID);
   if(AGE==="u12")el("j-nohead-banner").style.display="block";
-  T("j-status",JC===1?"You are the sole judge.":JC===2?"Both judges submit each round.":"Submit your card at round end \u2014 2 of 3 decide.");
+  T("j-status",JC===1?"You are the sole judge.":JC===2?"Both judges score each round.":"Score each round \u2014 2 of 3 decide.");
   onValue(ref(db2,`sessions/${SES}/state`),snap=>{
     try{
       if(!snap.exists())return;
@@ -971,6 +971,7 @@ function initJudge(){
       const newStyle=s.style||"boxing",isTKD=newStyle==="tkd";
       const styleChanged=newStyle!==curStyle;
       curStyle=newStyle;
+      roundActive=s.roundActive||false;
       T("j-rs",s.redScore??0);T("j-bs",s.blueScore??0);
       T("j-round",s.round??1);
       rn=s.redName||"Fighter 1";bn=s.blueName||"Fighter 2";
@@ -980,14 +981,14 @@ function initJudge(){
       else el("j-timer").style.display="none";
       el("j-tally-wrap").style.display=isTKD?"none":"flex";
       el("j-undo-row").style.display=isTKD?"none":"flex";
-      el("j-submit-btn").style.display=isTKD?"none":"block";
       el("j-tkd-area").style.display=isTKD?"grid":"none";
       el("j-bonus-row").style.display=(isTKD&&JC===1)?"flex":"none";
+      // Round/style change — reset tally
       if((s.round??1)!==curRound||styleChanged){
         curRound=s.round??1;tally={red:0,blue:0};
       }
-      if(s.roundEnded&&!isTKD&&(Date.now()-s.roundEnded)<60000){
-        // Round ended — clear local tally display, host handled submission
+      // Round ended — clear tally display
+      if(!roundActive&&s.roundEnded&&(Date.now()-s.roundEnded)<10000){
         tally={red:0,blue:0};
       }
       el("j-hybrid-bar").style.display=curStyle==="hybrid"?"block":"none";
@@ -1022,13 +1023,19 @@ function initJudge(){
     const rBtns=document.createElement("div");rBtns.className="j-action-btns";
     acts.forEach(act=>{lBtns.appendChild(mkActBtn(lc,act,ls));rBtns.appendChild(mkActBtn(rc,act,rs));});
     lCol.appendChild(lBtns);rCol.appendChild(rBtns);
+    // Waiting indicator
+    const jStatus=el("j-status");
+    if(jStatus) jStatus.textContent=roundActive?"":"Waiting for host to start the round\u2026";
     updateCard();
   }
   function mkActBtn(color,act,side){
     const b=document.createElement("button");
     b.className=`j-act-btn ${color}`;
+    b.disabled=!roundActive;
+    if(!roundActive) b.style.opacity="0.25";
     b.innerHTML=`<div class="j-act-pts">+${act.pts}</div><div class="j-act-lbl">${act.label}</div>`;
     b.onclick=()=>{
+      if(!roundActive)return;
       tally[side]+=act.pts;
       b.classList.add("flash");setTimeout(()=>b.classList.remove("flash"),220);
       buildTally(flipped);
@@ -1180,4 +1187,3 @@ try{
 </script>
 </body>
 </html>
-
