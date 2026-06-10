@@ -291,10 +291,6 @@ h1.brand{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.4rem,4vw,2.4rem);
         <div class="round-lbl">Round</div>
         <div class="round-big" id="h-round">1</div>
         <div class="round-ruleset" id="h-ruleset-lbl"></div>
-        <div style="display:flex;gap:5px;margin-top:2px">
-          <button class="btn btn-ghost btn-sm" onclick="CGS.adjRound(-1)">&#8722;</button>
-          <button class="btn btn-ghost btn-sm" onclick="CGS.adjRound(1)">+</button>
-        </div>
       </div>
       <div class="timer-block" id="h-timer-block" style="display:none">
         <div class="timer-display" id="h-timer">2:00</div>
@@ -653,7 +649,11 @@ function initHost(){
     }catch(err){showErr("host-err","Render error: "+err.message);console.error(err);}
   });
   onValue(ref(db,`sessions/${SES}/tallies`),snap=>{
-    try{renderHostTallies(snap.val()||{});}catch(e){}
+    try{
+      const tallies=snap.val()||{};
+      renderHostTallies(tallies);
+      renderJudgePills(tallies);
+    }catch(e){}
   });
   Object.assign(window.CGS,{
     adjRound:d=>adjRound(d),
@@ -756,14 +756,18 @@ function setPenStatus(id,n){
   else{e.textContent="\u26a0 DQ \u2014 2 Deductions";e.className="pen-status dq";}
 }
 
-function renderJudgePills(cards){
+function renderJudgePills(tallies){
   const c=el("h-judge-pills");if(!c)return;
-  const now=Date.now();let html="";
+  let html="";
   for(let j=1;j<=JC;j++){
-    const card=cards["judge"+j],fresh=card&&(now-card.ts)<300000;
-    const cls=fresh?"submitted":"waiting";
-    const label=fresh?(card.winner==="draw"?"J"+j+" Even":card.winner==="red"?"J"+j+" \ud83d\udd34":"J"+j+" \ud83d\udd35"):"J"+j+" \u2026";
-    html+=`<div class="judge-pill ${cls}">${label}</div>`;
+    const t=tallies["judge"+j];
+    if(!t){
+      html+=`<div class="judge-pill waiting">J${j} \u2026</div>`;
+      continue;
+    }
+    const card=calcCard(t.red||0,t.blue||0);
+    const lean=card.winner==="red"?"\ud83d\udd34 Red":card.winner==="blue"?"\ud83d\udd35 Blue":"Even";
+    html+=`<div class="judge-pill submitted">J${j} \u2192 ${lean}</div>`;
   }
   c.innerHTML=html;
 }
