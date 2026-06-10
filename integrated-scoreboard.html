@@ -395,8 +395,9 @@ h1.brand{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.4rem,4vw,2.4rem);
   <div class="action-bar">
     <button class="btn btn-ghost btn-sm" onclick="CGS.toggleTimer()">&#9201; Toggle Timer</button>
     <button class="btn btn-ghost btn-sm" onclick="CGS.newBout()">&#8635; New Bout</button>
-    <button class="btn btn-gold btn-sm" id="h-start-btn" onclick="CGS.startRound()" style="display:none">&#9654; Start Round</button>
-    <button class="btn btn-gold btn-sm" id="h-end-btn" onclick="CGS.endRound()">&#9209; End Round</button>
+    <button class="btn btn-gold btn-sm" id="h-round-toggle" onclick="CGS.toggleRound()">&#9654; Start Round</button>
+    <button class="btn btn-ghost btn-sm" id="h-pause-btn" onclick="CGS.pauseRound()" style="display:none">&#9646;&#9646; Pause</button>
+    <button class="btn btn-danger btn-sm" id="h-undo-btn" onclick="CGS.undoRound()" style="display:none">&#8617; Undo</button>
     <button class="btn btn-green btn-sm" onclick="CGS.declareWinner()">&#127942; Declare Winner</button>
   </div>
   <div class="overlay" id="h-wo">
@@ -488,6 +489,7 @@ h1.brand{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.4rem,4vw,2.4rem);
         <div style="font-family:'Bebas Neue',sans-serif;font-size:2.4rem;color:#80b0ff" id="p-tally-b">0</div>
       </div>
       <div id="p-projected" style="font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:.15em;margin-top:8px;color:var(--gold)"></div>
+      <div id="p-judge-leanings" style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:12px;padding-top:10px;border-top:1px solid #1a1a24"></div>
     </div>
     <div class="pub-scores">
       <div class="pub-side pub-red">
@@ -670,6 +672,9 @@ function initHost(){
     onStyleChange:()=>{const s=el("h-style-sel").value;if(confirm("Change to "+styleLabel(s)+"? Resets scores."))initState(s);},
     endRound:()=>endRound(),
     startRound:()=>startRound(),
+    toggleRound:()=>toggleRound(),
+    pauseRound:()=>pauseRound(),
+    undoRound:()=>undoRound(),
     declareWinner:()=>declareWinner(),
     clearWinner:()=>{set(ref(db,`sessions/${SES}/state/winner`),"");el("h-wo").classList.remove("show");},
     addGam:side=>addGam(side),
@@ -733,10 +738,20 @@ function renderHost(s){
   T("h-timer",fmt(s.timerSeconds??120));
   el("h-timer").classList.toggle("warning",(s.timerSeconds??120)<=30);
   el("h-ss").textContent=s.timerRunning?"\u23f8 Pause":"\u25b6 Start";
-  // Start/End Round button logic — works with or without timer
+  // Single round toggle button
   const roundActive=s.roundActive||false;
-  el("h-start-btn").style.display=roundActive?"none":"inline-flex";
-  el("h-end-btn").style.display=roundActive?"inline-flex":"none";
+  const toggleBtn=el("h-round-toggle");
+  if(toggleBtn){
+    if(roundActive){
+      toggleBtn.textContent="\u23f9 End Round";
+      toggleBtn.className="btn btn-red btn-sm";
+    } else {
+      toggleBtn.textContent="\u25b6 Start Round";
+      toggleBtn.className="btn btn-gold btn-sm";
+    }
+  }
+  el("h-pause-btn").style.display=roundActive?"inline-flex":"none";
+  el("h-undo-btn").style.display=roundActive?"inline-flex":"none";
   renderRoundCards(s.roundResults||[],s.round??1,style);
   if(s.winner){T("h-wt",s.winner);el("h-wo").classList.add("show");}
 }
@@ -834,6 +849,29 @@ async function startRound(){
     await timerReset();
     await set(ref(db,`sessions/${SES}/state/timerRunning`),true);
   }
+}
+
+async function toggleRound(){
+  const active=(await get(ref(db,`sessions/${SES}/state/roundActive`))).val()||false;
+  if(active) await endRound(); else await startRound();
+}
+
+async function pauseRound(){
+  // Pause = stop timer but keep round active (judges can still score)
+  const running=(await get(ref(db,`sessions/${SES}/state/timerRunning`))).val()||false;
+  await set(ref(db,`sessions/${SES}/state/timerRunning`),!running);
+  const btn=el("h-pause-btn");
+  if(btn) btn.textContent=running?"\u23f8 Paused \u2014 Resume":"\u23f4\u23f4 Pause";
+}
+
+async function undoRound(){
+  // Undo: cancel the active round, restore tallies cleared at start
+  if(!confirm("Undo round start? This resets the round and clears judge tallies.")) return;
+  await set(ref(db,`sessions/${SES}/state/roundActive`),false);
+  await set(ref(db,`sessions/${SES}/state/timerRunning`),false);
+  await set(ref(db,`sessions/${SES}/judgeCards`),null);
+  await set(ref(db,`sessions/${SES}/tallies`),null);
+  if((await get(ref(db,`sessions/${SES}/state/timerVisible`))).val()) await timerReset();
 }
 
 async function endRound(){
@@ -1119,6 +1157,22 @@ function initPub(){
       if(proj){
         proj.textContent=card.winner==="draw"?"EVEN":"Leaning "+card.winner.toUpperCase();
         proj.style.color=card.winner==="red"?"var(--red)":card.winner==="blue"?"var(--blue)":"var(--gold)";
+      }
+      // Per-judge leanings
+      const leanDiv=el("p-judge-leanings");
+      if(leanDiv){
+        let html="";
+        for(let j=1;j<=JC;j++){
+          const t=tallies["judge"+j];
+          if(!t){html+=`<div style="font-family:'Bebas Neue',sans-serif;font-size:.85rem;letter-spacing:.12em;padding:4px 14px;border-radius:20px;background:#0f0f0f;border:1px solid #2a2a3a;color:#444">J${j} —</div>`;continue;}
+          const jcard=calcCard(t.red||0,t.blue||0);
+          const col=jcard.winner==="red"?"var(--red)":jcard.winner==="blue"?"var(--blue)":"var(--gold)";
+          const bg=jcard.winner==="red"?"rgba(224,32,32,.12)":jcard.winner==="blue"?"rgba(26,111,212,.12)":"rgba(245,197,24,.08)";
+          const border=jcard.winner==="red"?"rgba(224,32,32,.4)":jcard.winner==="blue"?"rgba(26,111,212,.4)":"rgba(245,197,24,.3)";
+          const lbl=jcard.winner==="draw"?"EVEN":jcard.winner.toUpperCase();
+          html+=`<div style="font-family:'Bebas Neue',sans-serif;font-size:.85rem;letter-spacing:.12em;padding:4px 14px;border-radius:20px;background:${bg};border:1px solid ${border};color:${col}">J${j} · ${lbl}</div>`;
+        }
+        leanDiv.innerHTML=html;
       }
       if(wrap)wrap.style.display="block";
     }catch(e){}
