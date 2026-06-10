@@ -395,15 +395,9 @@ h1.brand{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.4rem,4vw,2.4rem);
   <div class="action-bar">
     <button class="btn btn-ghost btn-sm" onclick="CGS.toggleTimer()">&#9201; Toggle Timer</button>
     <button class="btn btn-ghost btn-sm" onclick="CGS.newBout()">&#8635; New Bout</button>
-    <button class="btn btn-gold btn-sm" onclick="CGS.endRound()">&#9209; End Round</button>
+    <button class="btn btn-gold btn-sm" id="h-start-btn" onclick="CGS.startRound()" style="display:none">&#9654; Start Round</button>
+    <button class="btn btn-gold btn-sm" id="h-end-btn" onclick="CGS.endRound()">&#9209; End Round</button>
     <button class="btn btn-green btn-sm" onclick="CGS.declareWinner()">&#127942; Declare Winner</button>
-  </div>
-  <div class="overlay" id="h-ro">
-    <div class="ov-title">Round Complete</div>
-    <div class="ov-winner" id="h-rw" style="color:var(--gold)"></div>
-    <div class="ov-score" id="h-rsc"></div>
-    <div class="ov-sub" id="h-rsb"></div>
-    <button class="btn btn-gold" style="margin-top:12px" onclick="document.getElementById('h-ro').classList.remove('show')">&#9654; Next Round</button>
   </div>
   <div class="overlay" id="h-wo">
     <div class="ov-title">Match Winner</div>
@@ -481,6 +475,20 @@ h1.brand{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.4rem,4vw,2.4rem);
       <div class="pub-ruleset" id="p-ruleset"></div>
     </div>
     <div class="pub-round-chips" id="p-chips"></div>
+    <div id="p-tally-wrap" style="display:none;width:100%;max-width:700px;background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:16px 24px;text-align:center;margin:0 auto">
+      <div style="font-family:monospace;font-size:.7rem;letter-spacing:.25em;color:var(--muted);text-transform:uppercase;margin-bottom:10px">Live Round Tally</div>
+      <div style="display:flex;align-items:center;gap:12px;justify-content:center">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:2.4rem;color:#ff8080" id="p-tally-r">0</div>
+        <div style="flex:1;max-width:260px">
+          <div style="position:relative;height:10px;background:#1a1a24;border-radius:5px;overflow:hidden">
+            <div id="p-tbar-r" style="position:absolute;right:50%;top:0;height:100%;background:var(--red);border-radius:5px;transition:width .4s;width:0%"></div>
+            <div id="p-tbar-b" style="position:absolute;left:50%;top:0;height:100%;background:var(--blue);border-radius:5px;transition:width .4s;width:0%"></div>
+          </div>
+        </div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:2.4rem;color:#80b0ff" id="p-tally-b">0</div>
+      </div>
+      <div id="p-projected" style="font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:.15em;margin-top:8px;color:var(--gold)"></div>
+    </div>
     <div class="pub-scores">
       <div class="pub-side pub-red">
         <div class="pub-name r" id="p-rn">FIGHTER 1</div>
@@ -661,6 +669,7 @@ function initHost(){
     newBout:()=>{if(confirm("Start new bout? Clears all scores."))initState(el("h-style-sel")?.value||"boxing");},
     onStyleChange:()=>{const s=el("h-style-sel").value;if(confirm("Change to "+styleLabel(s)+"? Resets scores."))initState(s);},
     endRound:()=>endRound(),
+    startRound:()=>startRound(),
     declareWinner:()=>declareWinner(),
     clearWinner:()=>{set(ref(db,`sessions/${SES}/state/winner`),"");el("h-wo").classList.remove("show");},
     addGam:side=>addGam(side),
@@ -679,7 +688,7 @@ function initState(style){
     redDeductions:0,blueDeductions:0,
     round:1,style:style||"boxing",
     timerSeconds:120,timerMax:120,timerRunning:false,timerVisible:false,
-    winner:"",roundResults:[],roundEnded:0
+    winner:"",roundResults:[],roundEnded:0,roundActive:false
   });
   set(ref(db,`sessions/${SES}/judgeCards`),null);
   set(ref(db,`sessions/${SES}/tallies`),null);
@@ -724,6 +733,10 @@ function renderHost(s){
   T("h-timer",fmt(s.timerSeconds??120));
   el("h-timer").classList.toggle("warning",(s.timerSeconds??120)<=30);
   el("h-ss").textContent=s.timerRunning?"\u23f8 Pause":"\u25b6 Start";
+  // Start/End Round button logic — works with or without timer
+  const roundActive=s.roundActive||false;
+  el("h-start-btn").style.display=roundActive?"none":"inline-flex";
+  el("h-end-btn").style.display=roundActive?"inline-flex":"none";
   renderRoundCards(s.roundResults||[],s.round??1,style);
   if(s.winner){T("h-wt",s.winner);el("h-wo").classList.add("show");}
 }
@@ -803,34 +816,56 @@ async function applyRoundResult(st,winner,rp,bp){
   await set(ref(db,`sessions/${SES}/state/blueScore`),bt);
   await set(ref(db,`sessions/${SES}/state/redDeductions`),0);
   await set(ref(db,`sessions/${SES}/state/blueDeductions`),0);
-  const rn=st.redName||"RED",bn=st.blueName||"BLUE";
-  const wname=winner==="draw"?"DRAW":(winner==="red"?rn:bn).toUpperCase()+" WINS ROUND!";
-  el("h-rw").textContent=wname;el("h-rw").style.color=winner==="red"?"var(--red)":winner==="blue"?"var(--blue)":"var(--gold)";
-  T("h-rsc",`${rp} \u2013 ${bp}`);
   const mr=maxRounds(st.style||"boxing");
-  T("h-rsb",round>=mr?"Complete \u2014 declare winner below":"Next: Round "+(round+1));
-  el("h-ro").classList.add("show");
   if(round<mr){
     await set(ref(db,`sessions/${SES}/state/round`),round+1);
+    await set(ref(db,`sessions/${SES}/state/roundActive`),false);
     await set(ref(db,`sessions/${SES}/judgeCards`),null);
     await set(ref(db,`sessions/${SES}/tallies`),null);
     await timerReset();
   }
 }
 
+async function startRound(){
+  await set(ref(db,`sessions/${SES}/state/roundActive`),true);
+  await set(ref(db,`sessions/${SES}/judgeCards`),null);
+  await set(ref(db,`sessions/${SES}/tallies`),null);
+  if((await get(ref(db,`sessions/${SES}/state/timerVisible`))).val()){
+    await timerReset();
+    await set(ref(db,`sessions/${SES}/state/timerRunning`),true);
+  }
+}
+
 async function endRound(){
+  await set(ref(db,`sessions/${SES}/state/timerRunning`),false);
+  await set(ref(db,`sessions/${SES}/state/roundActive`),false);
   await set(ref(db,`sessions/${SES}/state/roundEnded`),Date.now());
   const stSnap=await get(ref(db,`sessions/${SES}/state`));if(!stSnap.exists())return;
   const st=stSnap.val();
+  // Auto-submit: pull current tallies and build judgeCards from them
+  const talliesSnap=await get(ref(db,`sessions/${SES}/tallies`));
+  const tallies=talliesSnap.val()||{};
+  const tallyKeys=Object.keys(tallies);
+  if(st.style!=="tkd"&&tallyKeys.length>0){
+    const now=Date.now();const cards={};
+    tallyKeys.forEach(k=>{
+      const t=tallies[k];const jid=k.replace("judge","");
+      const card=calcCard(t.red||0,t.blue||0);
+      cards["judge"+jid]={jid,winner:card.winner,redTally:t.red||0,blueTally:t.blue||0,round:st.round||1,ts:now};
+    });
+    // Fill in any missing judges with a draw card to prevent blocking
+    for(let j=1;j<=JC;j++){
+      if(!cards["judge"+j]){
+        cards["judge"+j]={jid:j,winner:"draw",redTally:0,blueTally:0,round:st.round||1,ts:now,autoFilled:true};
+      }
+    }
+    await set(ref(db,`sessions/${SES}/judgeCards`),cards);
+    return;
+  }
   if(st.style==="tkd"){
     const rs=st.redScore||0,bs=st.blueScore||0,winner=rs>bs?"red":bs>rs?"blue":"draw";
     const results=[...(st.roundResults||[])],round=st.round||1;
     results[round-1]={red:rs,blue:bs,winner};
-    const rn=st.redName||"RED",bn=st.blueName||"BLUE";
-    el("h-rw").textContent=winner==="draw"?"DRAW":(winner==="red"?rn:bn).toUpperCase()+" WINS ROUND!";
-    el("h-rw").style.color=winner==="red"?"var(--red)":winner==="blue"?"var(--blue)":"var(--gold)";
-    T("h-rsc",`${rs} \u2013 ${bs}`);T("h-rsb",round>=3?"Complete":"Next: Round "+(round+1));
-    el("h-ro").classList.add("show");
     await set(ref(db,`sessions/${SES}/state/roundResults`),results);
     if(round<3){
       await set(ref(db,`sessions/${SES}/state/round`),round+1);
@@ -1064,6 +1099,30 @@ function initPub(){
       if(s.winner){T("p-wt",s.winner);el("p-wo").classList.add("show");}else el("p-wo").classList.remove("show");
     }catch(err){console.error("pub error",err);}
   });
+  // Live tally feed for round tension
+  onValue(ref(db3,`sessions/${SES}/tallies`),snap=>{
+    try{
+      const tallies=snap.val()||{};
+      const keys=Object.keys(tallies);
+      const wrap=el("p-tally-wrap");
+      if(!keys.length){if(wrap)wrap.style.display="none";return;}
+      let rt=0,bt=0;
+      keys.forEach(k=>{rt+=tallies[k].red||0;bt+=tallies[k].blue||0;});
+      const avg=keys.length,ra=Math.round(rt/avg),ba=Math.round(bt/avg);
+      T("p-tally-r",rt);T("p-tally-b",bt);
+      const mx=Math.max(rt,bt,1);
+      const rb=el("p-tbar-r"),bb=el("p-tbar-b");
+      if(rb)rb.style.width=Math.min(50,(rt/mx)*50)+"%";
+      if(bb)bb.style.width=Math.min(50,(bt/mx)*50)+"%";
+      const card=calcCard(ra,ba);
+      const proj=el("p-projected");
+      if(proj){
+        proj.textContent=card.winner==="draw"?"EVEN":"Leaning "+card.winner.toUpperCase();
+        proj.style.color=card.winner==="red"?"var(--red)":card.winner==="blue"?"var(--blue)":"var(--gold)";
+      }
+      if(wrap)wrap.style.display="block";
+    }catch(e){}
+  });
 }
 function penDots(cid,gam,side,kyong){
   const c=el(cid);if(!c)return;c.innerHTML="";
@@ -1074,9 +1133,8 @@ function pubChips(results,style){
   const c=el("p-chips");if(!c)return;let html="";
   results.forEach((r,i)=>{
     if(!r)return;
-    const cls=r.winner==="red"?"rw":r.winner==="blue"?"bw":"draw";
     const sub=style==="hybrid"?" \u00b7 "+hybridName(i+1):"";
-    html+=`<div class="pub-round-chip ${cls}">R${i+1}${sub}: ${r.red}\u2013${r.blue}</div>`;
+    html+=`<div class="pub-round-chip" style="background:rgba(245,197,24,.07);border-color:rgba(245,197,24,.25);color:var(--gold)">R${i+1}${sub}: ${r.red}\u2013${r.blue}</div>`;
   });
   c.innerHTML=html;
 }
