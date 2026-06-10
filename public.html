@@ -15,8 +15,6 @@
 }
 body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13px;min-height:100vh}
 ::-webkit-scrollbar{width:2px}::-webkit-scrollbar-thumb{background:#333}
-
-/* HEADER */
 .hdr{background:#0a0a0d;border-bottom:2px solid var(--red);padding:10px 16px;position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:10px}
 .hdr-logo{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:4px;color:var(--gold)}
 .hdr-live{font-family:var(--mono);font-size:9px;padding:3px 8px;border-radius:2px;background:var(--red);color:#fff;display:none;animation:pulse 1.4s infinite}
@@ -25,23 +23,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
 .hdr-event{font-family:var(--mono);font-size:9px;color:var(--muted);margin-left:auto}
 .hdr-sync{width:7px;height:7px;border-radius:50%;background:var(--muted);flex-shrink:0}
 .hdr-sync.live{background:var(--green);box-shadow:0 0 6px var(--green)}
-
-/* SETUP SCREEN */
-#setup{padding:20px;max-width:500px;margin:40px auto}
-.setup-card{background:var(--surf);border:1px solid var(--border);border-radius:4px;padding:20px}
-.setup-card h2{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;color:var(--gold);margin-bottom:6px}
-.setup-card p{font-size:11px;color:var(--muted);line-height:1.7;margin-bottom:14px}
-.fld{margin-bottom:10px}
-.fld label{font-family:var(--mono);font-size:8px;letter-spacing:1.5px;color:var(--muted);display:block;margin-bottom:3px;text-transform:uppercase}
-.fld input{width:100%;background:#0a0a0d;border:1px solid var(--border);color:var(--text);padding:8px 10px;border-radius:2px;font-family:var(--mono);font-size:11px}
-.fld input:focus{outline:none;border-color:var(--gold)}
-.btn{border:none;cursor:pointer;font-family:var(--mono);font-weight:600;letter-spacing:.8px;border-radius:2px;padding:8px 16px;font-size:11px}
-.btn-gold{background:#c89010;color:#000}.btn-gold:hover{background:var(--gold)}
-.btn-ghost{background:none;border:1px solid var(--border);color:var(--muted);margin-left:8px}
-.info{font-size:10px;color:var(--muted);margin-top:8px;line-height:1.6}
-
-/* MAT COLUMNS */
-#draw{display:none;padding:10px}
+#draw{padding:10px}
 .mats{display:flex;gap:10px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:10px}
 @media(min-width:700px){.mats{flex-wrap:nowrap;align-items:flex-start}}
 .mat-col{flex:0 0 300px;background:var(--surf);border:1px solid var(--border);border-radius:3px;overflow:hidden}
@@ -49,8 +31,6 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
 .mat-hdr{background:#0d0d10;border-bottom:2px solid var(--gold);padding:8px 14px;display:flex;align-items:center;gap:8px;position:sticky;top:56px;z-index:5}
 .mat-name{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:var(--gold)}
 .mat-count{font-family:var(--mono);font-size:9px;color:var(--muted);margin-left:auto}
-
-/* BOUT ROWS */
 .bout-row{border-bottom:1px solid var(--border);padding:8px 12px;transition:background .15s}
 .bout-row.b-live{background:#0e0404;border-left:3px solid var(--red)}
 .bout-row.b-hold{background:#050d1a;border-left:3px solid #2a5a8a}
@@ -58,7 +38,6 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
 .bout-row.b-done{opacity:.45}
 .bout-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
 .bout-id{font-family:var(--mono);font-size:8px;color:var(--muted)}
-.bout-disc{font-family:var(--mono);font-size:8px;color:var(--gold)}
 .bout-status-live{font-family:var(--mono);font-size:8px;color:var(--red);font-weight:700}
 .bout-status-next{font-family:var(--mono);font-size:8px;color:var(--green)}
 .bout-status-hold{font-family:var(--mono);font-size:8px;color:#60a5fa}
@@ -70,8 +49,6 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
 .bout-score{font-family:'Bebas Neue',sans-serif;font-size:20px;text-align:center;margin-top:2px}
 .bout-clubs{display:flex;justify-content:space-between;font-size:9px;color:var(--muted);margin-top:2px}
 .flag-nh{font-family:var(--mono);font-size:7px;padding:1px 4px;border-radius:2px;background:#1a0e00;border:1px solid #6a3800;color:#e09020}
-
-/* RESULTS */
 #results-section{padding:10px}
 .results-title{font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:3px;color:var(--green);padding:8px 12px 4px}
 .result-row{background:var(--surf);border:1px solid var(--border);border-left:3px solid var(--green);border-radius:3px;padding:8px 12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:4px 10px}
@@ -79,11 +56,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
 .res-names{flex:1;font-size:12px;min-width:140px}
 .res-score{font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--green)}
 .res-winner{font-family:var(--mono);font-size:9px;color:var(--green);font-weight:700}
-
-/* EMPTY */
 .empty{padding:40px;text-align:center;color:var(--muted);font-family:var(--mono);font-size:10px}
-
-/* SEARCH */
 .search-bar{padding:8px 10px;display:flex;gap:6px}
 .search-bar input{flex:1;background:#0a0a0d;border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:2px;font-family:var(--mono);font-size:11px}
 .search-bar input:focus{outline:none;border-color:var(--gold)}
@@ -98,9 +71,6 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
   <div class="hdr-sync" id="sync-dot"></div>
 </div>
 
-<div id="setup" style="display:none"></div>
-
-<!-- LIVE DRAW -->
 <div id="draw">
   <div class="search-bar">
     <input id="fighter-search" placeholder="Search fighter or club…" oninput="filterDraw()"/>
@@ -113,110 +83,45 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
 import { getDatabase, ref, onValue } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
 
+// ── BAKED-IN CONFIG ──
+const FB_CONFIG = {
+  apiKey: "AIzaSyDKqodxFjM0EG_qu4zkCAQ37udwYTdSSQY",
+  authDomain: "cgs-manager.firebaseapp.com",
+  databaseURL: "https://cgs-manager-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "cgs-manager",
+  storageBucket: "cgs-manager.firebasestorage.app",
+  messagingSenderId: "928662574013",
+  appId: "1:928662574013:web:be540e308d022d28f678d4"
+};
+
 let bouts = [];
-let eventId = '';
 let searchQuery = '';
 
-// ── HELPERS ──
+// Event ID from URL param or default
+const params = new URLSearchParams(window.location.search);
+const eventId = params.get('event') || localStorage.getItem('cgs-eventId') || 'cgs-event';
+document.getElementById('event-label').textContent = eventId;
+
 function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
 function getActiveMats(){
   var seen={}, mats=[];
-  bouts.forEach(function(b){
-    if(b.status!=='completed'&&b.status!=='cancelled'&&!seen[b.area]){seen[b.area]=1;mats.push(b.area);}
-  });
+  bouts.forEach(function(b){if(b.status!=='completed'&&b.status!=='cancelled'&&!seen[b.area]){seen[b.area]=1;mats.push(b.area);}});
   return mats.sort();
 }
 
 function getBoutsForMat(mat){
-  var live=bouts.filter(function(b){return b.area===mat&&b.status==='live';});
-  var sched=bouts.filter(function(b){return b.area===mat&&b.status==='scheduled';});
-  var hold=bouts.filter(function(b){return b.area===mat&&b.status==='paused';});
-  var done=bouts.filter(function(b){return b.area===mat&&b.status==='completed';});
-  return live.concat(sched).concat(hold).concat(done.slice(-3));
+  return bouts.filter(b=>b.area===mat&&b.status==='live')
+    .concat(bouts.filter(b=>b.area===mat&&b.status==='scheduled'))
+    .concat(bouts.filter(b=>b.area===mat&&b.status==='paused'))
+    .concat(bouts.filter(b=>b.area===mat&&b.status==='completed').slice(-3));
 }
-
-// ── CONFIG ──
-function loadConfig(){
-  return {
-    databaseURL: localStorage.getItem('pub-dburl')||'',
-    apiKey: localStorage.getItem('pub-apikey')||'',
-    projectId: localStorage.getItem('pub-projectid')||'',
-    authDomain: (localStorage.getItem('pub-projectid')||'')+'.firebaseapp.com',
-    storageBucket: (localStorage.getItem('pub-projectid')||'')+'.appspot.com',
-    messagingSenderId: '0',
-    appId: '1:0:web:000000'
-  };
-}
-
-window.connectPublic = function(){
-  const dburl = document.getElementById('s-dburl').value.trim();
-  const eid = document.getElementById('s-eventid').value.trim();
-  const apikey = document.getElementById('s-apikey').value.trim();
-  const pid = document.getElementById('s-projectid').value.trim();
-  if(!dburl||!eid||!apikey||!pid){ alert('Please fill in all fields'); return; }
-  localStorage.setItem('pub-dburl', dburl);
-  localStorage.setItem('pub-eventid', eid);
-  localStorage.setItem('pub-apikey', apikey);
-  localStorage.setItem('pub-projectid', pid);
-  location.reload();
-};
-
-window.clearPublicConfig = function(){
-  ['pub-dburl','pub-eventid','pub-apikey','pub-projectid'].forEach(k=>localStorage.removeItem(k));
-  location.reload();
-};
 
 window.filterDraw = function(){
   searchQuery = document.getElementById('fighter-search').value.toLowerCase();
   renderDraw();
 };
 
-// ── INIT ──
-// Check for event ID from URL param or localStorage
-const params = new URLSearchParams(window.location.search);
-eventId = params.get('event') || localStorage.getItem('pub-eventid') || 'cgs-event';
-if(params.get('event')) localStorage.setItem('pub-eventid', eventId);
-
-// Always auto-connect with hardcoded config
-document.getElementById('setup').style.display='none';
-document.getElementById('draw').style.display='block';
-document.getElementById('event-label').textContent = eventId;
-
-if(true){
-  try {
-    const app = initializeApp({
-      apiKey: "AlzaSyDKqodxFjM0EG_qu4zkCAQ37udwYTdSSQY",
-      authDomain: "cgs-manager.firebaseapp.com",
-      databaseURL: "https://cgs-manager-default-rtdb.asia-southeast1.firebasedatabase.app",
-      projectId: "cgs-manager",
-      storageBucket: "cgs-manager.appspot.com",
-      messagingSenderId: "928662574013",
-      appId: "1:928662574013:web:be540e308d022d28f678d4"
-    }, 'pub-app');
-    const db = getDatabase(app);
-    const dot = document.getElementById('sync-dot');
-    dot.classList.add('live');
-
-    onValue(ref(db, eventId+'/bouts'), snap => {
-      if(!snap.exists()) {
-        bouts = [];
-        renderDraw();
-        return;
-      }
-      const data = snap.val();
-      if(Array.isArray(data)) {
-        bouts = data;
-        renderDraw();
-      }
-    });
-  } catch(e) {
-    console.warn('Firebase error:', e);
-    document.getElementById('sync-dot').style.background='var(--red)';
-  }
-
-
-// ── RENDER ──
 function renderDraw(){
   const liveBouts = bouts.filter(b=>b.status==='live');
   const pill = document.getElementById('live-pill');
@@ -233,91 +138,66 @@ function renderDraw(){
   document.getElementById('mats').innerHTML = mats.map(mat => {
     const matBouts = getBoutsForMat(mat);
     const filtered = searchQuery
-      ? matBouts.filter(b =>
-          (b.red&&b.red.name&&b.red.name.toLowerCase().includes(searchQuery)) ||
-          (b.blue&&b.blue.name&&b.blue.name.toLowerCase().includes(searchQuery)) ||
-          (b.red&&b.red.club&&b.red.club.toLowerCase().includes(searchQuery)) ||
-          (b.blue&&b.blue.club&&b.blue.club.toLowerCase().includes(searchQuery))
-        )
+      ? matBouts.filter(b=>
+          (b.red&&b.red.name&&b.red.name.toLowerCase().includes(searchQuery))||
+          (b.blue&&b.blue.name&&b.blue.name.toLowerCase().includes(searchQuery))||
+          (b.red&&b.red.club&&b.red.club.toLowerCase().includes(searchQuery))||
+          (b.blue&&b.blue.club&&b.blue.club.toLowerCase().includes(searchQuery)))
       : matBouts;
 
     const remaining = matBouts.filter(b=>b.status==='scheduled'||b.status==='live').length;
     const liveOnMat = matBouts.filter(b=>b.status==='live');
 
     let html = '<div class="mat-col">'
-      +'<div class="mat-hdr">'
-      +'<div class="mat-name">'+esc(mat)+'</div>'
+      +'<div class="mat-hdr"><div class="mat-name">'+esc(mat)+'</div>'
       +(liveOnMat.length?'<span style="font-family:var(--mono);font-size:8px;color:var(--red);font-weight:700;animation:pulse 1.4s infinite">● LIVE</span>':'')
-      +'<div class="mat-count">'+remaining+' remaining</div>'
-      +'</div>';
+      +'<div class="mat-count">'+remaining+' remaining</div></div>';
 
     if(!filtered.length){
       html += '<div class="empty">No matching fighters</div>';
     } else {
       filtered.forEach((b,idx) => {
-        const isLive = b.status==='live';
-        const isHold = b.status==='paused';
-        const isDone = b.status==='completed';
-        const isNext = !isLive&&!isHold&&!isDone&&idx===0;
-        const cls = 'bout-row'+(isLive?' b-live':isHold?' b-hold':isNext?' b-next':isDone?' b-done':'');
-
-        const statusLabel = isLive
-          ? '<span class="bout-status-live">● LIVE</span>'
-          : isHold ? '<span class="bout-status-hold">⏸ ON HOLD</span>'
-          : isDone ? '<span class="bout-status-done">✓ DONE</span>'
-          : isNext ? '<span class="bout-status-next">▶ UP NEXT</span>' : '';
-
-        const fightNum = b.matFightNum ? 'F'+b.matFightNum : b.id;
-        const noHead = b.noHead ? '<span class="flag-nh">⚠ NO HEAD</span> ' : '';
-
-        const scoreHtml = (isLive||isDone)
-          ? '<div class="bout-score"><span style="color:var(--red)">'+(b.score&&b.score.red||0)+'</span>'
-            +'<span style="color:var(--muted);font-size:14px"> – </span>'
-            +'<span style="color:var(--blue)">'+(b.score&&b.score.blue||0)+'</span></div>'
-          : '';
-
-        html += '<div class="'+cls+'">'
-          +'<div class="bout-meta">'
-          +'<span class="bout-id">'+fightNum+' · '+esc(b.disc)+' · '+esc(b.ageGrp)+'</span>'
-          +(noHead)+statusLabel
-          +'</div>'
-          +'<div class="bout-fighters">'
-          +'<div class="bout-red">'+esc(b.red&&b.red.name||'TBA')+'</div>'
-          +'<div class="bout-vs">VS</div>'
-          +'<div class="bout-blue">'+esc(b.blue&&b.blue.name||'TBA')+'</div>'
-          +'</div>'
-          +'<div class="bout-clubs">'
-          +'<span>'+esc(b.red&&b.red.club||'')+'</span>'
-          +'<span>'+esc(b.blue&&b.blue.club||'')+'</span>'
-          +'</div>'
-          +scoreHtml
-          +'</div>';
+        const isLive=b.status==='live', isHold=b.status==='paused', isDone=b.status==='completed';
+        const isNext=!isLive&&!isHold&&!isDone&&idx===0;
+        const cls='bout-row'+(isLive?' b-live':isHold?' b-hold':isNext?' b-next':isDone?' b-done':'');
+        const statusLabel=isLive?'<span class="bout-status-live">● LIVE</span>':isHold?'<span class="bout-status-hold">⏸ ON HOLD</span>':isDone?'<span class="bout-status-done">✓ DONE</span>':isNext?'<span class="bout-status-next">▶ UP NEXT</span>':'';
+        const fightNum=b.matFightNum?'F'+b.matFightNum:b.id;
+        const noHead=b.noHead?'<span class="flag-nh">⚠ NO HEAD</span> ':'';
+        const scoreHtml=(isLive||isDone)?'<div class="bout-score"><span style="color:var(--red)">'+(b.score&&b.score.red||0)+'</span><span style="color:var(--muted);font-size:14px"> – </span><span style="color:var(--blue)">'+(b.score&&b.score.blue||0)+'</span></div>':'';
+        html+='<div class="'+cls+'"><div class="bout-meta"><span class="bout-id">'+fightNum+' · '+esc(b.disc)+' · '+esc(b.ageGrp)+'</span>'+noHead+statusLabel+'</div><div class="bout-fighters"><div class="bout-red">'+esc(b.red&&b.red.name||'TBA')+'</div><div class="bout-vs">VS</div><div class="bout-blue">'+esc(b.blue&&b.blue.name||'TBA')+'</div></div><div class="bout-clubs"><span>'+esc(b.red&&b.red.club||'')+'</span><span>'+esc(b.blue&&b.blue.club||'')+'</span></div>'+scoreHtml+'</div>';
       });
     }
-    html += '</div>';
-    return html;
+    return html+'</div>';
   }).join('');
 
   // Results
   const done = bouts.filter(b=>b.status==='completed').slice(-8).reverse();
   if(done.length){
-    let rhtml = '<div class="results-title">✓ RECENT RESULTS</div>';
+    let rhtml='<div class="results-title">✓ RECENT RESULTS</div>';
     done.forEach(b=>{
-      const wname = b.winner==='draw'?'DRAW':b.winner==='red'?(b.red&&b.red.name||'Red'):(b.blue&&b.blue.name||'Blue');
-      rhtml += '<div class="result-row">'
-        +'<div class="res-disc">'+esc(b.disc)+'</div>'
-        +'<div class="res-names">'
-        +'<span style="font-weight:'+(b.winner==='red'?700:400)+';color:'+(b.winner==='red'?'var(--text)':'var(--muted)')+'">'+esc(b.red&&b.red.name||'')+'</span>'
-        +' <span class="res-score">'+(b.score&&b.score.red||0)+' – '+(b.score&&b.score.blue||0)+'</span> '
-        +'<span style="font-weight:'+(b.winner==='blue'?700:400)+';color:'+(b.winner==='blue'?'var(--text)':'var(--muted)')+'">'+esc(b.blue&&b.blue.name||'')+'</span>'
-        +'</div>'
-        +'<div class="res-winner">'+esc(wname)+'</div>'
-        +'</div>';
+      const wname=b.winner==='draw'?'DRAW':b.winner==='red'?(b.red&&b.red.name||'Red'):(b.blue&&b.blue.name||'Blue');
+      rhtml+='<div class="result-row"><div class="res-disc">'+esc(b.disc)+'</div><div class="res-names"><span style="font-weight:'+(b.winner==='red'?700:400)+';color:'+(b.winner==='red'?'var(--text)':'var(--muted)')+'">'+esc(b.red&&b.red.name||'')+'</span> <span class="res-score">'+(b.score&&b.score.red||0)+' – '+(b.score&&b.score.blue||0)+'</span> <span style="font-weight:'+(b.winner==='blue'?700:400)+';color:'+(b.winner==='blue'?'var(--text)':'var(--muted)')+'">'+esc(b.blue&&b.blue.name||'')+'</span></div><div class="res-winner">'+esc(wname)+'</div></div>';
     });
-    document.getElementById('results-section').innerHTML = rhtml;
+    document.getElementById('results-section').innerHTML=rhtml;
   } else {
-    document.getElementById('results-section').innerHTML = '';
+    document.getElementById('results-section').innerHTML='';
   }
+}
+
+// ── CONNECT ──
+try {
+  const app = initializeApp(FB_CONFIG, 'pub-app');
+  const db = getDatabase(app);
+  document.getElementById('sync-dot').classList.add('live');
+
+  onValue(ref(db, eventId+'/bouts'), snap => {
+    bouts = (snap.exists() && Array.isArray(snap.val())) ? snap.val() : [];
+    renderDraw();
+  });
+} catch(e) {
+  console.warn('Firebase error:', e);
+  document.getElementById('sync-dot').style.background='var(--red)';
+  renderDraw();
 }
 </script>
 </body>
