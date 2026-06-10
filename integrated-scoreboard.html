@@ -849,26 +849,39 @@ async function endRoundNow(st){
   let rp=0,bp=0,winner="draw";
 
   if(isTKD){
-    // TKD: scores are on state directly
     const rs=st.redScore||0,bs=st.blueScore||0;
     winner=rs>bs?"red":bs>rs?"blue":"draw";
     rp=rs;bp=bs;
   } else {
-    // Points styles: read tallies directly, no listener dependency
     const talliesSnap=await get(ref(db,`sessions/${SES}/tallies`));
     const tallies=talliesSnap.val()||{};
     const keys=Object.keys(tallies);
+
     if(keys.length){
-      let rt=0,bt=0;
-      keys.forEach(k=>{rt+=tallies[k].red||0;bt+=tallies[k].blue||0;});
-      const ra=Math.round(rt/keys.length),ba=Math.round(bt/keys.length);
-      const card=calcCard(ra,ba);
-      winner=card.winner;
-      rp=card.redPts;bp=card.bluePts;
-      if(winner==="red")rp=Math.max(0,rp-(st.redDeductions||0));
-      if(winner==="blue")bp=Math.max(0,bp-(st.blueDeductions||0));
+      // Each judge scores independently — majority rules
+      let redWins=0,blueWins=0,draws=0;
+      let redPtsFromWinners=0,bluePtsFromWinners=0;
+
+      keys.forEach(k=>{
+        const t=tallies[k];
+        const jcard=calcCard(t.red||0,t.blue||0);
+        if(jcard.winner==="red"){ redWins++; redPtsFromWinners+=jcard.redPts; bluePtsFromWinners+=jcard.bluePts; }
+        else if(jcard.winner==="blue"){ blueWins++; redPtsFromWinners+=jcard.redPts; bluePtsFromWinners+=jcard.bluePts; }
+        else { draws++; redPtsFromWinners+=10; bluePtsFromWinners+=10; }
+      });
+
+      if(redWins>blueWins){ winner="red"; }
+      else if(blueWins>redWins){ winner="blue"; }
+      else { winner="draw"; }
+
+      // Points on the scorecard come from average of all judges' cards for that round
+      rp=Math.round(redPtsFromWinners/keys.length);
+      bp=Math.round(bluePtsFromWinners/keys.length);
+
+      // Apply deductions to the loser's score
+      if(winner==="red") bp=Math.max(0,bp-(st.blueDeductions||0));
+      if(winner==="blue") rp=Math.max(0,rp-(st.redDeductions||0));
     } else {
-      // No judge data — round scores as 10-10 draw
       rp=10;bp=10;winner="draw";
     }
   }
@@ -877,7 +890,10 @@ async function endRoundNow(st){
   const results=[...(st.roundResults||[])];
   results[round-1]={red:rp,blue:bp,winner};
 
-  // Running fight totals
+  // ── Fight winner: majority of rounds won (not total points) ──
+  let redRounds=0,blueRounds=0;
+  results.forEach(r=>{if(r){if(r.winner==="red")redRounds++;else if(r.winner==="blue")blueRounds++;}});
+  // Running display scores = cumulative points across rounds
   let rt=0,bt=0;results.forEach(r=>{if(r){rt+=r.red;bt+=r.blue;}});
 
   // ── Build next state ───────────────────────────────────────
@@ -886,27 +902,25 @@ async function endRoundNow(st){
     roundActive:false,
     roundEnded:Date.now(),
     roundResults:results,
+    redScore:rt,
+    blueScore:bt,
     redDeductions:0,
     blueDeductions:0,
     timerRunning:false,
   };
 
   if(isLastRound){
-    // Final round — calculate and set winner, stay on last round number
-    next.redScore=rt;next.blueScore=bt;
-    next.winner=rt>bt?(st.redName||"RED").toUpperCase()+" WINS!":
-                bt>rt?(st.blueName||"BLUE").toUpperCase()+" WINS!":
+    // Majority of rounds wins the fight
+    const fightWinner=redRounds>blueRounds?"red":blueRounds>redRounds?"blue":"draw";
+    next.winner=fightWinner==="red"?(st.redName||"RED").toUpperCase()+" WINS!":
+                fightWinner==="blue"?(st.blueName||"BLUE").toUpperCase()+" WINS!":
                 "IT'S A DRAW!";
   } else {
-    // Advance to next round, reset per-round state
     next.round=round+1;
-    next.redScore=rt;next.blueScore=bt;
     if(isTKD){
-      // TKD resets per-round scores
       next.redScore=0;next.blueScore=0;
       next.redGam=0;next.blueGam=0;
       next.redKyong=0;next.blueKyong=0;
-      // Store totals separately for TKD
       next.redTotalScore=rt;next.blueTotalScore=bt;
     }
     if(st.timerVisible) next.timerSeconds=st.timerMax||120;
@@ -934,8 +948,15 @@ async function undoRound(){
 
 async function declareWinner(){
   const stSnap=await get(ref(db,`sessions/${SES}/state`));if(!stSnap.exists())return;
-  const s=stSnap.val(),r=s.redScore||0,b=s.blueScore||0;
-  await set(ref(db,`sessions/${SES}/state/winner`),r>b?(s.redName||"RED").toUpperCase()+" WINS!":b>r?(s.blueName||"BLUE").toUpperCase()+" WINS!":"IT'S A DRAW!");
+  const s=stSnap.val();
+  const results=s.roundResults||[];
+  let redRounds=0,blueRounds=0;
+  results.forEach(r=>{if(r){if(r.winner==="red")redRounds++;else if(r.winner==="blue")blueRounds++;}});
+  const w=redRounds>blueRounds?"red":blueRounds>redRounds?"blue":"draw";
+  await set(ref(db,`sessions/${SES}/state/winner`),
+    w==="red"?(s.redName||"RED").toUpperCase()+" WINS!":
+    w==="blue"?(s.blueName||"BLUE").toUpperCase()+" WINS!":
+    "IT'S A DRAW!");
 }
 
 async function applyDeduct(side){
