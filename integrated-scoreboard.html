@@ -181,8 +181,7 @@ h1.brand{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.4rem,4vw,2.4rem);
 .submit-btn:disabled{opacity:.35;cursor:not-allowed;transform:none}
 .submit-btn.ready{background:linear-gradient(135deg,rgba(245,197,24,.18),rgba(245,197,24,.08));border-color:var(--gold);color:var(--gold);box-shadow:0 3px 20px rgba(245,197,24,.15)}
 /* ── PUBLIC PAGE — locked to viewport, no scroll ─────────── */
-#page-pub{display:none;position:fixed;inset:0;flex-direction:column;width:100%;max-width:100%;gap:0;overflow:hidden;background:var(--bg)}
-#page-pub.active-page{display:flex}
+/* pub page layout handled via JS */
 .pub-header{display:flex;align-items:center;justify-content:space-between;padding:8px 24px;border-bottom:1px solid var(--border);flex-shrink:0}
 .pub-header-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.2rem,3vw,2rem);letter-spacing:.3em;color:var(--gold)}
 .pub-header-meta{font-family:monospace;font-size:.75rem;letter-spacing:.2em;color:var(--muted);text-transform:uppercase;text-align:right}
@@ -612,11 +611,18 @@ const vv=id=>{const e=el(id);return e?e.value.trim():"";};
 const fmt=s=>{s=Math.max(0,s||0);return Math.floor(s/60)+":"+String(s%60).padStart(2,"0");};
 
 function showPage(id){
-  document.querySelectorAll(".page").forEach(e=>{e.style.display="none";e.classList.remove("active-page");});
+  document.querySelectorAll(".page").forEach(e=>e.style.display="none");
   const p=el(id);
   if(p){
-    if(id==="page-pub"){p.style.display="";p.classList.add("active-page");}
-    else p.style.display="flex";
+    p.style.display="flex";
+    if(id==="page-pub"){
+      p.style.position="fixed";
+      p.style.inset="0";
+      p.style.width="100%";
+      p.style.maxWidth="100%";
+      p.style.flexDirection="column";
+      p.style.overflow="hidden";
+    }
   }
 }
 
