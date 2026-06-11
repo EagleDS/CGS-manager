@@ -615,7 +615,7 @@ function showPage(id){
   document.querySelectorAll(".page").forEach(e=>{e.style.display="none";e.classList.remove("active-page");});
   const p=el(id);
   if(p){
-    if(id==="page-pub") p.classList.add("active-page");
+    if(id==="page-pub"){p.style.display="";p.classList.add("active-page");}
     else p.style.display="flex";
   }
 }
