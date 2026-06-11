@@ -285,6 +285,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
   <div class="logo">⚔ CGS</div>
   <div class="nav">
     <button class="nav-btn on" data-view="process" onclick="goView('process')">PROCESS</button>
+    <button class="nav-btn" data-view="regs" onclick="goView('regs')">REGS</button>
     <button class="nav-btn" data-view="draw" onclick="goView('draw')">DRAW</button>
     <button class="nav-btn" data-view="live" onclick="goView('live')">LIVE</button>
     <button class="nav-btn" data-view="results" onclick="goView('results')">RESULTS</button>
@@ -354,6 +355,75 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
     </div>
   </div>
 </div>
+
+<!-- REGS VIEW -->
+<div id="view-regs" class="view">
+
+  <!-- Sub-tab nav -->
+  <div style="display:flex;gap:2px;margin-bottom:12px;border-bottom:1px solid var(--border);padding-bottom:0">
+    <button id="regs-tab-import" class="nav-btn on" style="font-size:9px" onclick="goRegsTab('import')">IMPORT</button>
+    <button id="regs-tab-athletes" class="nav-btn" style="font-size:9px" onclick="goRegsTab('athletes')">ATHLETES</button>
+    <button id="regs-tab-clubs" class="nav-btn" style="font-size:9px" onclick="goRegsTab('clubs')">CLUBS</button>
+  </div>
+
+  <!-- IMPORT PANEL -->
+  <div id="regs-panel-import">
+    <div class="panel">
+      <div class="panel-title">REGISTRATION DATA</div>
+      <div class="panel-sub">Paste form data here at any time. New athletes are added, existing ones updated. No data is ever wiped. The draw stays intact.</div>
+      <div id="regs-status" style="font-family:var(--mono);font-size:10px;padding:8px 12px;border-radius:2px;margin-bottom:10px;background:var(--surf2);border:1px solid var(--border);color:var(--muted)">No registrations loaded yet.</div>
+      <div class="fld"><textarea id="regs-csv-raw" placeholder="Paste Google Form data here…" style="height:120px"></textarea></div>
+      <div class="row-btns">
+        <button class="btn btn-gold" onclick="regsProcessImport()">MERGE IN →</button>
+        <button class="btn btn-ghost btn-sm" onclick="loadRegsDemo()">DEMO</button>
+      </div>
+      <div id="regs-import-result" style="margin-top:10px"></div>
+    </div>
+    <div class="panel">
+      <div class="panel-title">RUN MATCHING</div>
+      <div class="panel-sub">Matches athletes from stored registrations. Athletes already in the draw are skipped. Only new bouts are added — existing draw is never touched.</div>
+      <div id="regs-match-summary" style="font-family:var(--mono);font-size:10px;color:var(--muted);margin-bottom:10px"></div>
+      <div class="row-btns">
+        <button class="btn btn-gold" onclick="regsRunMatch()">⚡ MATCH PENDING →</button>
+        <button class="btn btn-ghost btn-sm" onclick="goView('draw')">VIEW DRAW</button>
+      </div>
+      <div id="regs-match-result" style="margin-top:10px"></div>
+    </div>
+  </div>
+
+  <!-- ATHLETES PANEL -->
+  <div id="regs-panel-athletes" style="display:none">
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;align-items:center">
+      <input id="regs-athlete-search" class="fld" style="margin:0;flex:1;background:#0a0a0d;border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:2px;font-family:var(--mono);font-size:10px" placeholder="Search name or club…" oninput="renderAthleteList()"/>
+      <select id="regs-filter-disc" class="csel" onchange="renderAthleteList()" style="font-size:10px">
+        <option value="">All Disciplines</option>
+        <option>Hybrid Light</option><option>MMA</option><option>K1 Light</option><option>Boxing Light</option>
+      </select>
+      <select id="regs-filter-status" class="csel" onchange="renderAthleteList()" style="font-size:10px">
+        <option value="">All Status</option>
+        <option value="pending">Pending</option>
+        <option value="drawn">In Draw</option>
+        <option value="withdrawn">Withdrawn</option>
+      </select>
+    </div>
+    <div id="regs-stats-row" style="margin-bottom:10px"></div>
+    <div id="regs-athlete-list"></div>
+  </div>
+
+  <!-- CLUBS PANEL -->
+  <div id="regs-panel-clubs" style="display:none">
+    <div class="panel">
+      <div class="panel-title">CLUB NORMALISATION</div>
+      <div class="panel-sub">Assign canonical club names to raw form entries. Saved permanently — survives all future pastes.</div>
+      <div id="regs-club-body"></div>
+      <div class="row-btns">
+        <button class="btn btn-gold" onclick="regsApplyClubs()">SAVE CLUBS</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
 
 <!-- DRAW VIEW -->
 <div id="view-draw" class="view">
@@ -489,6 +559,7 @@ function initFirebase(){
     db=getDatabase(app);
     updateSyncDot('live');
     listenFirebase();
+    listenRegs();
     updateConfigStatus(true);
   }catch(e){updateSyncDot('err');console.warn('Firebase init failed:',e);}
 }
@@ -514,7 +585,7 @@ window.goView=function(v){
   document.querySelectorAll('.nav-btn').forEach(e=>e.classList.remove('on'));
   const viewEl=document.getElementById('view-'+v);const navEl=document.querySelector('[data-view="'+v+'"]');
   if(viewEl)viewEl.classList.add('on');if(navEl)navEl.classList.add('on');
-  if(v==='draw')renderDraw();if(v==='live')renderLive();if(v==='results')renderResults();
+  if(v==='draw')renderDraw();if(v==='live')renderLive();if(v==='results')renderResults();if(v==='regs'){updateRegsStatus();updateRegsMatchSummary();renderAthleteList();}
 };
 
 window.goStep=function(n){
@@ -547,6 +618,382 @@ function parseLine(line,sep){if(sep==='\t')return line.split('\t').map(s=>s.trim
 function parseCSV(raw){const lines=raw.replace(/\r\n/g,'\n').replace(/\r/g,'\n').split('\n').filter(l=>l.trim());if(lines.length<2)return{headers:[],rows:[]};const sep=detectSep(lines[0]);return{headers:parseLine(lines[0],sep).map(h=>h.trim()),rows:lines.slice(1).map(l=>parseLine(l,sep))};}
 function colIdx(headers,terms){for(const t of terms){const i=headers.findIndex(h=>h.toLowerCase().includes(t.toLowerCase()));if(i>-1)return i;}return -1;}
 function calcAge(dob){if(!dob)return 0;let d;if(typeof dob==='string'){const p=dob.split('/');if(p.length===3){const yr=parseInt(p[2]);if(yr<100)return 0;d=new Date(yr,parseInt(p[0])-1,parseInt(p[1]));}else d=new Date(dob);}else d=new Date(dob);if(isNaN(d.getTime()))return 0;const now=new Date();let age=now.getFullYear()-d.getFullYear();if(now.getMonth()<d.getMonth()||(now.getMonth()===d.getMonth()&&now.getDate()<d.getDate()))age--;return age<0||age>100?0:age;}
+
+
+// ══════════════════════════════════════════
+// REGISTRATIONS — persistent athlete store
+// ══════════════════════════════════════════
+let storedRegs = {};    // keyed by dedupe key
+let storedClubMap = {}; // raw → canonical, persisted
+
+// ── Sub-tab navigation ──
+window.goRegsTab = function(tab) {
+  ['import','athletes','clubs'].forEach(t => {
+    const panel = document.getElementById('regs-panel-'+t);
+    const btn = document.getElementById('regs-tab-'+t);
+    if(panel) panel.style.display = t===tab ? '' : 'none';
+    if(btn) btn.classList.toggle('on', t===tab);
+  });
+  if(tab==='athletes') renderAthleteList();
+  if(tab==='clubs') renderRegsClubs();
+};
+
+// ── Load regs from Firebase ──
+function loadRegsFromFirebase() {
+  if(!db) return;
+  const { ref: fbRef, onValue } = window._fbFns;
+  fbRef(db, eventId+'/registrations').then ? null : null; // dummy
+  // Use onValue already imported in module scope — called via listenRegs()
+}
+
+function listenRegs() {
+  if(!db) return;
+  import('https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js').then(m => {
+    m.onValue(m.ref(db, eventId+'/registrations'), snap => {
+      if(snap.exists()) {
+        storedRegs = snap.val() || {};
+      } else {
+        storedRegs = {};
+      }
+      updateRegsStatus();
+      renderAthleteList();
+    });
+    m.onValue(m.ref(db, eventId+'/clubMap'), snap => {
+      if(snap.exists()) {
+        storedClubMap = snap.val() || {};
+        // sync into main clubMap
+        Object.assign(clubMap, storedClubMap);
+      }
+    });
+  });
+}
+
+function saveRegsToFirebase() {
+  if(!db) return;
+  import('https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js').then(m => {
+    m.set(m.ref(db, eventId+'/registrations'), storedRegs).catch(e => console.warn('Regs save failed:', e));
+  });
+}
+
+function saveClubMapToFirebase() {
+  if(!db) return;
+  import('https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js').then(m => {
+    m.set(m.ref(db, eventId+'/clubMap'), storedClubMap).catch(e => console.warn('ClubMap save failed:', e));
+  });
+}
+
+function regsDedupeKey(a) {
+  return ((a.name||'')+(a.sur||'')+(a.gender||'')).toLowerCase().replace(/\s/g,'');
+}
+
+function updateRegsStatus() {
+  const el = document.getElementById('regs-status');
+  if(!el) return;
+  const total = Object.keys(storedRegs).length;
+  const withdrawn = Object.values(storedRegs).filter(a=>a.withdrawn).length;
+  const drawn = Object.values(storedRegs).filter(a=>a.inDraw).length;
+  const pending = total - withdrawn - drawn;
+  if(!total) {
+    el.textContent = 'No registrations yet — paste form data above.';
+    el.style.color = 'var(--muted)';
+    return;
+  }
+  el.innerHTML = '<span style="color:var(--gold)">'+total+' athletes</span> stored · '
+    +'<span style="color:var(--green)">'+drawn+' in draw</span> · '
+    +'<span style="color:var(--gold)">'+pending+' pending</span>'
+    +(withdrawn?' · <span style="color:var(--red)">'+withdrawn+' withdrawn</span>':'');
+}
+
+// ── MERGE import into stored regs ──
+window.regsProcessImport = function() {
+  const raw = document.getElementById('regs-csv-raw').value.trim();
+  if(!raw) { toast('Nothing pasted','red'); return; }
+  const {headers,rows} = parseCSV(raw);
+  if(!headers.length) { toast('Could not parse','red'); return; }
+
+  const iName=colIdx(headers,['Name']),iSur=colIdx(headers,['Surname']),
+    iGender=colIdx(headers,['Gender']),iWeight=colIdx(headers,['Weight']),
+    iDOB=colIdx(headers,['Date of Birth','DOB']),
+    iStyles=colIdx(headers,["style(s) are you registering","styles","style"]),
+    iClub=colIdx(headers,['Club Name','club']);
+
+  if([iName,iSur,iGender,iWeight,iDOB,iStyles].includes(-1)) {
+    document.getElementById('regs-import-result').innerHTML =
+      '<div style="background:var(--red-bg);border:1px solid var(--red);border-radius:2px;padding:10px;font-size:11px;color:#e07060">Missing required columns.</div>';
+    return;
+  }
+
+  let added=0, updated=0, skipped=0;
+  rows.forEach(r => {
+    const name=(r[iName]||'').trim(), sur=(r[iSur]||'').trim();
+    if(!name) return;
+    const gender=(r[iGender]||'').trim(),
+      weight=parseFloat(r[iWeight])||0,
+      dob=(r[iDOB]||'').trim(),
+      age=calcAge(dob),
+      stylesRaw=(r[iStyles]||'').trim(),
+      styles=stylesRaw.split(',').map(s=>s.trim().toUpperCase()).filter(s=>s),
+      clubRaw=(iClub>-1?(r[iClub]||''):'').trim();
+
+    // Resolve club
+    let club = storedClubMap[clubRaw] || clubMap[clubRaw] || '';
+    if(!club) {
+      if(isEagle(clubRaw)) club='Eagle DS';
+      else club=fuzzyMatch(clubRaw,CANONICAL_CLUBS)||clubRaw;
+      if(clubRaw) storedClubMap[clubRaw]=club;
+    }
+
+    const key = regsDedupeKey({name,sur,gender});
+    const existing = storedRegs[key];
+    if(existing) {
+      // Update weight and styles (may have changed), keep draw/withdrawal status
+      const changed = existing.weight!==weight || existing.club!==club;
+      storedRegs[key] = {
+        ...existing,
+        weight, age, dob, styles, clubRaw, club,
+        updatedAt: new Date().toISOString()
+      };
+      if(changed) updated++; else skipped++;
+    } else {
+      storedRegs[key] = {
+        name, sur, gender, weight, age, dob, styles, clubRaw, club,
+        withdrawn: false, inDraw: false,
+        weighIn: 'pending',
+        addedAt: new Date().toISOString()
+      };
+      added++;
+    }
+  });
+
+  saveRegsToFirebase();
+  saveClubMapToFirebase();
+  updateRegsStatus();
+
+  const msg = added+' new · '+updated+' updated · '+skipped+' unchanged';
+  document.getElementById('regs-import-result').innerHTML =
+    '<div style="background:var(--green-bg);border:1px solid var(--green);border-radius:2px;padding:10px;font-size:11px;color:var(--green)">'+msg+'</div>';
+
+  updateRegsMatchSummary();
+  toast(msg, 'green');
+};
+
+function updateRegsMatchSummary() {
+  const el = document.getElementById('regs-match-summary');
+  if(!el) return;
+  const active = Object.values(storedRegs).filter(a=>!a.withdrawn);
+  const drawn = active.filter(a=>a.inDraw).length;
+  const pending = active.filter(a=>!a.inDraw).length;
+  el.innerHTML = '<span style="color:var(--gold)">'+pending+' athletes pending matching</span>'
+    +' · <span style="color:var(--green)">'+drawn+' already in draw</span>';
+}
+
+// ── ATHLETE LIST ──
+window.renderAthleteList = function() {
+  const el = document.getElementById('regs-athlete-list');
+  const statsEl = document.getElementById('regs-stats-row');
+  if(!el) return;
+
+  const search = (document.getElementById('regs-athlete-search')?.value||'').toLowerCase();
+  const filterDisc = document.getElementById('regs-filter-disc')?.value||'';
+  const filterStatus = document.getElementById('regs-filter-status')?.value||'';
+
+  let athletes = Object.values(storedRegs);
+  if(search) athletes = athletes.filter(a =>
+    ((a.name||'')+' '+(a.sur||'')).toLowerCase().includes(search) ||
+    (a.club||'').toLowerCase().includes(search));
+  if(filterDisc) athletes = athletes.filter(a => a.styles && a.styles.some(s=>normStyle(s)===filterDisc));
+  if(filterStatus==='pending') athletes = athletes.filter(a=>!a.inDraw&&!a.withdrawn);
+  if(filterStatus==='drawn') athletes = athletes.filter(a=>a.inDraw);
+  if(filterStatus==='withdrawn') athletes = athletes.filter(a=>a.withdrawn);
+
+  athletes.sort((a,b)=>(a.club||'').localeCompare(b.club||'')||(a.name||'').localeCompare(b.name||''));
+
+  const total=Object.keys(storedRegs).length,
+    drawn=Object.values(storedRegs).filter(a=>a.inDraw).length,
+    pending=Object.values(storedRegs).filter(a=>!a.inDraw&&!a.withdrawn).length,
+    withdrawn=Object.values(storedRegs).filter(a=>a.withdrawn).length;
+
+  if(statsEl) statsEl.innerHTML='<div class="stats" style="margin-bottom:0">'
+    +'<div class="stat" style="border-top:2px solid var(--gold)"><div class="stat-v" style="color:var(--gold)">'+total+'</div><div class="stat-l">TOTAL</div></div>'
+    +'<div class="stat" style="border-top:2px solid var(--green)"><div class="stat-v" style="color:var(--green)">'+drawn+'</div><div class="stat-l">IN DRAW</div></div>'
+    +'<div class="stat" style="border-top:2px solid var(--gold)"><div class="stat-v" style="color:var(--gold)">'+pending+'</div><div class="stat-l">PENDING</div></div>'
+    +'<div class="stat" style="border-top:2px solid var(--red)"><div class="stat-v" style="color:var(--red)">'+withdrawn+'</div><div class="stat-l">WITHDRAWN</div></div>'
+    +'</div>';
+
+  if(!athletes.length){el.innerHTML='<div class="panel" style="text-align:center;color:var(--muted);font-family:var(--mono);font-size:10px">No athletes match filter.</div>';return;}
+
+  let html='<table style="width:100%;border-collapse:collapse;font-size:11px">'
+    +'<thead><tr style="background:#0d0d10">'
+    +'<th style="font-family:var(--mono);font-size:8px;letter-spacing:1px;color:var(--muted);padding:6px 8px;text-align:left;border-bottom:1px solid var(--border)">NAME</th>'
+    +'<th style="font-family:var(--mono);font-size:8px;letter-spacing:1px;color:var(--muted);padding:6px 8px;text-align:left;border-bottom:1px solid var(--border)">CLUB</th>'
+    +'<th style="font-family:var(--mono);font-size:8px;letter-spacing:1px;color:var(--muted);padding:6px 8px;text-align:left;border-bottom:1px solid var(--border)">AGE/WT</th>'
+    +'<th style="font-family:var(--mono);font-size:8px;letter-spacing:1px;color:var(--muted);padding:6px 8px;text-align:left;border-bottom:1px solid var(--border)">DISCIPLINES</th>'
+    +'<th style="font-family:var(--mono);font-size:8px;letter-spacing:1px;color:var(--muted);padding:6px 8px;text-align:left;border-bottom:1px solid var(--border)">STATUS</th>'
+    +'<th style="font-family:var(--mono);font-size:8px;letter-spacing:1px;color:var(--muted);padding:6px 8px;border-bottom:1px solid var(--border)"></th>'
+    +'</tr></thead><tbody>';
+
+  athletes.forEach(a => {
+    const key=regsDedupeKey(a);
+    const fullName=(a.name+' '+(a.sur||'')).trim();
+    const statusColor=a.withdrawn?'var(--red)':a.inDraw?'var(--green)':'var(--gold)';
+    const statusText=a.withdrawn?'WITHDRAWN':a.inDraw?'IN DRAW':'PENDING';
+    const discs=(a.styles||[]).map(s=>normStyle(s)).filter((v,i,arr)=>arr.indexOf(v)===i).join(', ');
+    html+='<tr style="border-bottom:1px solid #111115">'
+      +'<td style="padding:6px 8px;font-weight:600">'+escH(fullName)+'<span style="font-family:var(--mono);font-size:8px;color:var(--muted);margin-left:6px">'+a.gender+'</span></td>'
+      +'<td style="padding:6px 8px;color:var(--muted)">'+escH(a.club||a.clubRaw||'')+'</td>'
+      +'<td style="padding:6px 8px;font-family:var(--mono);font-size:9px">'+
+        '<span style="cursor:pointer;border-bottom:1px dashed var(--border)" onclick="editAthleteWeight(\''+escA(key)+'\')">'+(a.age||'?')+'yr · '+(a.weight||'?')+'kg</span></td>'
+      +'<td style="padding:6px 8px;font-size:10px;color:var(--muted)">'+escH(discs)+'</td>'
+      +'<td style="padding:6px 8px"><span style="font-family:var(--mono);font-size:8px;color:'+statusColor+'">'+statusText+'</span></td>'
+      +'<td style="padding:4px 8px">'
+      +(!a.inDraw?'<button class="btn btn-ghost btn-xs" style="color:var(--red);font-size:8px" data-key="'+escA(key)+'" onclick="toggleWithdrawal(this.dataset.key)">'+(a.withdrawn?'REINSTATE':'WITHDRAW')+'</button>':'')
+      +'</td>'
+      +'</tr>';
+  });
+  el.innerHTML=html+'</tbody></table>';
+};
+
+window.toggleWithdrawal = function(key) {
+  if(!storedRegs[key]) return;
+  storedRegs[key].withdrawn = !storedRegs[key].withdrawn;
+  saveRegsToFirebase();
+  renderAthleteList();
+  updateRegsStatus();
+  updateRegsMatchSummary();
+  toast(storedRegs[key].withdrawn?'Marked withdrawn':'Reinstated','gold');
+};
+
+window.editAthleteWeight = function(key) {
+  const a = storedRegs[key];
+  if(!a) return;
+  const newWt = prompt('Update weight for '+(a.name+' '+(a.sur||'')).trim()+' (current: '+a.weight+'kg):', a.weight);
+  if(newWt===null) return;
+  const parsed = parseFloat(newWt);
+  if(!parsed||parsed<10||parsed>200) { toast('Invalid weight','red'); return; }
+  storedRegs[key].weight = parsed;
+  saveRegsToFirebase();
+  renderAthleteList();
+  toast('Weight updated','green');
+};
+
+// ── CLUB NORMALISATION (persistent) ──
+window.renderRegsClubs = function() {
+  const rawClubs = [...new Set(Object.values(storedRegs).map(a=>a.clubRaw).filter(c=>c))];
+  if(!rawClubs.length) {
+    document.getElementById('regs-club-body').innerHTML='<div style="color:var(--muted);font-size:11px">No athletes loaded yet.</div>';
+    return;
+  }
+
+  rawClubs.forEach(raw=>{
+    if(!storedClubMap[raw]) {
+      if(isEagle(raw)) storedClubMap[raw]='Eagle DS';
+      else storedClubMap[raw]=fuzzyMatch(raw,CANONICAL_CLUBS)||raw;
+    }
+  });
+
+  const groups={};
+  rawClubs.forEach(raw=>{const canon=storedClubMap[raw]||raw;if(!groups[canon])groups[canon]=[];groups[canon].push(raw);});
+
+  let html='<table class="club-tbl"><thead><tr><th>RAW (from form)</th><th>CANONICAL NAME</th><th>#</th></tr></thead><tbody>';
+  Object.entries(groups).sort((a,b)=>a[0].localeCompare(b[0])).forEach(([canon,raws])=>{
+    raws.forEach(raw=>{
+      const count=Object.values(storedRegs).filter(a=>a.clubRaw===raw).length;
+      const idx=clubIdx(raw);
+      const currentVal=storedClubMap[raw]||'';
+      const isCustom=currentVal&&!CANONICAL_CLUBS.includes(currentVal);
+      const opts=CANONICAL_CLUBS.map(c=>'<option value="'+escA(c)+'"'+(c===currentVal?' selected':'')+'>'+escH(c)+'</option>').join('');
+      html+='<tr><td style="color:var(--muted);font-family:var(--mono);font-size:9px">'+escH(raw)+'</td>'
+        +'<td style="display:flex;gap:5px;align-items:center;padding:4px 8px">'
+        +'<select class="csel" style="width:180px" data-raw="'+escA(raw)+'" onchange="handleRegsClubSel(this)">'
+        +'<option value="">— select —</option>'+opts
+        +'<option value="__other__"'+(isCustom?' selected':'')+'>✎ Custom…</option>'
+        +'</select>'
+        +'<input class="cinp" data-raw="'+escA(raw)+'" placeholder="Type name…" value="'+(isCustom?escA(currentVal):'')+'" style="display:'+(isCustom?'inline-block':'none')+'" oninput="handleRegsClubCustom(this)"/>'
+        +'</td><td style="font-family:var(--mono);color:var(--gold)">'+count+'</td></tr>';
+    });
+  });
+  document.getElementById('regs-club-body').innerHTML=html+'</tbody></table>';
+};
+
+window.handleRegsClubSel = function(sel) {
+  const raw=sel.dataset.raw;if(!raw)return;
+  const inp=sel.parentElement.querySelector('input[data-raw="'+raw+'"]');
+  if(sel.value==='__other__'){if(inp){inp.style.display='inline-block';inp.focus();}storedClubMap[raw]='';}
+  else{if(inp)inp.style.display='none';storedClubMap[raw]=sel.value;}
+};
+window.handleRegsClubCustom = function(inp) {
+  const raw=inp.dataset.raw;if(raw)storedClubMap[raw]=inp.value;
+};
+
+window.regsApplyClubs = function() {
+  // Apply stored club map to all athlete records
+  Object.values(storedRegs).forEach(a=>{
+    const resolved=storedClubMap[a.clubRaw];
+    if(resolved) a.club=resolved;
+  });
+  saveRegsToFirebase();
+  saveClubMapToFirebase();
+  Object.assign(clubMap, storedClubMap);
+  toast('Club names saved','green');
+  renderAthleteList();
+};
+
+// ── MATCHING from stored regs ──
+window.regsRunMatch = function() {
+  const active = Object.values(storedRegs).filter(a=>!a.withdrawn&&!a.inDraw);
+  if(!active.length){toast('No pending athletes to match','orange');return;}
+
+  // Build athletes array for matching engine
+  athletes = active.map(a=>({...a,sur:a.sur||'',paired:false}));
+
+  // Run matching (reuses existing runMatching logic)
+  runMatching();
+
+  // Show results in regs tab
+  const total=matches.length,tbc=matches.filter(m=>m.status==='tbc').length;
+  document.getElementById('regs-match-result').innerHTML=
+    '<div style="background:var(--green-bg);border:1px solid var(--green);border-radius:2px;padding:10px;font-size:11px;color:var(--green);margin-top:8px">'
+    +'<strong>'+(total-tbc)+' bouts matched</strong>'+(tbc?' · '+tbc+' TBC':'')+'. Review in PROCESS tab then send to draw.</div>';
+
+  // Switch to process step 3 so user can review
+  goView('process');
+  goStep(3);
+  toast((total-tbc)+' bouts matched — review below','green');
+};
+
+// ── MARK athletes as inDraw when sent to draw ──
+function markAthletesAsDrawn(newBouts) {
+  newBouts.forEach(b=>{
+    [b.red.name, b.blue.name].forEach(fullName=>{
+      if(!fullName||fullName==='TBC') return;
+      const parts=fullName.trim().split(' ');
+      const name=parts[0], sur=parts.slice(1).join(' ');
+      // find by name match
+      const key=Object.keys(storedRegs).find(k=>{
+        const a=storedRegs[k];
+        return ((a.name||'')+(a.sur||'')).toLowerCase().replace(/\s/g,'')===(name+sur).toLowerCase().replace(/\s/g,'');
+      });
+      if(key) storedRegs[key].inDraw=true;
+    });
+  });
+  saveRegsToFirebase();
+  updateRegsStatus();
+  updateRegsMatchSummary();
+}
+
+// ── DEMO DATA ──
+window.loadRegsDemo = function() {
+  document.getElementById('regs-csv-raw').value = document.getElementById('csv-raw')?.value || '';
+  if(!document.getElementById('regs-csv-raw').value) {
+    // load same demo as process tab
+    window.loadDemo && window.loadDemo();
+    setTimeout(()=>{
+      document.getElementById('regs-csv-raw').value = document.getElementById('csv-raw').value;
+      document.getElementById('csv-raw').value='';
+    },100);
+  }
+  regsProcessImport();
+};
 
 window.processImport=function(){
   const raw=document.getElementById('csv-raw').value.trim();if(!raw){toast('Nothing pasted','red');return;}
@@ -638,10 +1085,24 @@ function renderNeedsMatch(){const c=document.getElementById('needs-match-contain
 window.withdrawDisplaced=function(i){needsMatch.splice(i,1);renderNeedsMatch();};
 
 window.sendToDrawTab=function(){
-  bouts=[];let boutNum=1;const newBouts=[],styleOrder=[...STYLE_ORDER,...[...new Set(matches.map(m=>m.style))].filter(s=>!STYLE_ORDER.includes(s))];
+  // Never wipe existing bouts — only add new ones
+  const existingIds=new Set(bouts.map(b=>b.red.name+'|'+b.blue.name+'|'+b.disc));
+  let boutNum=bouts.length+1;const newBouts=[],styleOrder=[...STYLE_ORDER,...[...new Set(matches.map(m=>m.style))].filter(s=>!STYLE_ORDER.includes(s))];
   const sorted=[...matches].sort((a,b)=>{const si=styleOrder.indexOf(a.style)-styleOrder.indexOf(b.style);if(si!==0)return si;const agO=['Under 12','13-17','Adult'],aA=a.f2?Math.min(a.f1.age||99,a.f2.age||99):a.f1.age||99,bA=b.f2?Math.min(b.f1.age||99,b.f2.age||99):b.f1.age||99;return agO.indexOf(ageGroup(aA))-agO.indexOf(ageGroup(bA))||a.f1.weight-b.f1.weight;});
-  sorted.forEach(m=>{const f2n=m.f2?(m.f2.name+' '+(m.f2.sur||'')).trim():'TBC';newBouts.push({id:'B'+String(boutNum).padStart(3,'0'),disc:m.style,ageGrp:m.f2?ageGroup(Math.min(m.f1.age||99,m.f2.age||99)):ageGroup(m.f1.age||99),div:m.gender,red:{name:(m.f1.name+' '+(m.f1.sur||'')).trim(),club:m.f1.club,age:m.f1.age,wt:m.f1.weight},blue:{name:f2n,club:m.f2?m.f2.club:'',age:m.f2?m.f2.age:0,wt:m.f2?m.f2.weight:0},noHead:m.noHead,notes:m.eagleExhibition?'Exhibition':m.status==='tbc'?'TBC':m.ageFlag?'Age Flag':'',area:'Mat 1',status:'scheduled',score:{red:0,blue:0},round:1,winner:null,wtDiff:m.wDiff,ageDiff:m.f2?Math.abs((m.f1.age||0)-(m.f2.age||0)):0,checkin:{red:null,blue:null}});boutNum++;});
-  bouts=newBouts;saveBouts();goStep(4);toast(newBouts.length+' bouts sent to Draw','green');
+  sorted.forEach(m=>{
+    // Skip if this pairing already exists in the draw
+    const f1n=(m.f1.name+' '+(m.f1.sur||'')).trim();
+    const f2n_check=m.f2?(m.f2.name+' '+(m.f2.sur||'')).trim():'TBC';
+    const pairKey=f1n+'|'+f2n_check+'|'+m.style;
+    const pairKeyRev=f2n_check+'|'+f1n+'|'+m.style;
+    if(existingIds.has(pairKey)||existingIds.has(pairKeyRev)) return;const f2n=m.f2?(m.f2.name+' '+(m.f2.sur||'')).trim():'TBC';newBouts.push({id:'B'+String(boutNum).padStart(3,'0'),disc:m.style,ageGrp:m.f2?ageGroup(Math.min(m.f1.age||99,m.f2.age||99)):ageGroup(m.f1.age||99),div:m.gender,red:{name:(m.f1.name+' '+(m.f1.sur||'')).trim(),club:m.f1.club,age:m.f1.age,wt:m.f1.weight},blue:{name:f2n,club:m.f2?m.f2.club:'',age:m.f2?m.f2.age:0,wt:m.f2?m.f2.weight:0},noHead:m.noHead,notes:m.eagleExhibition?'Exhibition':m.status==='tbc'?'TBC':m.ageFlag?'Age Flag':'',area:'Mat 1',status:'scheduled',score:{red:0,blue:0},round:1,winner:null,wtDiff:m.wDiff,ageDiff:m.f2?Math.abs((m.f1.age||0)-(m.f2.age||0)):0,checkin:{red:null,blue:null}});boutNum++;});
+  // Append new bouts to existing draw
+  bouts=[...bouts,...newBouts];
+  saveBouts();
+  // Mark athletes as drawn in registrations
+  markAthletesAsDrawn(newBouts);
+  goStep(4);
+  toast(newBouts.length+' new bouts added to draw ('+bouts.length+' total)','green');
 };
 
 function renderAll(){renderDraw();renderLive();renderResults();renderPublicContent();}
@@ -654,28 +1115,84 @@ window.updateMatSetup=function(){matCount=parseInt(document.getElementById('mat-
 function getGroups(){const seen=new Set(),groups=[];bouts.forEach(b=>{const key=b.disc+'|'+b.ageGrp+'|'+b.div;if(!seen.has(key)){seen.add(key);groups.push({disc:b.disc,ageGrp:b.ageGrp,div:b.div,key});}});const agO={'Under 12':0,'13-17':1,'Adult':2},so=[...STYLE_ORDER,...[...new Set(groups.map(g=>g.disc))].filter(s=>!STYLE_ORDER.includes(s))];groups.sort((a,b)=>{const si=so.indexOf(a.disc)-so.indexOf(b.disc);if(si!==0)return si;const ai=(agO[a.ageGrp]??2)-(agO[b.ageGrp]??2);if(ai!==0)return ai;return a.div==='Female'?-1:1;});return groups;}
 
 function renderDiscAssignment(){
-  const groups=getGroups();if(!groups.length){const el=document.getElementById('disc-assignment');if(el)el.innerHTML='<div style="font-family:var(--mono);font-size:10px;color:var(--muted)">No bouts loaded yet.</div>';return;}
+  const groups=getGroups();
+  const el=document.getElementById('disc-assignment');
+  if(!groups.length){if(el)el.innerHTML='<div style="font-family:var(--mono);font-size:10px;color:var(--muted)">No bouts loaded yet.</div>';return;}
   const matNames=Array.from({length:matCount},(_,i)=>'Mat '+(i+1));
-  let html='<div class="disc-pool" style="max-width:220px;flex-shrink:0"><div class="disc-pool-title">GROUPS</div><div style="display:flex;gap:4px;margin-bottom:6px"><button class="btn btn-ghost btn-xs" style="font-size:8px" onclick="selectAllGroups()">SELECT ALL</button><button class="btn btn-ghost btn-xs" style="font-size:8px" onclick="clearGroupSelect()">CLEAR</button></div>';
-  groups.forEach(g=>{const assigned=discMatMap[g.key],col=g.div==='Female'?'#c060c0':'#4090d0',chipCls='disc-chip'+(assigned?' assigned':'')+(selectedGroups.has(g.key)?' selected':'');html+='<div class="'+chipCls+'" draggable="true" data-key="'+escA(g.key)+'" style="border-left:3px solid '+col+';font-size:9px;cursor:pointer" onclick="handleChipClick(this)">'+(selectedGroups.has(g.key)?'✓ ':'⋮ ')+escH(g.disc)+' · '+g.ageGrp+' · '+g.div+(assigned?' <span style="color:var(--muted)">→ '+assigned+'</span>':'')+'</div>';});
+
+  // Left: group chips (click to select/deselect)
+  let html='<div style="flex-shrink:0;min-width:180px;max-width:220px">'
+    +'<div style="font-family:var(--mono);font-size:8px;letter-spacing:1px;color:var(--muted);margin-bottom:6px;text-transform:uppercase">GROUPS</div>'
+    +'<div style="display:flex;gap:4px;margin-bottom:8px">'
+    +'<button class="btn btn-ghost btn-xs" style="font-size:8px" onclick="selectAllGroups()">ALL</button>'
+    +'<button class="btn btn-ghost btn-xs" style="font-size:8px" onclick="clearGroupSelect()">CLEAR</button>'
+    +'</div>';
+
+  groups.forEach(g=>{
+    const assigned=discMatMap[g.key];
+    const col=g.div==='Female'?'#c060c0':'#4090d0';
+    const isSel=selectedGroups.has(g.key);
+    const chipStyle='display:flex;align-items:center;gap:6px;padding:5px 8px;border-radius:2px;margin-bottom:4px;cursor:pointer;font-family:var(--mono);font-size:9px;border-left:3px solid '+col+';'
+      +(isSel?'background:var(--gold-bg);border:1px solid var(--gold-dk);color:var(--gold);border-left:3px solid '+col+';':'background:var(--surf2);border:1px solid var(--border);color:var(--text);');
+    html+='<div style="'+chipStyle+'" data-key="'+escA(g.key)+'" onclick="handleChipClick(this)">'
+      +(isSel?'✓ ':'○ ')
+      +escH(g.disc)+' · '+g.ageGrp+' · '+g.div
+      +(assigned?'<span style="color:var(--muted);margin-left:auto">→ '+assigned+'</span>':'')
+      +'</div>';
+  });
   html+='</div>';
-  matNames.forEach(mat=>{const assigned=groups.filter(g=>discMatMap[g.key]===mat),ordered=(matGroupOrder[mat]||[]).map(k=>groups.find(g=>g.key===k)).filter(Boolean);assigned.forEach(g=>{if(!ordered.find(x=>x.key===g.key))ordered.push(g);});html+='<div class="mat-drop-zone" data-mat="'+escA(mat)+'" ondragover="dzOver(event)" ondragleave="dzLeave(event)" ondrop="dzDrop(event)"><div class="mat-drop-zone-title">'+mat+'<span style="font-family:var(--mono);font-size:9px;color:var(--muted);font-weight:400;margin-left:8px">'+ordered.length+' groups</span></div><div id="mglist-'+mat.replace(' ','-')+'" style="min-height:40px">';ordered.forEach((g,idx)=>{const col=g.div==='Female'?'#c060c0':'#4090d0';html+='<div class="disc-chip" style="cursor:grab;border-left:3px solid '+col+';font-size:9px;justify-content:space-between" draggable="true" data-key="'+escA(g.key)+'" data-mat="'+escA(mat)+'" data-idx="'+idx+'"><span>⠿ '+escH(g.disc)+' · '+g.ageGrp+' · '+g.div+'</span><button style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:10px;padding:0 2px" data-key="'+escA(g.key)+'" onclick="removeGroup(this.dataset.key)">✕</button></div>';});if(!ordered.length)html+='<div style="font-family:var(--mono);font-size:9px;color:var(--dim);padding:6px">Drop groups here</div>';html+='</div></div>';});
-  const el=document.getElementById('disc-assignment');if(el)el.innerHTML=html;initGroupDragDrop();
+
+  // Right: one column per mat with assign button + assigned group list
+  matNames.forEach(mat=>{
+    const ordered=(matGroupOrder[mat]||[]).map(k=>groups.find(g=>g.key===k)).filter(Boolean);
+    // add any assigned but not yet ordered
+    groups.filter(g=>discMatMap[g.key]===mat).forEach(g=>{if(!ordered.find(x=>x.key===g.key))ordered.push(g);});
+    const hasSel=selectedGroups.size>0;
+
+    html+='<div style="flex:1;min-width:140px;background:var(--surf);border:1px solid var(--border);border-radius:3px;overflow:hidden">'
+      +'<div style="background:#0d0d10;border-bottom:2px solid var(--gold);padding:6px 10px;display:flex;align-items:center;gap:6px">'
+      +'<div style="font-family:\'Bebas Neue\',sans-serif;font-size:16px;letter-spacing:2px;color:var(--gold);flex:1">'+mat+'</div>'
+      +'<button class="btn btn-gold btn-xs" style="font-size:8px" data-mat="'+escA(mat)+'" onclick="assignSelectedToMat(this.dataset.mat)">'
+      +(hasSel?'→ ASSIGN':'ASSIGN')+'</button>'
+      +'</div>'
+      +'<div style="padding:6px;min-height:50px">';
+
+    if(!ordered.length){
+      html+='<div style="font-family:var(--mono);font-size:9px;color:var(--dim);padding:6px 4px">No groups yet</div>';
+    } else {
+      ordered.forEach(g=>{
+        const col=g.div==='Female'?'#c060c0':'#4090d0';
+        html+='<div style="display:flex;align-items:center;gap:4px;padding:4px 6px;border-left:3px solid '+col+';background:var(--surf2);border-radius:2px;margin-bottom:3px;font-family:var(--mono);font-size:9px">'
+          +'<span style="flex:1">'+escH(g.disc)+' · '+g.ageGrp+' · '+g.div+'</span>'
+          +'<button style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:10px;padding:0 2px;line-height:1" data-key="'+escA(g.key)+'" onclick="removeGroup(this.dataset.key)">✕</button>'
+          +'</div>';
+      });
+    }
+    html+='</div></div>';
+  });
+
+  if(el) el.innerHTML=html;
 }
 
-let dragGroupKey=null,dragGroupMat=null;
+window.assignSelectedToMat=function(mat){
+  if(!selectedGroups.size){toast('Select groups first','orange');return;}
+  if(!matGroupOrder[mat])matGroupOrder[mat]=[];
+  selectedGroups.forEach(key=>{
+    // remove from other mats
+    Object.keys(matGroupOrder).forEach(m=>{if(m!==mat)matGroupOrder[m]=(matGroupOrder[m]||[]).filter(k=>k!==key);});
+    discMatMap[key]=mat;
+    if(matGroupOrder[mat].indexOf(key)===-1)matGroupOrder[mat].push(key);
+  });
+  selectedGroups.clear();
+  renderDiscAssignment();
+  toast('Assigned to '+mat,'green');
+};
+
 window.selectAllGroups=function(){getGroups().filter(g=>!discMatMap[g.key]).forEach(g=>selectedGroups.add(g.key));renderDiscAssignment();};
 window.clearGroupSelect=function(){selectedGroups.clear();renderDiscAssignment();};
 window.handleChipClick=function(el){const key=el.getAttribute('data-key');if(!key)return;if(selectedGroups.has(key))selectedGroups.delete(key);else selectedGroups.add(key);renderDiscAssignment();};
-window.dzOver=function(e){e.preventDefault();e.currentTarget.classList.add('drag-active');};
-window.dzLeave=function(e){if(!e.currentTarget.contains(e.relatedTarget))e.currentTarget.classList.remove('drag-active');};
-window.dzDrop=function(e){e.preventDefault();const mat=e.currentTarget.dataset.mat;e.currentTarget.classList.remove('drag-active');if(!mat)return;const toAssign=new Set(selectedGroups);if(dragGroupKey)toAssign.add(dragGroupKey);if(!toAssign.size)return;if(!matGroupOrder[mat])matGroupOrder[mat]=[];toAssign.forEach(key=>{Object.keys(matGroupOrder).forEach(m=>{if(m!==mat)matGroupOrder[m]=(matGroupOrder[m]||[]).filter(k=>k!==key);});discMatMap[key]=mat;if(matGroupOrder[mat].indexOf(key)===-1)matGroupOrder[mat].push(key);});selectedGroups.clear();dragGroupKey=null;dragGroupMat=null;renderDiscAssignment();};
 window.removeGroup=function(key){delete discMatMap[key];Object.keys(matGroupOrder).forEach(m=>{matGroupOrder[m]=(matGroupOrder[m]||[]).filter(k=>k!==key);});renderDiscAssignment();};
 
-function initGroupDragDrop(){
-  document.querySelectorAll('.disc-pool .disc-chip[draggable="true"]').forEach(el=>{el.addEventListener('dragstart',e=>{dragGroupKey=e.currentTarget.dataset.key;dragGroupMat=null;e.currentTarget.style.opacity='.4';e.dataTransfer.effectAllowed='move';});el.addEventListener('dragend',e=>{e.currentTarget.style.opacity='';document.querySelectorAll('.mat-drop-zone').forEach(z=>z.classList.remove('drag-active'));});});
-  document.querySelectorAll('.mat-drop-zone .disc-chip[draggable="true"]').forEach(el=>{el.addEventListener('dragstart',e=>{dragGroupKey=e.currentTarget.dataset.key;dragGroupMat=e.currentTarget.dataset.mat;e.currentTarget.style.opacity='.4';e.dataTransfer.effectAllowed='move';e.stopPropagation();});el.addEventListener('dragend',e=>{e.currentTarget.style.opacity='';});el.addEventListener('dragover',e=>{e.preventDefault();e.stopPropagation();e.currentTarget.classList.add('drag-over');});el.addEventListener('dragleave',e=>{e.currentTarget.classList.remove('drag-over');});el.addEventListener('drop',e=>{e.preventDefault();e.stopPropagation();e.currentTarget.classList.remove('drag-over');const targetKey=e.currentTarget.dataset.key,mat=e.currentTarget.dataset.mat;if(!dragGroupKey||dragGroupKey===targetKey||!mat)return;if(!matGroupOrder[mat])matGroupOrder[mat]=[];const arr=matGroupOrder[mat],fi=arr.indexOf(dragGroupKey),ti=arr.indexOf(targetKey);if(fi>-1)arr.splice(fi,1);const newTi=arr.indexOf(targetKey);arr.splice(newTi>=0?newTi:arr.length,0,dragGroupKey);discMatMap[dragGroupKey]=mat;dragGroupKey=null;dragGroupMat=null;renderDiscAssignment();});});
-}
 
 window.buildOrder=function(){
   const sel=document.getElementById('mat-count-sel');if(sel)matCount=parseInt(sel.value)||2;
