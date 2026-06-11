@@ -180,38 +180,44 @@ h1.brand{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.4rem,4vw,2.4rem);
 .submit-btn:active{transform:scale(.95)}
 .submit-btn:disabled{opacity:.35;cursor:not-allowed;transform:none}
 .submit-btn.ready{background:linear-gradient(135deg,rgba(245,197,24,.18),rgba(245,197,24,.08));border-color:var(--gold);color:var(--gold);box-shadow:0 3px 20px rgba(245,197,24,.15)}
-.pub-wrap{width:100%;max-width:1200px;display:flex;flex-direction:column;align-items:center;gap:20px}
-.pub-timer{font-family:'Bebas Neue',sans-serif;font-size:clamp(6rem,20vw,14rem);color:var(--gold);text-shadow:0 0 60px rgba(245,197,24,.6);line-height:1}
-.pub-timer.warning{color:#ff6020}
-.pub-round{font-family:'Bebas Neue',sans-serif;font-size:clamp(3rem,10vw,7rem);color:var(--text);text-align:center}
-.pub-round-label{font-size:1rem;letter-spacing:.3em;color:var(--muted);text-transform:uppercase}
-.pub-ruleset{font-size:1rem;letter-spacing:.25em;color:var(--gold);text-transform:uppercase;min-height:1.2em;text-align:center}
-.pub-round-chips{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
-.pub-round-chip{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;padding:6px 20px;border-radius:10px;border:1px solid var(--border)}
-.pub-round-chip.rw{background:rgba(224,32,32,.2);border-color:var(--red);color:var(--red)}
-.pub-round-chip.bw{background:rgba(26,111,212,.2);border-color:var(--blue);color:var(--blue)}
-.pub-round-chip.draw{background:rgba(245,197,24,.1);border-color:rgba(245,197,24,.3);color:var(--gold)}
-.pub-scores{display:grid;grid-template-columns:1fr auto 1fr;gap:0;width:100%;border-radius:18px;overflow:hidden;border:1px solid var(--border)}
-.pub-side{padding:40px 24px;display:flex;flex-direction:column;align-items:center;gap:10px;position:relative;overflow:hidden}
-.pub-side.pub-red{background:linear-gradient(135deg,rgba(155,20,20,.25),transparent)}
-.pub-side.pub-blue{background:linear-gradient(135deg,transparent,rgba(15,74,142,.25))}
-.pub-side.pub-red::before{content:'';position:absolute;inset:0;box-shadow:inset 0 0 80px rgba(224,32,32,.12);pointer-events:none}
-.pub-side.pub-blue::before{content:'';position:absolute;inset:0;box-shadow:inset 0 0 80px rgba(26,111,212,.12);pointer-events:none}
-.pub-name{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.8rem,5vw,4rem);letter-spacing:.1em;text-align:center}
-.pub-name.r{color:#ff6060}.pub-name.b{color:#60a0ff}
-.pub-score{font-family:'Bebas Neue',sans-serif;font-size:clamp(8rem,25vw,18rem);line-height:1}
-.pub-score.r{color:var(--red);text-shadow:0 0 80px var(--red-glow)}
-.pub-score.b{color:var(--blue);text-shadow:0 0 80px var(--blue-glow)}
-.pub-score.pop{animation:pubPop .22s ease}
+/* ── PUBLIC PAGE — locked to viewport, no scroll ─────────── */
+#page-pub{display:none;position:fixed;inset:0;flex-direction:column;width:100%;max-width:100%;gap:0;overflow:hidden;background:var(--bg)}
+#page-pub.active-page{display:flex}
+.pub-header{display:flex;align-items:center;justify-content:space-between;padding:8px 24px;border-bottom:1px solid var(--border);flex-shrink:0}
+.pub-header-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.2rem,3vw,2rem);letter-spacing:.3em;color:var(--gold)}
+.pub-header-meta{font-family:monospace;font-size:.75rem;letter-spacing:.2em;color:var(--muted);text-transform:uppercase;text-align:right}
+.pub-main{flex:1;display:grid;grid-template-columns:1fr auto 1fr;min-height:0}
+.pub-fighter{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;position:relative;overflow:hidden;gap:4px}
+.pub-fighter.red-side{background:linear-gradient(135deg,rgba(155,20,20,.3),transparent);border-right:1px solid var(--border)}
+.pub-fighter.blue-side{background:linear-gradient(225deg,rgba(15,74,142,.3),transparent);border-left:1px solid var(--border)}
+.pub-fighter-name{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.4rem,4vw,3.5rem);letter-spacing:.1em;text-align:center;line-height:1}
+.pub-fighter-name.r{color:#ff6060}.pub-fighter-name.b{color:#60a0ff}
+.pub-fighter-score{font-family:'Bebas Neue',sans-serif;font-size:clamp(6rem,18vh,14rem);line-height:.9;text-align:center}
+.pub-fighter-score.r{color:var(--red);text-shadow:0 0 60px var(--red-glow)}
+.pub-fighter-score.b{color:var(--blue);text-shadow:0 0 80px var(--blue-glow)}
+.pub-fighter-score.pop{animation:pubPop .22s ease}
 @keyframes pubPop{0%,100%{transform:scale(1)}50%{transform:scale(1.09)}}
-.pub-pen{font-size:1rem;color:var(--orange);letter-spacing:.1em;min-height:1em;text-align:center}
-.pub-center{background:var(--panel);display:flex;align-items:center;justify-content:center;padding:0 20px}
-.pub-vs{font-family:'Bebas Neue',sans-serif;font-size:clamp(2rem,5vw,4rem);color:var(--muted)}
-.pub-dots{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
-.pub-dot{width:16px;height:16px;border-radius:50%;border:2px solid var(--border)}
-.pub-dot.ar{background:var(--red);border-color:var(--red)}
-.pub-dot.ab{background:var(--blue);border-color:var(--blue)}
-.pub-dot.aw{background:#ffb800;border-color:#ffb800}
+.pub-fighter-pen{font-size:.85rem;color:var(--orange);letter-spacing:.1em;text-align:center;min-height:1em}
+.pub-center-col{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:12px 16px;gap:10px;min-width:120px}
+.pub-vs-big{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.8rem,4vw,3rem);color:var(--muted)}
+.pub-round-big{font-family:'Bebas Neue',sans-serif;font-size:clamp(3rem,8vh,7rem);color:var(--text);line-height:1;text-align:center}
+.pub-round-lbl{font-size:.65rem;letter-spacing:.3em;color:var(--muted);text-transform:uppercase;text-align:center}
+.pub-chips-row{display:flex;gap:6px;justify-content:center;flex-wrap:wrap}
+.pub-chip{font-family:'Bebas Neue',sans-serif;font-size:1rem;padding:3px 10px;border-radius:6px;border:1px solid rgba(245,197,24,.25);color:var(--gold);background:rgba(245,197,24,.07)}
+.pub-timer-big{font-family:'Bebas Neue',sans-serif;font-size:clamp(2rem,6vh,5rem);color:var(--gold);text-shadow:0 0 40px rgba(245,197,24,.5);line-height:1;text-align:center}
+.pub-timer-big.warning{color:#ff6020}
+.pub-footer{flex-shrink:0;padding:8px 24px;border-top:1px solid var(--border);display:flex;flex-direction:column;align-items:center;gap:6px}
+.pub-tally-row{display:flex;align-items:center;gap:16px;justify-content:center;width:100%;max-width:700px}
+.pub-tally-num{font-family:'Bebas Neue',sans-serif;font-size:2rem;min-width:2.5rem;text-align:center}
+.pub-tally-bar{flex:1;position:relative;height:8px;background:#1a1a24;border-radius:4px;overflow:hidden}
+.pub-tbar-r{position:absolute;right:50%;top:0;height:100%;background:var(--red);border-radius:4px;transition:width .4s;width:0%}
+.pub-tbar-b{position:absolute;left:50%;top:0;height:100%;background:var(--blue);border-radius:4px;transition:width .4s;width:0%}
+.pub-lean{font-family:'Bebas Neue',sans-serif;font-size:1.2rem;letter-spacing:.15em;color:var(--gold);text-align:center}
+.pub-judge-pills{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.pub-jpill{font-family:'Bebas Neue',sans-serif;font-size:.9rem;letter-spacing:.1em;padding:3px 14px;border-radius:16px;border:1px solid #2a2a3a;color:#444}
+.pub-jpill.red{background:rgba(224,32,32,.12);border-color:rgba(224,32,32,.4);color:var(--red)}
+.pub-jpill.blue{background:rgba(26,111,212,.12);border-color:rgba(26,111,212,.4);color:var(--blue)}
+.pub-jpill.even{background:rgba(245,197,24,.08);border-color:rgba(245,197,24,.3);color:var(--gold)}
 .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.93);z-index:100;align-items:center;justify-content:center;flex-direction:column;gap:16px;padding:20px;text-align:center}
 .overlay.show{display:flex}
 .ov-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.2rem,4vw,2rem);letter-spacing:.3em;color:var(--muted)}
@@ -473,49 +479,51 @@ h1.brand{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.4rem,4vw,2.4rem);
 
 <!-- PUBLIC -->
 <div class="page" id="page-pub">
-  <div class="pub-wrap">
-    <h1 class="brand">&#9876; Combat Games Series</h1>
-    <div id="p-style-name" style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;letter-spacing:.2em;color:var(--gold);text-align:center"></div>
-    <div id="p-timer-wrap" style="display:none;text-align:center">
-      <div class="pub-timer" id="p-timer">2:00</div>
-      <div style="font-size:.7rem;letter-spacing:.3em;color:var(--muted);text-transform:uppercase">Round Time</div>
+  <!-- Header bar -->
+  <div class="pub-header">
+    <div class="pub-header-title">&#9876; Combat Games Series</div>
+    <div class="pub-header-meta">
+      <span id="p-style-name"></span>
+      <span id="p-ruleset"></span>
     </div>
-    <div style="text-align:center">
-      <div class="pub-round" id="p-round">1</div>
-      <div class="pub-round-label">Round</div>
-      <div class="pub-ruleset" id="p-ruleset"></div>
+  </div>
+  <!-- Main grid: RED | CENTER | BLUE -->
+  <div class="pub-main">
+    <div class="pub-fighter red-side">
+      <div class="pub-fighter-name r" id="p-rn">FIGHTER 1</div>
+      <div class="pub-fighter-score r" id="p-rs">0</div>
+      <div class="pub-fighter-pen" id="p-rpen"></div>
+      <div class="pub-dots" id="p-rdots" style="display:none"></div>
     </div>
-    <div class="pub-round-chips" id="p-chips"></div>
-    <div id="p-tally-wrap" style="display:none;width:100%;max-width:900px;background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:24px 32px;text-align:center;margin:0 auto">
-      <div style="font-family:monospace;font-size:.85rem;letter-spacing:.25em;color:var(--muted);text-transform:uppercase;margin-bottom:14px">Live Round Tally</div>
-      <div style="display:flex;align-items:center;gap:16px;justify-content:center">
-        <div style="font-family:'Bebas Neue',sans-serif;font-size:4rem;color:#ff8080" id="p-tally-r">0</div>
-        <div style="flex:1;max-width:400px">
-          <div style="position:relative;height:14px;background:#1a1a24;border-radius:7px;overflow:hidden">
-            <div id="p-tbar-r" style="position:absolute;right:50%;top:0;height:100%;background:var(--red);border-radius:7px;transition:width .4s;width:0%"></div>
-            <div id="p-tbar-b" style="position:absolute;left:50%;top:0;height:100%;background:var(--blue);border-radius:7px;transition:width .4s;width:0%"></div>
-          </div>
-        </div>
-        <div style="font-family:'Bebas Neue',sans-serif;font-size:4rem;color:#80b0ff" id="p-tally-b">0</div>
+    <div class="pub-center-col">
+      <div id="p-timer-wrap" style="display:none;text-align:center">
+        <div class="pub-timer-big" id="p-timer">2:00</div>
+        <div style="font-size:.6rem;letter-spacing:.25em;color:var(--muted);text-transform:uppercase">Time</div>
       </div>
-      <div id="p-projected" style="font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:.15em;margin-top:10px;color:var(--gold)"></div>
-      <div id="p-judge-leanings" style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:16px;padding-top:14px;border-top:1px solid #1a1a24"></div>
+      <div class="pub-round-big" id="p-round">1</div>
+      <div class="pub-round-lbl">Round</div>
+      <div class="pub-vs-big">VS</div>
+      <div class="pub-chips-row" id="p-chips"></div>
     </div>
-    <div class="pub-scores">
-      <div class="pub-side pub-red">
-        <div class="pub-name r" id="p-rn">FIGHTER 1</div>
-        <div class="pub-score r" id="p-rs">0</div>
-        <div class="pub-pen" id="p-rpen"></div>
-        <div class="pub-dots" id="p-rdots" style="display:none"></div>
-      </div>
-      <div class="pub-center"><div class="pub-vs">VS</div></div>
-      <div class="pub-side pub-blue">
-        <div class="pub-name b" id="p-bn">FIGHTER 2</div>
-        <div class="pub-score b" id="p-bs">0</div>
-        <div class="pub-pen" id="p-bpen"></div>
-        <div class="pub-dots" id="p-bdots" style="display:none"></div>
-      </div>
+    <div class="pub-fighter blue-side">
+      <div class="pub-fighter-name b" id="p-bn">FIGHTER 2</div>
+      <div class="pub-fighter-score b" id="p-bs">0</div>
+      <div class="pub-fighter-pen" id="p-bpen"></div>
+      <div class="pub-dots" id="p-bdots" style="display:none"></div>
     </div>
+  </div>
+  <!-- Footer: tally + judge leanings -->
+  <div class="pub-footer" id="p-tally-wrap" style="display:none">
+    <div class="pub-tally-row">
+      <div class="pub-tally-num" style="color:#ff8080" id="p-tally-r">0</div>
+      <div class="pub-tally-bar">
+        <div class="pub-tbar-r" id="p-tbar-r"></div>
+        <div class="pub-tbar-b" id="p-tbar-b"></div>
+      </div>
+      <div class="pub-tally-num" style="color:#80b0ff" id="p-tally-b">0</div>
+      <div class="pub-lean" id="p-projected"></div>
+    </div>
+    <div class="pub-judge-pills" id="p-judge-leanings"></div>
   </div>
   <div class="overlay" id="p-wo">
     <div class="ov-title">Match Winner</div>
@@ -604,9 +612,12 @@ const vv=id=>{const e=el(id);return e?e.value.trim():"";};
 const fmt=s=>{s=Math.max(0,s||0);return Math.floor(s/60)+":"+String(s%60).padStart(2,"0");};
 
 function showPage(id){
-  document.querySelectorAll(".page").forEach(e=>e.style.display="none");
+  document.querySelectorAll(".page").forEach(e=>{e.style.display="none";e.classList.remove("active-page");});
   const p=el(id);
-  if(p) p.style.display="flex";
+  if(p){
+    if(id==="page-pub") p.classList.add("active-page");
+    else p.style.display="flex";
+  }
 }
 
 function initSetup(){
@@ -1142,8 +1153,11 @@ function initPub(){
       T("p-rn",(s.redName||"FIGHTER 1").toUpperCase());T("p-bn",(s.blueName||"FIGHTER 2").toUpperCase());
       T("p-round",s.round??1);
       el("p-timer-wrap").style.display=s.timerVisible?"block":"none";
-      if(s.timerVisible){T("p-timer",fmt(s.timerSeconds??120));el("p-timer").classList.toggle("warning",(s.timerSeconds??120)<=30);}
-      T("p-ruleset",style==="hybrid"?"Round "+(s.round??1)+" \u00b7 "+hybridName(s.round??1):styleLabel(style));
+      if(s.timerVisible){
+        T("p-timer",fmt(s.timerSeconds??120));
+        el("p-timer").classList.toggle("warning",(s.timerSeconds??120)<=30);
+      }
+      T("p-ruleset",style==="hybrid"?" \u00b7 "+hybridName(s.round??1):"");
       const pr=el("p-rs").textContent,pb=el("p-bs").textContent;
       T("p-rs",s.redScore??0);T("p-bs",s.blueScore??0);
       if(String(s.redScore??0)!==pr){el("p-rs").classList.add("pop");setTimeout(()=>el("p-rs").classList.remove("pop"),250);}
@@ -1163,7 +1177,7 @@ function initPub(){
       if(s.winner){T("p-wt",s.winner);el("p-wo").classList.add("show");}else el("p-wo").classList.remove("show");
     }catch(err){console.error("pub error",err);}
   });
-  // Live tally feed for round tension
+  // Live tally feed
   onValue(ref(db3,`sessions/${SES}/tallies`),snap=>{
     try{
       const tallies=snap.val()||{};
@@ -1190,17 +1204,16 @@ function initPub(){
         let html="";
         for(let j=1;j<=JC;j++){
           const t=tallies["judge"+j];
-          if(!t){html+=`<div style="font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:.12em;padding:8px 22px;border-radius:20px;background:#0f0f0f;border:1px solid #2a2a3a;color:#444">J${j} —</div>`;continue;}
+          const cls=!t?"":"judge"+j&&calcCard(t.red||0,t.blue||0).winner==="red"?"red":calcCard(t.red||0,t.blue||0).winner==="blue"?"blue":"even";
+          if(!t){html+=`<div class="pub-jpill">J${j} —</div>`;continue;}
           const jcard=calcCard(t.red||0,t.blue||0);
-          const col=jcard.winner==="red"?"var(--red)":jcard.winner==="blue"?"var(--blue)":"var(--gold)";
-          const bg=jcard.winner==="red"?"rgba(224,32,32,.12)":jcard.winner==="blue"?"rgba(26,111,212,.12)":"rgba(245,197,24,.08)";
-          const border=jcard.winner==="red"?"rgba(224,32,32,.4)":jcard.winner==="blue"?"rgba(26,111,212,.4)":"rgba(245,197,24,.3)";
           const lbl=jcard.winner==="draw"?"EVEN":jcard.winner.toUpperCase();
-          html+=`<div style="font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:.12em;padding:8px 22px;border-radius:20px;background:${bg};border:1px solid ${border};color:${col}">J${j} · ${lbl}</div>`;
+          const pcls=jcard.winner==="red"?"red":jcard.winner==="blue"?"blue":"even";
+          html+=`<div class="pub-jpill ${pcls}">J${j} \u2192 ${lbl}</div>`;
         }
         leanDiv.innerHTML=html;
       }
-      if(wrap)wrap.style.display="block";
+      if(wrap)wrap.style.display="flex";
     }catch(e){}
   });
 }
@@ -1214,7 +1227,7 @@ function pubChips(results,style){
   results.forEach((r,i)=>{
     if(!r)return;
     const sub=style==="hybrid"?" \u00b7 "+hybridName(i+1):"";
-    html+=`<div class="pub-round-chip" style="background:rgba(245,197,24,.07);border-color:rgba(245,197,24,.25);color:var(--gold)">R${i+1}${sub}: ${r.red}\u2013${r.blue}</div>`;
+    html+=`<div class="pub-chip">R${i+1}${sub}: ${r.red}\u2013${r.blue}</div>`;
   });
   c.innerHTML=html;
 }
