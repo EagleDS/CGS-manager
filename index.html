@@ -1253,14 +1253,11 @@ function renderDashboard() {
     if(!poolCount) {
       poolsEl.innerHTML = '<span style="color:var(--muted)">No pools yet</span>';
     } else {
-      poolsEl.innerHTML =
-        '<span style="color:var(--orange)">'+poolCount+' pool'+(poolCount!==1?'s':'')+'</span>
-' +
-        (oddCount ? '<span style="color:var(--orange)">⚠ '+oddCount+' odd-numbered</span>
-' : '') +
-        (singleCount ? '<span style="color:var(--red)">⚠ '+singleCount+' solo athlete'+(singleCount!==1?'s':'')+'</span>
-' : '') +
-        (!oddCount&&!singleCount ? '<span style="color:var(--green)">All pools even</span>' : '');
+      const poolLines = ['<span style="color:var(--orange)">'+poolCount+' pool'+(poolCount!==1?'s':'')+'</span>'];
+      if(oddCount) poolLines.push('<span style="color:var(--orange)">&#9888; '+oddCount+' odd-numbered</span>');
+      if(singleCount) poolLines.push('<span style="color:var(--red)">&#9888; '+singleCount+' solo athlete'+(singleCount!==1?'s':'')+'</span>');
+      if(!oddCount&&!singleCount) poolLines.push('<span style="color:var(--green)">All pools even</span>');
+      poolsEl.innerHTML = poolLines.join('<br>');
     }
   }
 
@@ -2080,7 +2077,7 @@ window.loadDemo=function(){
 14/05/2026 00:35:36\t\tTroy\tViljoen\tMale\t30\t1.4\t04/17/2016\tMMA\tAuckland MMA\tMMA yellow sleeve\tFirst time\tMMA, K1 LIGHT\t\t021\t\tAuckland\t\tAuckland MMA\t\tAuckland\tNZ\t\t\t\t\t
 14/05/2026 17:10:39\t\tNathan\tHou\tMale\t33\t130\t04/18/2018\tTaekwondo\tEagle ds\tyellow\tFirst time\tK1 LIGHT, BOXING LIGHT, HYBRID LIGHT\t\t021\t\tAuckland\t\tEagle DS\t\tAuckland\tNZ\t\t\t\t\t
 18/05/2026 16:55:02\t\tSamuela\tBulamaisaioni\tMale\t62\t5\t01/06/2010\tMMA\tEagle Ds\tBeginner\tFirst time\tMMA, HYBRID LIGHT\t\t021\t\tManukau\t\tEagle Ds\t\tManukau\tNZ\t\t\t\t\t
-20/05/2026 20:15:52\t\tRaihan\tDean\tMale\t88\t178\t12/27/1993\tKickboxing\tEagle DS\tN/A\tFirst time\tK1 LIGHT, BOXING LIGHT, HYBRID LIGHT\tSenior\t021\t\tAuckland\t\tEagle DS\t\tAuckland\tNZ\t\t\t\t\t`;
+20/05/2026 20:15:52\t\tRaihan\tDean\tMale\t88\t178\t12/27/1993\tKickboxing\tEagle DS\tN/A\tFirst time\tK1 LIGHT, BOXING LIGHT, HYBRID LIGHT\tSenior\t021\t\tAuckland\t\tEagle DS\t\tAuckland\tNZ\t\t\t\t\t\`;
   processImport();
 };
 
