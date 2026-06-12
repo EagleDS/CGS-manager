@@ -283,6 +283,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
 
 <div id="topbar">
   <div class="logo">⚔ CGS</div>
+  <div id="topbar-event" style="font-family:var(--mono);font-size:8px;color:var(--muted);letter-spacing:1px;white-space:nowrap;overflow:hidden;max-width:140px;text-overflow:ellipsis"></div>
   <div class="nav">
     <button class="nav-btn on" data-view="process" onclick="goView('process')">PROCESS</button>
     <button class="nav-btn" data-view="regs" onclick="goView('regs')">REGS</button>
@@ -466,23 +467,58 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
 
 <!-- SETUP VIEW -->
 <div id="view-setup" class="view">
-  <div class="setup-card">
-    <h2>FIREBASE STATUS</h2>
-    <p>Config is baked in — automatically connected to the CGS-Manager database.</p>
-    <div id="config-status" class="config-status ok">✓ Connected — CGS-Manager database</div>
+
+  <!-- Active event banner -->
+  <div id="active-event-banner" style="background:var(--gold-bg);border:1px solid var(--gold-dk);border-radius:3px;padding:10px 14px;margin-bottom:12px;display:flex;align-items:center;gap:10px">
+    <div style="flex:1">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;color:var(--gold)" id="banner-event-name">—</div>
+      <div style="font-family:var(--mono);font-size:9px;color:var(--muted)" id="banner-event-meta">—</div>
+    </div>
+    <div id="config-status" class="config-status ok" style="margin:0;padding:4px 10px;font-size:9px">✓ Firebase</div>
   </div>
+
+  <!-- Event list -->
   <div class="setup-card">
-    <h2>EVENT NAME</h2>
-    <p>Set this per event so data doesn't overlap between events.</p>
-    <div class="fld"><label>Event ID</label><input id="cfg-eventId" placeholder="cgs-event-3-2026"/></div>
-    <div class="row-btns"><button class="btn btn-gold" onclick="saveEventId()">SAVE</button></div>
+    <h2>EVENTS</h2>
+    <p>All events stored in Firebase. Tap an event to make it active.</p>
+    <div id="event-list" style="margin-bottom:12px">
+      <div style="font-family:var(--mono);font-size:10px;color:var(--muted)">Loading events…</div>
+    </div>
+    <div class="row-btns">
+      <button class="btn btn-gold" onclick="showNewEventForm()">+ NEW EVENT</button>
+    </div>
   </div>
+
+  <!-- New event form (hidden by default) -->
+  <div class="setup-card" id="new-event-form" style="display:none">
+    <h2>NEW EVENT</h2>
+    <div class="fld"><label>Display Name</label><input id="new-event-name" placeholder="Combat Games Series — Event Three"/></div>
+    <div class="fld"><label>Date</label><input id="new-event-date" placeholder="Saturday July 11 2026"/></div>
+    <div class="fld"><label>Location</label><input id="new-event-location" placeholder="17 Nandina Drive, East Tāmaki, Auckland"/></div>
+    <div class="fld"><label>Event ID (auto-generated)</label><input id="new-event-id" placeholder="cgs-july-11-2026" style="color:var(--muted)"/></div>
+    <div class="row-btns">
+      <button class="btn btn-gold" onclick="createNewEvent()">CREATE EVENT</button>
+      <button class="btn btn-ghost btn-sm" onclick="hideNewEventForm()">CANCEL</button>
+    </div>
+  </div>
+
+  <!-- Reset event -->
+  <div class="setup-card" id="reset-event-card">
+    <h2>RESET EVENT</h2>
+    <p>Wipes all registrations, bouts, and results for the active event. Use for trial runs. Type the event ID to confirm.</p>
+    <div class="fld"><label>Type event ID to confirm</label><input id="reset-confirm-input" placeholder="cgs-july-11-2026"/></div>
+    <div class="row-btns">
+      <button class="btn btn-red" onclick="resetActiveEvent()">WIPE & RESET</button>
+    </div>
+  </div>
+
+  <!-- Marshal PIN -->
   <div class="setup-card">
     <h2>MARSHAL PIN</h2>
-    <p>Marshals enter this PIN to access the marshal view.</p>
     <div class="fld"><label>PIN (4 digits)</label><input id="cfg-pin" type="number" placeholder="1234" maxlength="4"/></div>
     <div class="row-btns"><button class="btn btn-gold" onclick="savePin()">SAVE PIN</button></div>
   </div>
+
 </div>
 
 <!-- SCORE MODAL -->
@@ -525,7 +561,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
 import { getDatabase, ref, set, onValue, get } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
 
-let bouts=[],rawAthletes=[],athletes=[],clubMap={},matches=[],needsMatch=[],db=null,eventId='cgs-event',pubTimer=null,procStep=1;
+let bouts=[],rawAthletes=[],athletes=[],clubMap={},matches=[],needsMatch=[],db=null,eventId='cgs-july-11-2026',pubTimer=null,procStep=1;
 
 const CANONICAL_CLUBS=['Eagle DS','Auckland MMA','Shuriken NZ','Dynamic Martial Arts','TMAA','Shinobi Academy','Spartan Combat','Phoenix Rising','SACA','Resolve Fight Systems','Skillset','Flyger Combat Academy','Independent','Rogue Training Centre','Lions Den MMA','SMA Nelson','Nak Rop','Wimbledon Muay Thai','City Kickboxing','Xtreme MMA','Coast Academy','Oliver MMA','Fox Down Combat','China Sanda Club','Daredevil BJJ','GC Team','Tu Kaha NZ','Seishin Ryu','Modthai','Physical Fitness Gym'].sort();
 const EAGLE_VARIANTS=['eagle ds','eagle ds limited','eagleds','eagle ds combat','eagle-ds','eagleds.co.nz'];
@@ -537,7 +573,7 @@ window.addEventListener('load',()=>{loadLocal();initFirebase();renderAll();});
 
 function loadLocal(){
   const saved=localStorage.getItem('cgs-bouts');if(saved){try{bouts=JSON.parse(saved);}catch(e){}}
-  const eid=localStorage.getItem('cgs-eventId');if(eid){eventId=eid;const el=document.getElementById('cfg-eventId');if(el)el.value=eid;}
+  const eid=localStorage.getItem('cgs-eventId');if(eid){eventId=eid;}
   const pin=localStorage.getItem('cgs-pin');if(pin){const el=document.getElementById('cfg-pin');if(el)el.value=pin;}
 }
 
@@ -560,22 +596,197 @@ function initFirebase(){
     updateSyncDot('live');
     listenFirebase();
     listenRegs();
+    ensureEventMeta();
     updateConfigStatus(true);
   }catch(e){updateSyncDot('err');console.warn('Firebase init failed:',e);}
 }
 
 function listenFirebase(){
   if(!db)return;
-  onValue(ref(db,`${eventId}/bouts`),snap=>{
+  onValue(ref(db,`events/${eventId}/bouts`),snap=>{
     if(!snap.exists())return;
     const data=snap.val();
     if(Array.isArray(data)&&data.length){bouts=data;localStorage.setItem('cgs-bouts',JSON.stringify(bouts));renderAll();}
   });
 }
 
-function syncToFirebase(){if(!db)return;set(ref(db,`${eventId}/bouts`),bouts).catch(e=>{updateSyncDot('err');console.warn('Sync failed:',e);});}
+function syncToFirebase(){if(!db)return;set(ref(db,`events/${eventId}/bouts`),bouts).catch(e=>{updateSyncDot('err');console.warn('Sync failed:',e);});}
 function updateConfigStatus(ok){const el=document.getElementById('config-status');if(!el)return;el.className='config-status '+(ok?'ok':'none');el.textContent=ok?'✓ Connected — CGS-Manager database':'No config — check setup.';}
 function updateSyncDot(state){const d=document.getElementById('sync-dot');if(d)d.className='sync-dot '+state;}
+
+
+// ══════════════════════════════════════════
+// EVENT MANAGER
+// ══════════════════════════════════════════
+const DEFAULT_EVENT = {
+  id: 'cgs-july-11-2026',
+  name: 'Combat Games Series — Event Three',
+  date: 'Saturday July 11 2026',
+  location: '17 Nandina Drive, East Tāmaki, Auckland'
+};
+
+function eventPath(sub) {
+  return 'events/'+eventId+(sub?'/'+sub:'');
+}
+
+function updateBanner() {
+  import('https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js').then(m => {
+    m.get(m.ref(db, eventPath('meta'))).then(snap => {
+      const meta = snap.exists() ? snap.val() : {name: eventId, date:'', location:''};
+      const nameEl = document.getElementById('banner-event-name');
+      const metaEl = document.getElementById('banner-event-meta');
+      if(nameEl) nameEl.textContent = meta.name || eventId;
+      if(metaEl) metaEl.textContent = (meta.date||'') + (meta.location?' · '+meta.location:'');
+      // Also update topbar
+      const topEid = document.getElementById('topbar-event');
+      if(topEid) topEid.textContent = meta.name || eventId;
+    });
+  });
+}
+
+function loadEventList() {
+  if(!db) return;
+  import('https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js').then(m => {
+    m.get(m.ref(db, 'events')).then(snap => {
+      const el = document.getElementById('event-list');
+      if(!el) return;
+      if(!snap.exists()) {
+        el.innerHTML = '<div style="font-family:var(--mono);font-size:10px;color:var(--muted)">No events yet — create one below.</div>';
+        return;
+      }
+      const events = snap.val();
+      let html = '';
+      Object.entries(events).forEach(([id, data]) => {
+        if(!data || !data.meta) return;
+        const meta = data.meta;
+        const isActive = id === eventId;
+        const regCount = data.registrations ? Object.keys(data.registrations).length : 0;
+        const boutCount = data.bouts ? (Array.isArray(data.bouts) ? data.bouts.length : 0) : 0;
+        html += '<div style="background:'+(isActive?'var(--gold-bg)':'var(--surf2)')+';border:1px solid '+(isActive?'var(--gold-dk)':'var(--border)')+';border-radius:3px;padding:10px 12px;margin-bottom:6px;display:flex;align-items:center;gap:10px">'
+          +'<div style="flex:1">'
+          +'<div style="font-family:\'Bebas Neue\',sans-serif;font-size:14px;letter-spacing:1px;color:'+(isActive?'var(--gold)':'var(--text)')+'">'+escH(meta.name||id)+'</div>'
+          +'<div style="font-family:var(--mono);font-size:9px;color:var(--muted);margin-top:2px">'+escH(meta.date||'')+(regCount?' · '+regCount+' athletes':'')+(boutCount?' · '+boutCount+' bouts':'')+'</div>'
+          +'</div>'
+          +(isActive
+            ? '<span style="font-family:var(--mono);font-size:8px;color:var(--gold);letter-spacing:1px">ACTIVE</span>'
+            : '<button class="btn btn-ghost btn-xs" data-eid="'+escA(id)+'" onclick="switchEvent(this.dataset.eid)">SWITCH</button>'
+          )
+          +'</div>';
+      });
+      el.innerHTML = html || '<div style="font-family:var(--mono);font-size:10px;color:var(--muted)">No events found.</div>';
+    });
+  });
+}
+
+window.switchEvent = function(id) {
+  if(!id || id === eventId) return;
+  eventId = id;
+  localStorage.setItem('cgs-eventId', id);
+  // Re-listen on new paths
+  import('https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js').then(m => {
+    // Reset state
+    bouts = []; storedRegs = {}; storedClubMap = {};
+    listenFirebase();
+    listenRegs();
+    updateBanner();
+    loadEventList();
+    renderAll();
+    toast('Switched to: '+id, 'gold');
+  });
+};
+
+window.showNewEventForm = function() {
+  document.getElementById('new-event-form').style.display = '';
+  // Auto-generate ID from name as user types
+  const nameInput = document.getElementById('new-event-name');
+  const idInput = document.getElementById('new-event-id');
+  nameInput.oninput = function() {
+    const slug = nameInput.value.toLowerCase()
+      .replace(/[^a-z0-9\s]/g,'')
+      .trim().replace(/\s+/g,'-')
+      .substring(0,40);
+    idInput.value = slug;
+  };
+};
+
+window.hideNewEventForm = function() {
+  document.getElementById('new-event-form').style.display = 'none';
+};
+
+window.createNewEvent = function() {
+  const name = document.getElementById('new-event-name').value.trim();
+  const date = document.getElementById('new-event-date').value.trim();
+  const location = document.getElementById('new-event-location').value.trim();
+  const id = document.getElementById('new-event-id').value.trim();
+  if(!name||!id) { toast('Name and ID required','red'); return; }
+
+  import('https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js').then(m => {
+    m.set(m.ref(db, 'events/'+id+'/meta'), {
+      name, date, location,
+      createdAt: new Date().toISOString(),
+      status: 'active'
+    }).then(() => {
+      eventId = id;
+      localStorage.setItem('cgs-eventId', id);
+      bouts = []; storedRegs = {}; storedClubMap = {};
+      listenFirebase();
+      listenRegs();
+      updateBanner();
+      loadEventList();
+      hideNewEventForm();
+      renderAll();
+      toast('Event created: '+name, 'green');
+    });
+  });
+};
+
+window.resetActiveEvent = function() {
+  const input = document.getElementById('reset-confirm-input').value.trim();
+  if(input !== eventId) {
+    toast('Type the event ID exactly to confirm', 'red');
+    return;
+  }
+  if(!confirm('This will wipe ALL registrations, bouts and results for '+eventId+'. This cannot be undone. Continue?')) return;
+
+  import('https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js').then(m => {
+    const promises = [
+      m.set(m.ref(db, 'events/'+eventId+'/registrations'), null),
+      m.set(m.ref(db, 'events/'+eventId+'/bouts'), null),
+      m.set(m.ref(db, 'events/'+eventId+'/results'), null),
+      m.set(m.ref(db, 'events/'+eventId+'/clubMap'), null),
+    ];
+    Promise.all(promises).then(() => {
+      bouts = []; storedRegs = {}; storedClubMap = {}; clubMap = {};
+      matches = []; needsMatch = []; athletes = []; rawAthletes = [];
+      localStorage.removeItem('cgs-bouts');
+      document.getElementById('reset-confirm-input').value = '';
+      renderAll();
+      updateRegsStatus && updateRegsStatus();
+      toast('Event reset — all data wiped', 'red');
+    });
+  });
+};
+
+// Ensure default event meta exists on first load
+function ensureEventMeta() {
+  if(!db) return;
+  import('https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js').then(m => {
+    m.get(m.ref(db, 'events/'+eventId+'/meta')).then(snap => {
+      if(!snap.exists()) {
+        // Create default meta for the July 11 event
+        m.set(m.ref(db, 'events/'+eventId+'/meta'), {
+          name: DEFAULT_EVENT.name,
+          date: DEFAULT_EVENT.date,
+          location: DEFAULT_EVENT.location,
+          createdAt: new Date().toISOString(),
+          status: 'active'
+        });
+      }
+      updateBanner();
+      loadEventList();
+    });
+  });
+}
 
 window.saveEventId=function(){const v=document.getElementById('cfg-eventId').value.trim();if(!v)return;eventId=v;localStorage.setItem('cgs-eventId',v);toast('Event ID saved: '+v,'gold');if(db)listenFirebase();};
 window.savePin=function(){const v=document.getElementById('cfg-pin').value.trim();if(!v)return;localStorage.setItem('cgs-pin',v);toast('PIN saved','gold');};
@@ -585,7 +796,7 @@ window.goView=function(v){
   document.querySelectorAll('.nav-btn').forEach(e=>e.classList.remove('on'));
   const viewEl=document.getElementById('view-'+v);const navEl=document.querySelector('[data-view="'+v+'"]');
   if(viewEl)viewEl.classList.add('on');if(navEl)navEl.classList.add('on');
-  if(v==='draw')renderDraw();if(v==='live')renderLive();if(v==='results')renderResults();if(v==='regs'){updateRegsStatus();updateRegsMatchSummary();renderAthleteList();}
+  if(v==='draw')renderDraw();if(v==='live')renderLive();if(v==='results')renderResults();if(v==='regs'){updateRegsStatus();updateRegsMatchSummary();renderAthleteList();}if(v==='setup'){loadEventList();updateBanner();}
 };
 
 window.goStep=function(n){
@@ -642,14 +853,14 @@ window.goRegsTab = function(tab) {
 function loadRegsFromFirebase() {
   if(!db) return;
   const { ref: fbRef, onValue } = window._fbFns;
-  fbRef(db, eventId+'/registrations').then ? null : null; // dummy
+  fbRef(db, 'events/'+eventId+'/registrations').then ? null : null; // dummy
   // Use onValue already imported in module scope — called via listenRegs()
 }
 
 function listenRegs() {
   if(!db) return;
   import('https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js').then(m => {
-    m.onValue(m.ref(db, eventId+'/registrations'), snap => {
+    m.onValue(m.ref(db, 'events/'+eventId+'/registrations'), snap => {
       if(snap.exists()) {
         storedRegs = snap.val() || {};
       } else {
@@ -658,7 +869,7 @@ function listenRegs() {
       updateRegsStatus();
       renderAthleteList();
     });
-    m.onValue(m.ref(db, eventId+'/clubMap'), snap => {
+    m.onValue(m.ref(db, 'events/'+eventId+'/clubMap'), snap => {
       if(snap.exists()) {
         storedClubMap = snap.val() || {};
         // sync into main clubMap
@@ -671,14 +882,14 @@ function listenRegs() {
 function saveRegsToFirebase() {
   if(!db) return;
   import('https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js').then(m => {
-    m.set(m.ref(db, eventId+'/registrations'), storedRegs).catch(e => console.warn('Regs save failed:', e));
+    m.set(m.ref(db, 'events/'+eventId+'/registrations'), storedRegs).catch(e => console.warn('Regs save failed:', e));
   });
 }
 
 function saveClubMapToFirebase() {
   if(!db) return;
   import('https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js').then(m => {
-    m.set(m.ref(db, eventId+'/clubMap'), storedClubMap).catch(e => console.warn('ClubMap save failed:', e));
+    m.set(m.ref(db, 'events/'+eventId+'/clubMap'), storedClubMap).catch(e => console.warn('ClubMap save failed:', e));
   });
 }
 
