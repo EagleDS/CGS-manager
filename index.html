@@ -285,7 +285,8 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
   <div class="logo">⚔ CGS</div>
   <div id="topbar-event" style="font-family:var(--mono);font-size:8px;color:var(--muted);letter-spacing:1px;white-space:nowrap;overflow:hidden;max-width:140px;text-overflow:ellipsis"></div>
   <div class="nav">
-    <button class="nav-btn on" data-view="process" onclick="goView('process')">PROCESS</button>
+    <button class="nav-btn on" data-view="home" onclick="goView('home')">HOME</button>
+    <button class="nav-btn" data-view="process" onclick="goView('process')">PROCESS</button>
     <button class="nav-btn" data-view="regs" onclick="goView('regs')">REGS</button>
     <button class="nav-btn" data-view="draw" onclick="goView('draw')">DRAW</button>
     <button class="nav-btn" data-view="live" onclick="goView('live')">LIVE</button>
@@ -297,8 +298,77 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
   <button class="btn btn-ghost btn-xs" style="color:#5080c0;border-color:#1a2840;flex-shrink:0" onclick="openMarshal()">👷</button>
 </div>
 
+<!-- HOME DASHBOARD -->
+<div id="view-home" class="view on">
+
+  <!-- Event header -->
+  <div style="background:var(--gold-bg);border:1px solid var(--gold-dk);border-radius:3px;padding:14px 16px;margin-bottom:14px">
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:3px;color:var(--gold)" id="dash-event-name">Combat Games Series — Event Three</div>
+    <div style="font-family:var(--mono);font-size:9px;color:var(--muted);margin-top:2px" id="dash-event-meta">Saturday July 11 2026 · 17 Nandina Drive, East Tāmaki</div>
+  </div>
+
+  <!-- Stats row -->
+  <div id="dash-stats" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px"></div>
+
+  <!-- Two column grid -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+
+    <!-- REGISTRATIONS folder -->
+    <div class="panel" style="cursor:pointer;border-top:2px solid var(--gold)" onclick="goView('regs')">
+      <div class="panel-title" style="font-size:13px">REGISTRATIONS</div>
+      <div id="dash-regs-summary" style="font-family:var(--mono);font-size:9px;color:var(--muted);line-height:2">Loading…</div>
+    </div>
+
+    <!-- DRAW folder -->
+    <div class="panel" style="cursor:pointer;border-top:2px solid var(--red)" onclick="goView('draw')">
+      <div class="panel-title" style="font-size:13px;color:var(--red)">DRAW</div>
+      <div id="dash-draw-summary" style="font-family:var(--mono);font-size:9px;color:var(--muted);line-height:2">Loading…</div>
+    </div>
+
+    <!-- CLUBS folder -->
+    <div class="panel" style="cursor:pointer;border-top:2px solid var(--blue)" onclick="goView('regs');setTimeout(()=>goRegsTab('clubs'),100)">
+      <div class="panel-title" style="font-size:13px;color:var(--blue)">CLUBS</div>
+      <div id="dash-clubs-summary" style="font-family:var(--mono);font-size:9px;color:var(--muted);line-height:2">Loading…</div>
+    </div>
+
+    <!-- PAYMENT folder -->
+    <div class="panel" style="border-top:2px solid var(--green);opacity:.5">
+      <div class="panel-title" style="font-size:13px;color:var(--green)">PAYMENT</div>
+      <div style="font-family:var(--mono);font-size:9px;color:var(--muted);line-height:2">Coming — Stage 5</div>
+    </div>
+
+  </div>
+
+  <!-- ALERTS -->
+  <div id="dash-alerts" style="margin-bottom:14px"></div>
+
+  <!-- QUICK LAUNCH -->
+  <div class="panel" style="border-top:2px solid var(--dim)">
+    <div class="panel-title" style="font-size:13px;color:var(--muted)">QUICK LAUNCH</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px">
+      <a href="https://eagleds.github.io/CGS-manager/public.html" target="_blank" style="text-decoration:none">
+        <button class="btn btn-ghost" style="width:100%;text-align:left;color:var(--red);border-color:var(--red-dk)">📺 PUBLIC DRAW</button>
+      </a>
+      <a href="https://eagleds.github.io/CGS-manager/integrated-scoreboard.html" target="_blank" style="text-decoration:none">
+        <button class="btn btn-ghost" style="width:100%;text-align:left;color:var(--gold);border-color:var(--gold-dk)">⚔ SCOREBOARD</button>
+      </a>
+      <a href="https://eagleds.github.io/CRM/eagle-os.html" target="_blank" style="text-decoration:none">
+        <button class="btn btn-ghost" style="width:100%;text-align:left">🦅 EAGLE OS</button>
+      </a>
+      <a href="https://eagleds.co.nz/cgs.html" target="_blank" style="text-decoration:none">
+        <button class="btn btn-ghost" style="width:100%;text-align:left">🌐 CGS WEBSITE</button>
+      </a>
+      <a href="https://forms.gle/TcQCcid63rQQDiZF6" target="_blank" style="text-decoration:none">
+        <button class="btn btn-ghost" style="width:100%;text-align:left;grid-column:1/-1">📋 REGISTER FORM</button>
+      </a>
+    </div>
+  </div>
+
+</div>
+
+
 <!-- PROCESS VIEW -->
-<div id="view-process" class="view on">
+<div id="view-process" class="view">
   <div style="display:flex;gap:3px;margin-bottom:12px">
     <div id="step-pill-1" style="flex:1;text-align:center;font-family:var(--mono);font-size:9px;padding:5px;border-radius:2px;background:var(--gold-bg);border:1px solid var(--gold-dk);color:var(--gold)">1 IMPORT</div>
     <div id="step-pill-2" style="flex:1;text-align:center;font-family:var(--mono);font-size:9px;padding:5px;border-radius:2px;background:var(--surf2);border:1px solid var(--border);color:var(--muted);cursor:pointer" onclick="if(athletes.length)goStep(2)">2 CLUBS</div>
@@ -522,14 +592,11 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
   <!-- Database Browser -->
   <div class="setup-card">
     <h2>DATABASE BROWSER</h2>
-    <p>Live view of everything stored in Firebase for the active event.</p>
+    <p>Debug tool — check club name mappings, event meta, and raw Firebase structure when something looks wrong.</p>
     <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">
-      <button class="btn btn-ghost btn-sm" onclick="dbBrowse('registrations')">REGISTRATIONS</button>
-      <button class="btn btn-ghost btn-sm" onclick="dbBrowse('bouts')">BOUTS</button>
-      <button class="btn btn-ghost btn-sm" onclick="dbBrowse('results')">RESULTS</button>
       <button class="btn btn-ghost btn-sm" onclick="dbBrowse('clubMap')">CLUB MAP</button>
       <button class="btn btn-ghost btn-sm" onclick="dbBrowse('meta')">META</button>
-      <button class="btn btn-ghost btn-sm" onclick="dbBrowse('')">ALL</button>
+      <button class="btn btn-ghost btn-sm" onclick="dbBrowse('')">RAW DEBUG</button>
     </div>
     <div id="db-browser-path" style="font-family:var(--mono);font-size:9px;color:var(--muted);margin-bottom:6px"></div>
     <div id="db-browser-output" style="background:#050505;border:1px solid var(--border);border-radius:2px;padding:10px;font-family:var(--mono);font-size:10px;color:var(--text);max-height:400px;overflow-y:auto;white-space:pre-wrap;word-break:break-all;line-height:1.7">
@@ -591,7 +658,7 @@ const STYLE_NORM={'HYBRID LIGHT':'Hybrid Light','MMA':'MMA','K1 LIGHT':'K1 Light
 const STYLE_ORDER=['Hybrid Light','MMA','K1 Light','Boxing Light'];
 const ROUND_FORMATS={'Hybrid Light':'R1: Boxing 1min · R2: Low Kick 1min · R3: MMA 2min','MMA':'Under 18: 1×3min · 18+: 1×5min','K1 Light':'3×1min Light Contact','Boxing Light':'3×1min Light Contact'};
 
-window.addEventListener('load',()=>{loadLocal();initFirebase();renderAll();});
+window.addEventListener('load',()=>{loadLocal();initFirebase();renderAll();setTimeout(renderDashboard,800);});
 
 function loadLocal(){
   const saved=localStorage.getItem('cgs-bouts');if(saved){try{bouts=JSON.parse(saved);}catch(e){}}
@@ -599,7 +666,7 @@ function loadLocal(){
   const pin=localStorage.getItem('cgs-pin');if(pin){const el=document.getElementById('cfg-pin');if(el)el.value=pin;}
 }
 
-function saveBouts(){localStorage.setItem('cgs-bouts',JSON.stringify(bouts));if(db)syncToFirebase();renderPublicContent();}
+function saveBouts(){localStorage.setItem('cgs-bouts',JSON.stringify(bouts));if(db)syncToFirebase();renderPublicContent();if(document.getElementById('view-home')?.classList.contains('on'))renderDashboard();}
 
 // ══ FIREBASE — baked-in config ══
 function initFirebase(){
@@ -899,6 +966,118 @@ window.resetActiveEvent = function() {
 };
 
 // Ensure default event meta exists on first load
+
+// ══════════════════════════════════════════
+// DASHBOARD
+// ══════════════════════════════════════════
+function renderDashboard() {
+  // Event meta
+  if(db) {
+    import('https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js').then(m => {
+      m.get(m.ref(db, 'events/'+eventId+'/meta')).then(snap => {
+        const meta = snap.exists() ? snap.val() : {};
+        const nameEl = document.getElementById('dash-event-name');
+        const metaEl = document.getElementById('dash-event-meta');
+        if(nameEl && meta.name) nameEl.textContent = meta.name;
+        if(metaEl) metaEl.textContent = (meta.date||'') + (meta.location?' · '+meta.location:'');
+      });
+    });
+  }
+
+  // Stats
+  const total = Object.keys(storedRegs).length;
+  const withdrawn = Object.values(storedRegs).filter(a=>a.withdrawn).length;
+  const drawn = Object.values(storedRegs).filter(a=>a.inDraw).length;
+  const pending = total - withdrawn - drawn;
+  const totalBouts = bouts.length;
+  const completed = bouts.filter(b=>b.status==='completed').length;
+  const live = bouts.filter(b=>b.status==='live').length;
+  const scheduled = bouts.filter(b=>b.status==='scheduled').length;
+
+  const statsEl = document.getElementById('dash-stats');
+  if(statsEl) statsEl.innerHTML =
+    dashStat(total, 'ATHLETES', 'var(--gold)') +
+    dashStat(pending, 'PENDING', 'var(--orange)') +
+    dashStat(totalBouts, 'BOUTS', 'var(--text)') +
+    dashStat(completed, 'DONE', 'var(--green)') +
+    (live ? dashStat(live, 'LIVE', 'var(--red)') : '');
+
+  // Regs summary
+  const regsEl = document.getElementById('dash-regs-summary');
+  if(regsEl) {
+    if(!total) {
+      regsEl.innerHTML = '<span style="color:var(--muted)">No athletes yet — paste form data</span>';
+    } else {
+      // Club count
+      const clubs = new Set(Object.values(storedRegs).map(a=>a.club||a.clubRaw||'Unknown'));
+      const unresolved = Object.values(storedRegs).filter(a=>!a.club||a.club===a.clubRaw).length;
+      regsEl.innerHTML =
+        '<span style="color:var(--gold)">'+total+' athletes</span> · '+clubs.size+' clubs\n' +
+        '<span style="color:var(--green)">'+drawn+' in draw</span> · <span style="color:var(--gold)">'+pending+' pending</span>' +
+        (withdrawn ? ' · <span style="color:var(--red)">'+withdrawn+' withdrawn</span>' : '') +
+        (unresolved ? '\n<span style="color:var(--orange)">⚠ '+unresolved+' unresolved club names</span>' : '');
+    }
+  }
+
+  // Draw summary
+  const drawEl = document.getElementById('dash-draw-summary');
+  if(drawEl) {
+    if(!totalBouts) {
+      drawEl.innerHTML = '<span style="color:var(--muted)">No bouts yet</span>';
+    } else {
+      const mats = [...new Set(bouts.map(b=>b.area))].sort();
+      drawEl.innerHTML =
+        '<span style="color:var(--text)">'+totalBouts+' bouts · '+mats.length+' mat'+(mats.length!==1?'s':'')+'</span>\n' +
+        '<span style="color:var(--green)">'+completed+' completed</span>' +
+        (live ? ' · <span style="color:var(--red)">'+live+' live</span>' : '') +
+        ' · <span style="color:#5090d0">'+scheduled+' scheduled</span>';
+    }
+  }
+
+  // Clubs summary
+  const clubsEl = document.getElementById('dash-clubs-summary');
+  if(clubsEl) {
+    const clubs = {};
+    Object.values(storedRegs).filter(a=>!a.withdrawn).forEach(a => {
+      const c = a.club || a.clubRaw || 'Unknown';
+      if(!clubs[c]) clubs[c] = 0;
+      clubs[c]++;
+    });
+    const clubList = Object.entries(clubs).sort((a,b)=>b[1]-a[1]).slice(0,4);
+    if(!clubList.length) {
+      clubsEl.innerHTML = '<span style="color:var(--muted)">No clubs yet</span>';
+    } else {
+      clubsEl.innerHTML = clubList.map(([name,count])=>
+        '<span style="color:var(--text)">'+escH(name)+'</span> <span style="color:var(--muted)">'+count+'</span>'
+      ).join('\n') + (Object.keys(clubs).length > 4 ? '\n<span style="color:var(--muted)">+'+(Object.keys(clubs).length-4)+' more</span>' : '');
+    }
+  }
+
+  // Alerts
+  const alertsEl = document.getElementById('dash-alerts');
+  if(alertsEl) {
+    const alerts = [];
+    const unresolved = Object.values(storedRegs).filter(a=>a.clubRaw&&(!a.club||a.club===a.clubRaw));
+    if(unresolved.length) alerts.push({color:'var(--orange)', text:'⚠ '+unresolved.length+' athlete'+(unresolved.length!==1?'s':'')+' have unresolved club names — fix in REGS → CLUBS', tab:'clubs'});
+    if(pending>0&&totalBouts===0) alerts.push({color:'var(--gold)', text:''+pending+' athletes ready to match — go to PROCESS', tab:'process'});
+    const noHead = bouts.filter(b=>b.noHead&&b.status==='scheduled').length;
+    if(noHead) alerts.push({color:'var(--orange)', text:'⚠ '+noHead+' under-12 bouts scheduled — no head contact rule applies', tab:'draw'});
+
+    if(!alerts.length) { alertsEl.innerHTML = ''; return; }
+    alertsEl.innerHTML = alerts.map(a =>
+      '<div style="background:var(--surf);border:1px solid var(--border);border-left:3px solid '+a.color+';border-radius:3px;padding:8px 12px;margin-bottom:6px;font-family:var(--mono);font-size:10px;color:'+a.color+';cursor:pointer" onclick="goView(\''+a.tab+'\')">'
+      +a.text+'</div>'
+    ).join('');
+  }
+}
+
+function dashStat(val, label, color) {
+  return '<div class="stat" style="border-top:2px solid '+color+'">'
+    +'<div class="stat-v" style="color:'+color+'">'+val+'</div>'
+    +'<div class="stat-l">'+label+'</div>'
+    +'</div>';
+}
+
 function ensureEventMeta() {
   if(!db) return;
   import('https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js').then(m => {
@@ -927,7 +1106,7 @@ window.goView=function(v){
   document.querySelectorAll('.nav-btn').forEach(e=>e.classList.remove('on'));
   const viewEl=document.getElementById('view-'+v);const navEl=document.querySelector('[data-view="'+v+'"]');
   if(viewEl)viewEl.classList.add('on');if(navEl)navEl.classList.add('on');
-  if(v==='draw')renderDraw();if(v==='live')renderLive();if(v==='results')renderResults();if(v==='regs'){updateRegsStatus();updateRegsMatchSummary();renderAthleteList();}if(v==='setup'){loadEventList();updateBanner();}
+  if(v==='draw')renderDraw();if(v==='live')renderLive();if(v==='results')renderResults();if(v==='home'){renderDashboard();}if(v==='regs'){updateRegsStatus();updateRegsMatchSummary();renderAthleteList();}if(v==='setup'){loadEventList();updateBanner();}
 };
 
 window.goStep=function(n){
