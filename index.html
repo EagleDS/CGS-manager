@@ -22,9 +22,9 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
 ::-webkit-scrollbar{width:2px;height:2px}::-webkit-scrollbar-thumb{background:#333}
 #topbar{background:#0a0a0d;border-bottom:1px solid var(--border);padding:0 12px;display:flex;align-items:center;gap:8px;height:48px;position:sticky;top:0;z-index:100}
 .logo{font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:3px;color:var(--gold);white-space:nowrap;flex-shrink:0}
-.nav{display:flex;gap:1px;overflow-x:auto;flex:1;-webkit-overflow-scrolling:touch}
+.nav{display:flex;gap:1px;overflow-x:auto;flex:1;-webkit-overflow-scrolling:touch;scrollbar-width:none}
 .nav::-webkit-scrollbar{display:none}
-.nav-btn{background:none;border:none;cursor:pointer;font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:1px;padding:6px 10px;color:var(--muted);border-radius:2px;white-space:nowrap;transition:all .15s}
+.nav-btn{background:none;border:none;cursor:pointer;font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:1px;padding:6px 8px;color:var(--muted);border-radius:2px;white-space:nowrap;transition:all .15s}
 .nav-btn.on{background:var(--surf2);color:var(--text)}
 .sync-dot{width:7px;height:7px;border-radius:50%;background:var(--dim);flex-shrink:0;transition:background .3s}
 .sync-dot.live{background:var(--green);box-shadow:0 0 6px var(--green)}
@@ -767,8 +767,8 @@ function eventPath(sub) {
 }
 
 function updateBanner() {
-  import('https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js').then(m => {
-    m.get(m.ref(db, eventPath('meta'))).then(snap => {
+  if(!db) return;
+  get(ref(db, eventPath('meta'))).then(snap => {
       const meta = snap.exists() ? snap.val() : {name: eventId, date:'', location:''};
       const nameEl = document.getElementById('banner-event-name');
       const metaEl = document.getElementById('banner-event-meta');
@@ -778,13 +778,11 @@ function updateBanner() {
       const topEid = document.getElementById('topbar-event');
       if(topEid) topEid.textContent = meta.name || eventId;
     });
-  });
 }
 
 function loadEventList() {
   if(!db) return;
-  import('https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js').then(m => {
-    m.get(m.ref(db, 'events')).then(snap => {
+  get(ref(db, 'events')).then(snap => {
       const el = document.getElementById('event-list');
       if(!el) return;
       if(!snap.exists()) {
@@ -812,24 +810,19 @@ function loadEventList() {
       });
       el.innerHTML = html || '<div style="font-family:var(--mono);font-size:10px;color:var(--muted)">No events found.</div>';
     });
-  });
 }
 
 window.switchEvent = function(id) {
   if(!id || id === eventId) return;
   eventId = id;
   localStorage.setItem('cgs-eventId', id);
-  // Re-listen on new paths
-  import('https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js').then(m => {
-    // Reset state
-    bouts = []; storedRegs = {}; storedClubMap = {};
-    listenFirebase();
-    listenRegs();
-    updateBanner();
-    loadEventList();
-    renderAll();
-    toast('Switched to: '+id, 'gold');
-  });
+  bouts = []; storedRegs = {}; storedClubMap = {};
+  listenFirebase();
+  listenRegs();
+  updateBanner();
+  loadEventList();
+  renderAll();
+  toast('Switched to: '+id, 'gold');
 };
 
 window.showNewEventForm = function() {
@@ -857,8 +850,7 @@ window.createNewEvent = function() {
   const id = document.getElementById('new-event-id').value.trim();
   if(!name||!id) { toast('Name and ID required','red'); return; }
 
-  import('https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js').then(m => {
-    m.set(m.ref(db, 'events/'+id+'/meta'), {
+  set(ref(db, 'events/'+id+'/meta'), {
       name, date, location,
       createdAt: new Date().toISOString(),
       status: 'active'
@@ -874,7 +866,6 @@ window.createNewEvent = function() {
       renderAll();
       toast('Event created: '+name, 'green');
     });
-  });
 };
 
 
@@ -888,13 +879,11 @@ window.dbBrowse = function(sub) {
   if(pathEl) pathEl.textContent = '📁 '+path;
   if(outEl) outEl.innerHTML = '<span style="color:var(--muted)">Loading…</span>';
   if(!db) { if(outEl) outEl.innerHTML = '<span style="color:var(--red)">Firebase not connected.</span>'; return; }
-  import('https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js').then(m => {
-    m.get(m.ref(db, path)).then(snap => {
-      if(!snap.exists()) { if(outEl) outEl.innerHTML = '<span style="color:var(--muted)">Empty — no data at this path.</span>'; return; }
-      const data = snap.val();
-      if(outEl) outEl.innerHTML = dbRenderValue(data, 0, sub||'root');
-    }).catch(e => { if(outEl) outEl.innerHTML = '<span style="color:var(--red)">Error: '+escH(e.message)+'</span>'; });
-  });
+  get(ref(db, path)).then(snap => {
+    if(!snap.exists()) { if(outEl) outEl.innerHTML = '<span style="color:var(--muted)">Empty — no data at this path.</span>'; return; }
+    const data = snap.val();
+    if(outEl) outEl.innerHTML = dbRenderValue(data, 0, sub||'root');
+  }).catch(e => { if(outEl) outEl.innerHTML = '<span style="color:var(--red)">Error: '+escH(e.message)+'</span>'; });
 };
 
 function dbRenderValue(val, depth, key) {
@@ -994,22 +983,20 @@ window.resetActiveEvent = function() {
   }
   if(!confirm('This will wipe ALL registrations, bouts and results for '+eventId+'. This cannot be undone. Continue?')) return;
 
-  import('https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js').then(m => {
-    const promises = [
-      m.set(m.ref(db, 'events/'+eventId+'/registrations'), null),
-      m.set(m.ref(db, 'events/'+eventId+'/bouts'), null),
-      m.set(m.ref(db, 'events/'+eventId+'/results'), null),
-      m.set(m.ref(db, 'events/'+eventId+'/clubMap'), null),
-    ];
-    Promise.all(promises).then(() => {
-      bouts = []; storedRegs = {}; storedClubMap = {}; clubMap = {};
-      matches = []; needsMatch = []; athletes = []; rawAthletes = [];
-      localStorage.removeItem('cgs-bouts');
-      document.getElementById('reset-confirm-input').value = '';
-      renderAll();
-      updateRegsStatus && updateRegsStatus();
-      toast('Event reset — all data wiped', 'red');
-    });
+  const promises = [
+    set(ref(db, 'events/'+eventId+'/registrations'), null),
+    set(ref(db, 'events/'+eventId+'/bouts'), null),
+    set(ref(db, 'events/'+eventId+'/results'), null),
+    set(ref(db, 'events/'+eventId+'/clubMap'), null),
+  ];
+  Promise.all(promises).then(() => {
+    bouts = []; storedRegs = {}; storedClubMap = {}; clubMap = {};
+    matches = []; needsMatch = []; athletes = []; rawAthletes = [];
+    localStorage.removeItem('cgs-bouts');
+    document.getElementById('reset-confirm-input').value = '';
+    renderAll();
+    updateRegsStatus && updateRegsStatus();
+    toast('Event reset — all data wiped', 'red');
   });
 };
 
@@ -1186,14 +1173,12 @@ function checkWeightOutlier(athletes) {
 function renderDashboard() {
   // Event meta
   if(db) {
-    import('https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js').then(m => {
-      m.get(m.ref(db, 'events/'+eventId+'/meta')).then(snap => {
-        const meta = snap.exists() ? snap.val() : {};
-        const nameEl = document.getElementById('dash-event-name');
-        const metaEl = document.getElementById('dash-event-meta');
-        if(nameEl && meta.name) nameEl.textContent = meta.name;
-        if(metaEl) metaEl.textContent = (meta.date||'') + (meta.location?' · '+meta.location:'');
-      });
+    get(ref(db, 'events/'+eventId+'/meta')).then(snap => {
+      const meta = snap.exists() ? snap.val() : {};
+      const nameEl = document.getElementById('dash-event-name');
+      const metaEl = document.getElementById('dash-event-meta');
+      if(nameEl && meta.name) nameEl.textContent = meta.name;
+      if(metaEl) metaEl.textContent = (meta.date||'') + (meta.location?' · '+meta.location:'');
     });
   }
 
@@ -1324,11 +1309,9 @@ function dashStat(val, label, color) {
 
 function ensureEventMeta() {
   if(!db) return;
-  import('https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js').then(m => {
-    m.get(m.ref(db, 'events/'+eventId+'/meta')).then(snap => {
-      if(!snap.exists()) {
-        // Create default meta for the July 11 event
-        m.set(m.ref(db, 'events/'+eventId+'/meta'), {
+  get(ref(db, 'events/'+eventId+'/meta')).then(snap => {
+    if(!snap.exists()) {
+      set(ref(db, 'events/'+eventId+'/meta'), {
           name: DEFAULT_EVENT.name,
           date: DEFAULT_EVENT.date,
           location: DEFAULT_EVENT.location,
@@ -1339,7 +1322,6 @@ function ensureEventMeta() {
       updateBanner();
       loadEventList();
     });
-  });
 }
 
 window.saveEventId=function(){const v=document.getElementById('cfg-eventId').value.trim();if(!v)return;eventId=v;localStorage.setItem('cgs-eventId',v);toast('Event ID saved: '+v,'gold');if(db)listenFirebase();};
@@ -1413,38 +1395,29 @@ function loadRegsFromFirebase() {
 
 function listenRegs() {
   if(!db) return;
-  import('https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js').then(m => {
-    m.onValue(m.ref(db, 'events/'+eventId+'/registrations'), snap => {
-      if(snap.exists()) {
-        storedRegs = snap.val() || {};
-      } else {
-        storedRegs = {};
-      }
-      updateRegsStatus();
-      renderAthleteList();
-    });
-    m.onValue(m.ref(db, 'events/'+eventId+'/clubMap'), snap => {
-      if(snap.exists()) {
-        storedClubMap = snap.val() || {};
-        // sync into main clubMap
-        Object.assign(clubMap, storedClubMap);
-      }
-    });
+  onValue(ref(db, 'events/'+eventId+'/registrations'), snap => {
+    storedRegs = snap.exists() ? (snap.val() || {}) : {};
+    updateRegsStatus();
+    updateRegsMatchSummary();
+    if(document.getElementById('view-home')?.classList.contains('on')) renderDashboard();
+    if(document.getElementById('view-pools')?.classList.contains('on')) renderPools();
+  });
+  onValue(ref(db, 'events/'+eventId+'/clubMap'), snap => {
+    if(snap.exists()) {
+      storedClubMap = snap.val() || {};
+      Object.assign(clubMap, storedClubMap);
+    }
   });
 }
 
 function saveRegsToFirebase() {
   if(!db) return;
-  import('https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js').then(m => {
-    m.set(m.ref(db, 'events/'+eventId+'/registrations'), storedRegs).catch(e => console.warn('Regs save failed:', e));
-  });
+  set(ref(db, 'events/'+eventId+'/registrations'), storedRegs).catch(e => console.warn('Regs save failed:', e));
 }
 
 function saveClubMapToFirebase() {
   if(!db) return;
-  import('https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js').then(m => {
-    m.set(m.ref(db, 'events/'+eventId+'/clubMap'), storedClubMap).catch(e => console.warn('ClubMap save failed:', e));
-  });
+  set(ref(db, 'events/'+eventId+'/clubMap'), storedClubMap).catch(e => console.warn('ClubMap save failed:', e));
 }
 
 function regsDedupeKey(a) {
