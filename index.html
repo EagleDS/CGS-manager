@@ -519,6 +519,28 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
     <div class="row-btns"><button class="btn btn-gold" onclick="savePin()">SAVE PIN</button></div>
   </div>
 
+  <!-- Database Browser -->
+  <div class="setup-card">
+    <h2>DATABASE BROWSER</h2>
+    <p>Live view of everything stored in Firebase for the active event.</p>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">
+      <button class="btn btn-ghost btn-sm" onclick="dbBrowse('registrations')">REGISTRATIONS</button>
+      <button class="btn btn-ghost btn-sm" onclick="dbBrowse('bouts')">BOUTS</button>
+      <button class="btn btn-ghost btn-sm" onclick="dbBrowse('results')">RESULTS</button>
+      <button class="btn btn-ghost btn-sm" onclick="dbBrowse('clubMap')">CLUB MAP</button>
+      <button class="btn btn-ghost btn-sm" onclick="dbBrowse('meta')">META</button>
+      <button class="btn btn-ghost btn-sm" onclick="dbBrowse('')">ALL</button>
+    </div>
+    <div id="db-browser-path" style="font-family:var(--mono);font-size:9px;color:var(--muted);margin-bottom:6px"></div>
+    <div id="db-browser-output" style="background:#050505;border:1px solid var(--border);border-radius:2px;padding:10px;font-family:var(--mono);font-size:10px;color:var(--text);max-height:400px;overflow-y:auto;white-space:pre-wrap;word-break:break-all;line-height:1.7">
+      <span style="color:var(--muted)">Tap a button above to browse.</span>
+    </div>
+    <div class="row-btns" style="margin-top:8px">
+      <button class="btn btn-ghost btn-xs" onclick="dbCopyOutput()">COPY</button>
+      <button class="btn btn-ghost btn-xs" onclick="document.getElementById('db-browser-output').innerHTML='<span style='color:var(--muted)'>Cleared.</span>'">CLEAR</button>
+    </div>
+  </div>
+
 </div>
 
 <!-- SCORE MODAL -->
@@ -738,6 +760,115 @@ window.createNewEvent = function() {
       toast('Event created: '+name, 'green');
     });
   });
+};
+
+
+// ══════════════════════════════════════════
+// DATABASE BROWSER
+// ══════════════════════════════════════════
+window.dbBrowse = function(sub) {
+  const path = sub ? 'events/'+eventId+'/'+sub : 'events/'+eventId;
+  const pathEl = document.getElementById('db-browser-path');
+  const outEl = document.getElementById('db-browser-output');
+  if(pathEl) pathEl.textContent = '📁 '+path;
+  if(outEl) outEl.innerHTML = '<span style="color:var(--muted)">Loading…</span>';
+  if(!db) { if(outEl) outEl.innerHTML = '<span style="color:var(--red)">Firebase not connected.</span>'; return; }
+  import('https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js').then(m => {
+    m.get(m.ref(db, path)).then(snap => {
+      if(!snap.exists()) { if(outEl) outEl.innerHTML = '<span style="color:var(--muted)">Empty — no data at this path.</span>'; return; }
+      const data = snap.val();
+      if(outEl) outEl.innerHTML = dbRenderValue(data, 0, sub||'root');
+    }).catch(e => { if(outEl) outEl.innerHTML = '<span style="color:var(--red)">Error: '+escH(e.message)+'</span>'; });
+  });
+};
+
+function dbRenderValue(val, depth, key) {
+  const indent = '  '.repeat(depth);
+  if(val === null || val === undefined) return '<span style="color:var(--muted)">null</span>';
+  if(typeof val === 'boolean') return '<span style="color:var(--red)">'+val+'</span>';
+  if(typeof val === 'number') return '<span style="color:#2a7fd4">'+val+'</span>';
+  if(typeof val === 'string') { const d=val.length>80?val.substring(0,80)+'…':val; return '<span style="color:var(--green)">"'+escH(d)+'"</span>'; }
+  if(Array.isArray(val)) {
+    if(!val.length) return '<span style="color:var(--muted)">[empty]</span>';
+    if(depth===0 && val[0] && val[0].disc) return dbRenderBoutsArray(val);
+    let html='<span style="color:var(--muted)">['+val.length+']</span>\n';
+    val.slice(0,20).forEach((item,i)=>{ html+=indent+'  <span style="color:var(--gold)">['+i+']</span>: '+dbRenderValue(item,depth+1,i)+'\n'; });
+    if(val.length>20) html+=indent+'  <span style="color:var(--muted)">…+'+(val.length-20)+' more</span>\n';
+    return html;
+  }
+  if(typeof val === 'object') {
+    const keys=Object.keys(val);
+    if(!keys.length) return '<span style="color:var(--muted)">{empty}</span>';
+    if(depth===0 && key==='registrations') return dbRenderRegistrations(val);
+    if(depth===0 && key==='clubMap') return dbRenderClubMap(val);
+    if(depth===0 && key==='meta') return dbRenderMeta(val);
+    let html='\n';
+    keys.slice(0,50).forEach(k=>{ html+=indent+'  <span style="color:var(--gold)">'+escH(String(k))+'</span>: '+dbRenderValue(val[k],depth+1,k)+'\n'; });
+    if(keys.length>50) html+=indent+'  <span style="color:var(--muted)">…+'+(keys.length-50)+' more</span>\n';
+    return html;
+  }
+  return escH(String(val));
+}
+
+function dbRenderRegistrations(regs) {
+  const athletes=Object.values(regs);
+  const total=athletes.length, withdrawn=athletes.filter(a=>a.withdrawn).length, drawn=athletes.filter(a=>a.inDraw).length, pending=total-withdrawn-drawn;
+  let html='<span style="color:var(--gold)">'+total+' athletes</span> · <span style="color:var(--green)">'+drawn+' in draw</span> · <span style="color:var(--gold)">'+pending+' pending</span>'+(withdrawn?' · <span style="color:var(--red)">'+withdrawn+' withdrawn</span>':'')+'\n\n';
+  const clubs={};
+  athletes.forEach(a=>{ const c=a.club||a.clubRaw||'Unknown'; if(!clubs[c])clubs[c]=[]; clubs[c].push(a); });
+  Object.entries(clubs).sort((a,b)=>a[0].localeCompare(b[0])).forEach(([club,members])=>{
+    html+='<span style="color:var(--gold);font-weight:600">'+escH(club)+'</span> ('+members.length+')\n';
+    members.sort((a,b)=>(a.name||'').localeCompare(b.name||'')).forEach(a=>{
+      const name=((a.name||'')+' '+(a.sur||'')).trim();
+      const statusCol=a.withdrawn?'var(--red)':a.inDraw?'var(--green)':'var(--gold)';
+      const status=a.withdrawn?'WITHDRAWN':a.inDraw?'IN DRAW':'PENDING';
+      const discs=(a.styles||[]).map(s=>normStyle(s)).filter((v,i,arr)=>arr.indexOf(v)===i).join(', ');
+      html+='  '+escH(name)+' · '+(a.age||'?')+'yr · '+(a.weight||'?')+'kg · '+escH(discs)+' · <span style="color:'+statusCol+'">'+status+'</span>\n';
+    });
+    html+='\n';
+  });
+  return html;
+}
+
+function dbRenderBoutsArray(bouts) {
+  const total=bouts.length, live=bouts.filter(b=>b.status==='live').length, done=bouts.filter(b=>b.status==='completed').length, sched=bouts.filter(b=>b.status==='scheduled').length;
+  let html='<span style="color:var(--gold)">'+total+' bouts</span> · <span style="color:var(--green)">'+done+' done</span> · <span style="color:var(--red)">'+live+' live</span> · <span style="color:#5090d0">'+sched+' scheduled</span>\n\n';
+  const mats=[...new Set(bouts.map(b=>b.area))].sort();
+  mats.forEach(mat=>{
+    const mb=bouts.filter(b=>b.area===mat);
+    html+='<span style="color:var(--gold);font-weight:600">'+escH(mat)+'</span> ('+mb.length+')\n';
+    mb.forEach(b=>{
+      const sc=b.status==='completed'?'var(--green)':b.status==='live'?'var(--red)':'var(--muted)';
+      html+='  <span style="color:'+sc+'">'+(b.matFightNum?'F'+b.matFightNum:b.id)+'</span> '+escH(b.disc)+' · '+escH(b.ageGrp)+' '+escH(b.div)+'\n';
+      html+='    <span style="color:var(--red)">'+escH(b.red&&b.red.name||'?')+'</span> vs <span style="color:#2a7fd4">'+escH(b.blue&&b.blue.name||'?')+'</span>';
+      if(b.status==='completed') html+=' → <span style="color:var(--green)">'+escH(b.winner||'draw')+'</span> '+(b.score?b.score.red+'-'+b.score.blue:'');
+      html+='\n';
+    });
+    html+='\n';
+  });
+  return html;
+}
+
+function dbRenderClubMap(map) {
+  const entries=Object.entries(map).sort((a,b)=>a[1].localeCompare(b[1]));
+  let html='<span style="color:var(--gold)">'+entries.length+' club mappings</span>\n\n';
+  entries.forEach(([raw,canon])=>{
+    if(raw===canon) html+='  <span style="color:var(--muted)">'+escH(raw)+'</span>\n';
+    else html+='  <span style="color:var(--red)">'+escH(raw)+'</span> → <span style="color:var(--green)">'+escH(canon)+'</span>\n';
+  });
+  return html;
+}
+
+function dbRenderMeta(meta) {
+  let html='';
+  ['name','date','location','status','createdAt'].forEach(f=>{ if(meta[f]) html+='  <span style="color:var(--gold)">'+f+'</span>: <span style="color:var(--green)">'+escH(String(meta[f]))+'</span>\n'; });
+  return html;
+}
+
+window.dbCopyOutput = function() {
+  const el=document.getElementById('db-browser-output');
+  if(!el) return;
+  navigator.clipboard.writeText(el.innerText||el.textContent||'').then(()=>toast('Copied','gold'));
 };
 
 window.resetActiveEvent = function() {
