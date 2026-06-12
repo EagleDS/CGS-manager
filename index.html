@@ -288,6 +288,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
     <button class="nav-btn on" data-view="home" onclick="goView('home')">HOME</button>
     <button class="nav-btn" data-view="process" onclick="goView('process')">PROCESS</button>
     <button class="nav-btn" data-view="regs" onclick="goView('regs')">REGS</button>
+    <button class="nav-btn" data-view="pools" onclick="goView('pools')">POOLS</button>
     <button class="nav-btn" data-view="draw" onclick="goView('draw')">DRAW</button>
     <button class="nav-btn" data-view="live" onclick="goView('live')">LIVE</button>
     <button class="nav-btn" data-view="results" onclick="goView('results')">RESULTS</button>
@@ -323,6 +324,12 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
     <div class="panel" style="cursor:pointer;border-top:2px solid var(--red)" onclick="goView('draw')">
       <div class="panel-title" style="font-size:13px;color:var(--red)">DRAW</div>
       <div id="dash-draw-summary" style="font-family:var(--mono);font-size:9px;color:var(--muted);line-height:2">Loading…</div>
+    </div>
+
+    <!-- POOLS folder -->
+    <div class="panel" style="cursor:pointer;border-top:2px solid var(--orange)" onclick="goView('pools')">
+      <div class="panel-title" style="font-size:13px;color:var(--orange)">POOLS</div>
+      <div id="dash-pools-summary" style="font-family:var(--mono);font-size:9px;color:var(--muted);line-height:2">Loading…</div>
     </div>
 
     <!-- CLUBS folder -->
@@ -491,6 +498,47 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
         <button class="btn btn-gold" onclick="regsApplyClubs()">SAVE CLUBS</button>
       </div>
     </div>
+  </div>
+
+</div>
+
+
+
+<!-- POOLS VIEW -->
+<div id="view-pools" class="view">
+
+  <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px">
+    <div id="pools-stats" style="display:flex;gap:6px;flex-wrap:wrap;flex:1"></div>
+    <button class="btn btn-ghost btn-sm" onclick="renderPools()">↺ REFRESH</button>
+  </div>
+
+  <!-- Filter bar -->
+  <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px">
+    <select id="pools-filter-disc" class="csel" onchange="renderPools()" style="font-size:10px">
+      <option value="">All Disciplines</option>
+      <option>Hybrid Light</option>
+      <option>MMA</option>
+      <option>K1 Light</option>
+      <option>Boxing Light</option>
+      <option>Taekwondo</option>
+    </select>
+    <select id="pools-filter-gender" class="csel" onchange="renderPools()" style="font-size:10px">
+      <option value="">All Genders</option>
+      <option value="Male">Male</option>
+      <option value="Female">Female</option>
+    </select>
+    <select id="pools-filter-age" class="csel" onchange="renderPools()" style="font-size:10px">
+      <option value="">All Age Groups</option>
+      <option value="Under 12">Under 12</option>
+      <option value="13-17">13-17</option>
+      <option value="Adult">Adult</option>
+    </select>
+  </div>
+
+  <div id="pools-body"></div>
+
+  <div id="pools-empty" class="panel" style="text-align:center;color:var(--muted);font-family:var(--mono);font-size:10px;display:none">
+    No athletes in registrations yet. Import data in the REGS tab first.
   </div>
 
 </div>
@@ -970,6 +1018,171 @@ window.resetActiveEvent = function() {
 // ══════════════════════════════════════════
 // DASHBOARD
 // ══════════════════════════════════════════
+
+// ══════════════════════════════════════════
+// POOLS VIEW
+// ══════════════════════════════════════════
+window.renderPools = function() {
+  const athletes = Object.values(storedRegs).filter(a => !a.withdrawn);
+  const empty = document.getElementById('pools-empty');
+  const body = document.getElementById('pools-body');
+  const statsEl = document.getElementById('pools-stats');
+
+  if(!athletes.length) {
+    if(body) body.innerHTML = '';
+    if(empty) empty.style.display = 'block';
+    return;
+  }
+  if(empty) empty.style.display = 'none';
+
+  const filterDisc = document.getElementById('pools-filter-disc')?.value || '';
+  const filterGender = document.getElementById('pools-filter-gender')?.value || '';
+  const filterAge = document.getElementById('pools-filter-age')?.value || '';
+
+  // Build pools: discipline → age group → gender → athletes sorted by weight
+  const pools = {};
+  athletes.forEach(a => {
+    (a.styles || []).forEach(rawStyle => {
+      const disc = normStyle(rawStyle);
+      if(!disc) return;
+      if(filterDisc && disc !== filterDisc) return;
+      const ag = ageGroup(a.age || 0);
+      if(filterAge && ag !== filterAge) return;
+      if(filterGender && a.gender !== filterGender) return;
+      const key = disc + '|' + ag + '|' + a.gender;
+      if(!pools[key]) pools[key] = { disc, ag, gender: a.gender, athletes: [] };
+      pools[key].athletes.push(a);
+    });
+  });
+
+  // Sort athletes within each pool by weight
+  Object.values(pools).forEach(p => {
+    p.athletes.sort((a, b) => (a.weight || 0) - (b.weight || 0));
+  });
+
+  // Sort pool keys: disc order → age → gender
+  const agO = { 'Under 12': 0, '13-17': 1, 'Adult': 2 };
+  const discO = STYLE_ORDER.concat(
+    Object.values(pools).map(p=>p.disc).filter(d=>!STYLE_ORDER.includes(d))
+  );
+  const sortedKeys = Object.keys(pools).sort((a, b) => {
+    const pa = pools[a], pb = pools[b];
+    const di = discO.indexOf(pa.disc) - discO.indexOf(pb.disc);
+    if(di !== 0) return di;
+    const ai = (agO[pa.ag] ?? 2) - (agO[pb.ag] ?? 2);
+    if(ai !== 0) return ai;
+    return pa.gender === 'Female' ? -1 : 1;
+  });
+
+  // Stats
+  const totalPools = sortedKeys.length;
+  const totalInPools = [...new Set(sortedKeys.flatMap(k => pools[k].athletes.map(a => a.name + a.sur)))].length;
+  const oddPools = sortedKeys.filter(k => pools[k].athletes.length % 2 !== 0).length;
+  const smallPools = sortedKeys.filter(k => pools[k].athletes.length === 1).length;
+
+  if(statsEl) statsEl.innerHTML =
+    '<div class="stat" style="border-top:2px solid var(--gold)"><div class="stat-v" style="color:var(--gold)">'+totalPools+'</div><div class="stat-l">POOLS</div></div>' +
+    '<div class="stat" style="border-top:2px solid var(--text)"><div class="stat-v">'+totalInPools+'</div><div class="stat-l">ATHLETES</div></div>' +
+    (oddPools ? '<div class="stat" style="border-top:2px solid var(--orange)"><div class="stat-v" style="color:var(--orange)">'+oddPools+'</div><div class="stat-l">ODD #</div></div>' : '') +
+    (smallPools ? '<div class="stat" style="border-top:2px solid var(--red)"><div class="stat-v" style="color:var(--red)">'+smallPools+'</div><div class="stat-l">NO MATCH</div></div>' : '');
+
+  // Render pools
+  let html = '';
+  let lastDisc = '';
+
+  sortedKeys.forEach(key => {
+    const pool = pools[key];
+    const count = pool.athletes.length;
+    const isOdd = count % 2 !== 0;
+    const isSingle = count === 1;
+    const hasClubClash = checkSameClub(pool.athletes);
+    const hasAgeConcern = checkAgeConcern(pool.athletes);
+    const hasWeightOutlier = checkWeightOutlier(pool.athletes);
+
+    // Discipline header
+    if(pool.disc !== lastDisc) {
+      html += '<div class="sec-hdr" style="margin-top:' + (lastDisc ? '16px' : '0') + '">'
+        + '<div class="sec-name">' + escH(pool.disc) + '</div>'
+        + '</div>';
+      lastDisc = pool.disc;
+    }
+
+    // Pool card
+    const borderColor = isSingle ? 'var(--red)' : isOdd ? 'var(--orange)' : 'var(--border)';
+    const flags = [];
+    if(isSingle) flags.push('<span class="flag f-ni">NO MATCH</span>');
+    else if(isOdd) flags.push('<span class="flag f-wt">ODD #</span>');
+    if(hasClubClash) flags.push('<span class="flag f-ex">CLUB CLASH</span>');
+    if(hasAgeConcern) flags.push('<span class="flag f-ag">AGE GAP</span>');
+    if(hasWeightOutlier) flags.push('<span class="flag f-wt">WT OUTLIER</span>');
+
+    html += '<div style="background:var(--surf);border:1px solid ' + borderColor + ';border-radius:3px;margin-bottom:6px;overflow:hidden">'
+      // Pool header
+      + '<div style="background:#0d0d10;padding:7px 12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">'
+      + '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:15px;letter-spacing:1px;color:' + (pool.gender === 'Female' ? '#c060c0' : '#4090d0') + '">'
+      + pool.ag + ' · ' + pool.gender
+      + '</div>'
+      + '<div style="font-family:var(--mono);font-size:9px;color:var(--muted)">'+count+' athlete'+(count!==1?'s':'')+'</div>'
+      + flags.join('')
+      + '</div>'
+      // Athlete table
+      + '<table style="width:100%;border-collapse:collapse">'
+      + '<thead><tr style="background:#0a0a0d">'
+      + '<th style="font-family:var(--mono);font-size:8px;color:var(--muted);padding:4px 10px;text-align:left;border-bottom:1px solid var(--border);letter-spacing:1px">NAME</th>'
+      + '<th style="font-family:var(--mono);font-size:8px;color:var(--muted);padding:4px 10px;text-align:left;border-bottom:1px solid var(--border);letter-spacing:1px">CLUB</th>'
+      + '<th style="font-family:var(--mono);font-size:8px;color:var(--muted);padding:4px 10px;text-align:right;border-bottom:1px solid var(--border);letter-spacing:1px">AGE</th>'
+      + '<th style="font-family:var(--mono);font-size:8px;color:var(--muted);padding:4px 10px;text-align:right;border-bottom:1px solid var(--border);letter-spacing:1px">WEIGHT</th>'
+      + '<th style="font-family:var(--mono);font-size:8px;color:var(--muted);padding:4px 10px;border-bottom:1px solid var(--border)"></th>'
+      + '</tr></thead><tbody>';
+
+    pool.athletes.forEach((a, idx) => {
+      const fullName = ((a.name || '') + ' ' + (a.sur || '')).trim();
+      const wtDiff = idx > 0 ? Math.abs((a.weight || 0) - (pool.athletes[idx-1].weight || 0)) : 0;
+      const isOutlier = idx > 0 && wtDiff > 15;
+      const isDrawn = a.inDraw;
+      html += '<tr style="border-bottom:1px solid #111115' + (isOutlier ? ';border-top:1px dashed var(--orange)' : '') + '">'
+        + '<td style="padding:5px 10px;font-weight:600;color:' + (isDrawn ? 'var(--green)' : 'var(--text)') + '">'
+        + escH(fullName)
+        + (isDrawn ? ' <span style="font-family:var(--mono);font-size:7px;color:var(--green)">IN DRAW</span>' : '')
+        + '</td>'
+        + '<td style="padding:5px 10px;font-size:10px;color:var(--muted)">' + escH(a.club || a.clubRaw || '') + '</td>'
+        + '<td style="padding:5px 10px;font-family:var(--mono);font-size:10px;text-align:right;color:var(--muted)">' + (a.age || '?') + '</td>'
+        + '<td style="padding:5px 10px;font-family:var(--mono);font-size:11px;text-align:right;color:' + (isOutlier ? 'var(--orange)' : 'var(--text)') + '">'
+        + (a.weight || '?') + 'kg'
+        + (isOutlier ? ' <span style="font-size:8px">+' + wtDiff + '</span>' : '')
+        + '</td>'
+        + '<td style="padding:5px 10px"></td>'
+        + '</tr>';
+    });
+
+    html += '</tbody></table></div>';
+  });
+
+  if(body) body.innerHTML = html || '<div class="panel" style="text-align:center;color:var(--muted);font-family:var(--mono);font-size:10px">No pools match filters.</div>';
+};
+
+// Pool analysis helpers
+function checkSameClub(athletes) {
+  const clubs = athletes.map(a => a.club || a.clubRaw || '');
+  return clubs.some((c, i) => clubs.indexOf(c) !== i && c !== 'Eagle DS' && c !== '');
+}
+function checkAgeConcern(athletes) {
+  const ages = athletes.map(a => a.age || 0).filter(a => a > 0);
+  if(ages.length < 2) return false;
+  const min = Math.min(...ages), max = Math.max(...ages);
+  if(min <= 12 && max >= 13) return true;
+  if(min >= 13 && max <= 17 && max - min > 4) return true;
+  return false;
+}
+function checkWeightOutlier(athletes) {
+  if(athletes.length < 2) return false;
+  const weights = athletes.map(a => a.weight || 0).filter(w => w > 0).sort((a,b)=>a-b);
+  for(let i = 1; i < weights.length; i++) {
+    if(weights[i] - weights[i-1] > 15) return true;
+  }
+  return false;
+}
+
 function renderDashboard() {
   // Event meta
   if(db) {
@@ -1031,6 +1244,37 @@ function renderDashboard() {
         '<span style="color:var(--green)">'+completed+' completed</span>' +
         (live ? ' · <span style="color:var(--red)">'+live+' live</span>' : '') +
         ' · <span style="color:#5090d0">'+scheduled+' scheduled</span>';
+    }
+  }
+
+  // Pools summary
+  const poolsEl = document.getElementById('dash-pools-summary');
+  if(poolsEl) {
+    const poolAthletes = Object.values(storedRegs).filter(a=>!a.withdrawn);
+    const poolMap = {};
+    poolAthletes.forEach(a => {
+      (a.styles||[]).forEach(rawStyle => {
+        const disc = normStyle(rawStyle);
+        if(!disc) return;
+        const key = disc+'|'+ageGroup(a.age||0)+'|'+a.gender;
+        if(!poolMap[key]) poolMap[key] = 0;
+        poolMap[key]++;
+      });
+    });
+    const poolCount = Object.keys(poolMap).length;
+    const oddCount = Object.values(poolMap).filter(n=>n%2!==0).length;
+    const singleCount = Object.values(poolMap).filter(n=>n===1).length;
+    if(!poolCount) {
+      poolsEl.innerHTML = '<span style="color:var(--muted)">No pools yet</span>';
+    } else {
+      poolsEl.innerHTML =
+        '<span style="color:var(--orange)">'+poolCount+' pool'+(poolCount!==1?'s':'')+'</span>
+' +
+        (oddCount ? '<span style="color:var(--orange)">⚠ '+oddCount+' odd-numbered</span>
+' : '') +
+        (singleCount ? '<span style="color:var(--red)">⚠ '+singleCount+' solo athlete'+(singleCount!==1?'s':'')+'</span>
+' : '') +
+        (!oddCount&&!singleCount ? '<span style="color:var(--green)">All pools even</span>' : '');
     }
   }
 
@@ -1106,7 +1350,7 @@ window.goView=function(v){
   document.querySelectorAll('.nav-btn').forEach(e=>e.classList.remove('on'));
   const viewEl=document.getElementById('view-'+v);const navEl=document.querySelector('[data-view="'+v+'"]');
   if(viewEl)viewEl.classList.add('on');if(navEl)navEl.classList.add('on');
-  if(v==='draw')renderDraw();if(v==='live')renderLive();if(v==='results')renderResults();if(v==='home'){renderDashboard();}if(v==='regs'){updateRegsStatus();updateRegsMatchSummary();renderAthleteList();}if(v==='setup'){loadEventList();updateBanner();}
+  if(v==='draw')renderDraw();if(v==='live')renderLive();if(v==='results')renderResults();if(v==='home'){renderDashboard();}if(v==='pools'){renderPools();}if(v==='regs'){updateRegsStatus();updateRegsMatchSummary();renderAthleteList();}if(v==='setup'){loadEventList();updateBanner();}
 };
 
 window.goStep=function(n){
