@@ -291,6 +291,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
     <button class="nav-btn" data-view="pools" onclick="goView('pools')">POOLS</button>
     <button class="nav-btn" data-view="draw" onclick="goView('draw')">DRAW</button>
     <button class="nav-btn" data-view="live" onclick="goView('live')">LIVE</button>
+    <button class="nav-btn" data-view="weighin" onclick="goView('weighin')">WEIGH-IN</button>
     <button class="nav-btn" data-view="results" onclick="goView('results')">RESULTS</button>
     <button class="nav-btn" data-view="setup" onclick="goView('setup')">⚙</button>
   </div>
@@ -364,6 +365,9 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
       </a>
       <a href="https://eagleds.co.nz/cgs.html" target="_blank" style="text-decoration:none">
         <button class="btn btn-ghost" style="width:100%;text-align:left">🌐 CGS WEBSITE</button>
+      </a>
+      <a href="https://eagleds.co.nz/pools.html" target="_blank" style="text-decoration:none">
+        <button class="btn btn-ghost" style="width:100%;text-align:left;color:var(--orange);border-color:#4a2800">🏊 POOL LISTS</button>
       </a>
       <a href="https://forms.gle/TcQCcid63rQQDiZF6" target="_blank" style="text-decoration:none">
         <button class="btn btn-ghost" style="width:100%;text-align:left;grid-column:1/-1">📋 REGISTER FORM</button>
@@ -574,6 +578,56 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
   <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;margin-bottom:12px">LIVE BOUTS</div>
   <div id="live-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px"></div>
   <div id="live-empty" class="panel" style="text-align:center;color:var(--muted);font-family:var(--mono);font-size:10px;display:none">No live bouts.</div>
+</div>
+
+<!-- WEIGH-IN VIEW -->
+<div id="view-weighin" class="view">
+
+  <!-- Sub-tab nav -->
+  <div style="display:flex;gap:2px;margin-bottom:12px;border-bottom:1px solid var(--border);padding-bottom:0">
+    <button id="wi-tab-checkin" class="nav-btn on" style="font-size:9px" onclick="goWiTab('checkin')">CHECK-IN</button>
+    <button id="wi-tab-payments" class="nav-btn" style="font-size:9px" onclick="goWiTab('payments')">PAYMENTS</button>
+  </div>
+
+  <!-- CHECK-IN PANEL -->
+  <div id="wi-panel-checkin">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap">
+      <div id="wi-stats" style="display:flex;gap:6px;flex-wrap:wrap"></div>
+    </div>
+    <div class="filter-bar" style="margin-bottom:10px">
+      <select id="wi-filter-status" class="csel" onchange="renderWeighIn()" style="font-size:10px">
+        <option value="all">All athletes</option>
+        <option value="pending">Not checked in</option>
+        <option value="confirmed">Checked in</option>
+        <option value="overweight">Overweight</option>
+      </select>
+      <select id="wi-filter-club" class="csel" onchange="renderWeighIn()" style="font-size:10px">
+        <option value="">All clubs</option>
+      </select>
+      <input id="wi-search" placeholder="Search name…" oninput="renderWeighIn()" style="font-size:10px;background:#0a0a0d;border:1px solid var(--border);color:var(--text);padding:5px 8px;border-radius:2px;font-family:var(--mono)"/>
+    </div>
+    <div id="wi-flagged-alert" style="display:none;background:#1a0800;border:1px solid var(--orange);border-radius:3px;padding:10px 14px;margin-bottom:10px;font-family:var(--mono);font-size:10px;color:var(--orange)"></div>
+    <div id="wi-list"></div>
+  </div>
+
+  <!-- PAYMENTS PANEL -->
+  <div id="wi-panel-payments" style="display:none">
+    <div class="panel">
+      <div class="panel-title">IMPORT PAYMENTS</div>
+      <div class="panel-sub">Clean up your Kiwibank export — split family payments, one row per competitor. Three columns: Date · Name · Amount. Paste below.</div>
+      <div class="fld"><textarea id="pay-csv-raw" placeholder="Paste payment data here…" style="height:120px"></textarea></div>
+      <div class="row-btns">
+        <button class="btn btn-gold" onclick="processPaymentImport()">MATCH →</button>
+        <button class="btn btn-ghost btn-sm" onclick="document.getElementById('pay-csv-raw').value='';document.getElementById('pay-match-list').innerHTML='';document.getElementById('pay-summary').innerHTML=''">CLEAR</button>
+      </div>
+      <div id="pay-summary" style="margin-top:8px;font-family:var(--mono);font-size:10px"></div>
+    </div>
+    <div id="pay-match-list"></div>
+    <div id="pay-apply-row" style="display:none;margin-top:10px">
+      <button class="btn btn-gold" onclick="applyPayments()" style="width:100%">APPLY ALL CONFIRMED →</button>
+    </div>
+  </div>
+
 </div>
 
 <!-- RESULTS VIEW -->
@@ -1330,7 +1384,7 @@ window.goView=function(v){
   document.querySelectorAll('.nav-btn').forEach(e=>e.classList.remove('on'));
   const viewEl=document.getElementById('view-'+v);const navEl=document.querySelector('[data-view="'+v+'"]');
   if(viewEl)viewEl.classList.add('on');if(navEl)navEl.classList.add('on');
-  if(v==='draw')renderDraw();if(v==='live')renderLive();if(v==='results')renderResults();if(v==='home'){renderDashboard();}if(v==='pools'){renderPools();}if(v==='regs'){updateRegsStatus();updateRegsMatchSummary();renderAthleteList();}if(v==='setup'){loadEventList();updateBanner();}
+  if(v==='draw')renderDraw();if(v==='live')renderLive();if(v==='results')renderResults();if(v==='home'){renderDashboard();}if(v==='pools'){renderPools();}if(v==='regs'){updateRegsStatus();updateRegsMatchSummary();renderAthleteList();}if(v==='setup'){loadEventList();updateBanner();}if(v==='weighin'){renderWeighIn();}
 };
 
 window.goStep=function(n){
@@ -1960,6 +2014,17 @@ window.renderDraw=function(){
 function drawBoutRow(b){
   const isLive=b.status==='live',isDone=b.status==='completed'||b.status==='cancelled',cls='draw-bout-row'+(isLive?' live':isDone?' done':b.notes==='Age Flag'?' flagged':''),bidAttr='data-bid="'+b.id+'"';
   const flags=[];if(b.noHead)flags.push('<span class="flag f-nh">⚠</span>');if(b.notes==='Exhibition')flags.push('<span class="flag f-ex">★</span>');if(b.notes==='Age Flag')flags.push('<span class="flag f-ag">⚠AGE</span>');if(isLive)flags.push('<span class="flag f-lv">●</span>');if(isDone)flags.push('<span class="flag f-dn">✓</span>');
+  // Gate flags — only on scheduled bouts within 3 away
+  if(!isDone && !isLive) {
+    const away = wiBotsAway(b.id);
+    if(away <= 3) {
+      const rs = wiGetAthleteStatus(b.red.name), bs = wiGetAthleteStatus(b.blue.name);
+      if(rs && !rs.checkedIn) flags.push('<span class="flag" style="background:#1a0800;border:1px solid var(--orange);color:var(--orange)">'+escH(b.red.name.split(' ')[0])+' NOT IN</span>');
+      if(rs && !rs.paid) flags.push('<span class="flag" style="background:#0a0010;border:1px solid var(--red);color:var(--red)">'+escH(b.red.name.split(' ')[0])+' UNPAID</span>');
+      if(bs && !bs.checkedIn) flags.push('<span class="flag" style="background:#1a0800;border:1px solid var(--orange);color:var(--orange)">'+escH(b.blue.name.split(' ')[0])+' NOT IN</span>');
+      if(bs && !bs.paid) flags.push('<span class="flag" style="background:#0a0010;border:1px solid var(--red);color:var(--red)">'+escH(b.blue.name.split(' ')[0])+' UNPAID</span>');
+    }
+  }
   const fightLabel=b.matFightNum?'F'+b.matFightNum:b.id,hasUndo=boutHistory[b.id];
   const redDrop=buildInlineDrop(b,'red'),blueDrop=buildInlineDrop(b,'blue');
   return '<div class="'+cls+'" id="dbr-'+b.id+'" '+bidAttr+'><div class="draw-bout-hdr">'+(!isDone?'<div class="draw-handle">⠿</div>':'')+'<div class="draw-fight-num">'+fightLabel+'</div><div class="draw-disc-tag">'+escH(b.disc)+' · '+b.ageGrp+'</div>'+flags.join('')+(hasUndo?'<button class="undo-btn" data-bid="'+b.id+'" onclick="undoBout(this.dataset.bid)">↩</button>':'')+'</div><div class="draw-bout-body"><div><div class="draw-name" style="color:var(--red)">'+escH(b.red.name)+'</div><div class="draw-club">'+escH(b.red.club||'')+'</div><div class="draw-club">'+(b.red.age?b.red.age+'yr':'')+' '+(b.red.wt?b.red.wt+'kg':'')+'</div></div><div class="draw-vs">VS</div><div style="text-align:right"><div class="draw-name" style="color:var(--blue)">'+escH(b.blue.name)+'</div><div class="draw-club">'+escH(b.blue.club||'')+'</div><div class="draw-club">'+(b.blue.age?b.blue.age+'yr':'')+' '+(b.blue.wt?b.blue.wt+'kg':'')+'</div></div></div>'+(!isDone?'<div class="draw-inline-replace"><select class="inline-sel" data-bid="'+b.id+'" data-corner="red" onchange="inlineReplace(this)">'+redDrop+'</select><select class="inline-sel" data-bid="'+b.id+'" data-corner="blue" onchange="inlineReplace(this)">'+blueDrop+'</select>'+(isLive?'<button class="btn btn-red btn-xs" data-bid="'+b.id+'" onclick="openScore(this.dataset.bid)">SCORE</button>':'<button class="btn btn-gold btn-xs" data-bid="'+b.id+'" onclick="startBout(this.dataset.bid)">▶</button>')+'</div>':'')+'</div>';
@@ -2086,6 +2151,416 @@ window.resetAll=function(){if(!confirm('Reset everything?'))return;rawAthletes=[
 const _origGoStep=window.goStep;
 window.goStep=function(n){_origGoStep(n);if(n===2)renderClubs();};
 
+// ══════════════════════════════════════════
+// WEIGH-IN SYSTEM
+// ══════════════════════════════════════════
+// Status values: 'pending' | 'confirmed' | 'overweight'
+// Payment status: 'paid' | 'unpaid' (set by CSV parser, defaults unpaid)
+// No automatic bout flagging — draw flags are visual only, driven by
+// proximity logic in drawBoutRow. You decide every action.
+
+function wiFullName(a) {
+  return ((a.name||'') + ' ' + (a.sur||'')).trim();
+}
+
+// Look up an athlete's weigh-in + payment state by full name (for draw flags)
+function wiGetAthleteStatus(fullName) {
+  const norm = s => String(s||'').toLowerCase().replace(/\s/g,'');
+  const n = norm(fullName);
+  const entry = Object.values(storedRegs).find(a => norm(wiFullName(a)) === n);
+  if(!entry) return null;
+  return {
+    checkedIn: entry.weighIn === 'confirmed' || entry.weighIn === 'overweight',
+    overweight: entry.weighIn === 'overweight',
+    paid: entry.paid === true,
+    weighIn: entry.weighIn || 'pending',
+    confirmedWt: entry.weighInWeight || null
+  };
+}
+
+// Find all bouts in draw containing this athlete
+function wiFindBouts(fullName) {
+  const norm = s => String(s||'').toLowerCase().replace(/\s/g,'');
+  const n = norm(fullName);
+  return bouts.filter(b => norm(b.red&&b.red.name||'') === n || norm(b.blue&&b.blue.name||'') === n);
+}
+
+// How many scheduled bouts away is this bout on its mat?
+function wiBotsAway(boutId) {
+  const b = bouts.find(x => x.id === boutId);
+  if(!b) return 999;
+  const matBouts = bouts.filter(x => x.area === b.area && x.status === 'scheduled');
+  const idx = matBouts.findIndex(x => x.id === boutId);
+  return idx; // 0 = next up, 1 = one away, 2 = two away, 3 = three away
+}
+
+window.setWeighIn = function(key, status) {
+  if(!storedRegs[key]) return;
+  storedRegs[key].weighIn = status;
+
+  if(status === 'confirmed' || status === 'overweight') {
+    const a = storedRegs[key];
+    const newWt = prompt(
+      (status === 'overweight' ? 'OVERWEIGHT — ' : '') +
+      'Confirmed weight for ' + wiFullName(a) + ' (registered: ' + (a.weight||'?') + 'kg):',
+      a.weight || ''
+    );
+    if(newWt !== null) {
+      const parsed = parseFloat(newWt);
+      if(parsed && parsed >= 5 && parsed <= 250) storedRegs[key].weighInWeight = parsed;
+    }
+  }
+
+  saveRegsToFirebase();
+  renderWeighIn();
+  if(document.getElementById('view-draw')?.classList.contains('on')) renderDraw();
+
+  const labels = {confirmed:'✓ Checked in', overweight:'⚠ Overweight — resolve before bout', pending:'Reset to pending'};
+  toast(labels[status]||status, status==='confirmed'?'green':status==='pending'?'gold':'orange');
+};
+
+window.setAthletePayment = function(key, paid) {
+  if(!storedRegs[key]) return;
+  storedRegs[key].paid = paid;
+  saveRegsToFirebase();
+  renderWeighIn();
+  if(document.getElementById('view-draw')?.classList.contains('on')) renderDraw();
+  toast(paid ? '✓ Payment confirmed' : 'Marked unpaid', paid ? 'green' : 'red');
+};
+
+window.renderWeighIn = function() {
+  const entries = Object.entries(storedRegs);
+  if(!entries.length) {
+    document.getElementById('wi-list').innerHTML = '<div class="panel" style="text-align:center;color:var(--muted);font-family:var(--mono);font-size:10px">No athletes loaded. Import registrations first.</div>';
+    document.getElementById('wi-stats').innerHTML = '';
+    document.getElementById('wi-flagged-alert').style.display = 'none';
+    return;
+  }
+
+  // Populate club filter
+  const clubSel = document.getElementById('wi-filter-club');
+  const currentClub = clubSel.value;
+  const clubs = [...new Set(entries.map(([,a])=>a.club||'').filter(c=>c))].sort();
+  clubSel.innerHTML = '<option value="">All clubs</option>' + clubs.map(c=>'<option value="'+escA(c)+'"'+(c===currentClub?' selected':'')+'>'+escH(c)+'</option>').join('');
+
+  // Stats
+  const total = entries.length;
+  const checkedIn = entries.filter(([,a])=>a.weighIn==='confirmed'||a.weighIn==='overweight').length;
+  const overweight = entries.filter(([,a])=>a.weighIn==='overweight').length;
+  const paid = entries.filter(([,a])=>a.paid===true).length;
+  const pending = total - checkedIn;
+
+  document.getElementById('wi-stats').innerHTML =
+    '<div class="stat" style="border-top:2px solid var(--gold)"><div class="stat-v" style="color:var(--gold)">'+pending+'</div><div class="stat-l">NOT IN</div></div>' +
+    '<div class="stat" style="border-top:2px solid var(--green)"><div class="stat-v" style="color:var(--green)">'+checkedIn+'</div><div class="stat-l">CHECKED IN</div></div>' +
+    '<div class="stat" style="border-top:2px solid var(--blue)"><div class="stat-v" style="color:var(--blue)">'+paid+'</div><div class="stat-l">PAID</div></div>' +
+    (overweight?'<div class="stat" style="border-top:2px solid var(--orange)"><div class="stat-v" style="color:var(--orange)">'+overweight+'</div><div class="stat-l">OVERWEIGHT</div></div>':'');
+
+  // Approaching bouts alert — not checked in or unpaid within 3 bouts
+  const approaching = bouts.filter(b => {
+    if(b.status !== 'scheduled') return false;
+    const away = wiBotsAway(b.id);
+    if(away > 3) return false;
+    const rs = wiGetAthleteStatus(b.red.name);
+    const bs = wiGetAthleteStatus(b.blue.name);
+    return (rs && (!rs.checkedIn || !rs.paid)) || (bs && (!bs.checkedIn || !bs.paid));
+  });
+
+  const alertEl = document.getElementById('wi-flagged-alert');
+  if(approaching.length) {
+    alertEl.style.display = 'block';
+    alertEl.innerHTML = '⚠ ' + approaching.length + ' approaching bout' + (approaching.length>1?'s':'')+' need attention — '
+      + approaching.map(b => {
+          const away = wiBotsAway(b.id);
+          const rs = wiGetAthleteStatus(b.red.name), bs = wiGetAthleteStatus(b.blue.name);
+          const flags = [];
+          if(rs&&!rs.checkedIn) flags.push(escH(b.red.name)+' not in');
+          if(rs&&!rs.paid) flags.push(escH(b.red.name)+' unpaid');
+          if(bs&&!bs.checkedIn) flags.push(escH(b.blue.name)+' not in');
+          if(bs&&!bs.paid) flags.push(escH(b.blue.name)+' unpaid');
+          return '<strong style="color:var(--text)">'+b.id+'</strong> ('+away+' away): '+flags.join(', ');
+        }).join(' · ');
+  } else {
+    alertEl.style.display = 'none';
+  }
+
+  // Filters
+  const statusFilter = document.getElementById('wi-filter-status').value;
+  const clubFilter = document.getElementById('wi-filter-club').value;
+  const search = (document.getElementById('wi-search').value||'').toLowerCase();
+
+  const statusOrder = {pending:0, overweight:1, confirmed:2};
+  let filtered = entries
+    .filter(([,a]) => {
+      const ws = a.weighIn || 'pending';
+      const checkedIn = ws === 'confirmed' || ws === 'overweight';
+      if(statusFilter === 'pending' && checkedIn) return false;
+      if(statusFilter === 'confirmed' && ws !== 'confirmed') return false;
+      if(statusFilter === 'overweight' && ws !== 'overweight') return false;
+      if(statusFilter === 'noshow' && checkedIn) return false; // treat as not checked in
+      if(clubFilter && (a.club||'') !== clubFilter) return false;
+      if(search && !wiFullName(a).toLowerCase().includes(search)) return false;
+      return true;
+    })
+    .sort(([,a],[,b]) => {
+      // Not checked in first, then overweight, then confirmed
+      const ao = statusOrder[a.weighIn||'pending']??0, bo = statusOrder[b.weighIn||'pending']??0;
+      if(ao !== bo) return ao - bo;
+      // Unpaid before paid within same status
+      if((a.paid===true) !== (b.paid===true)) return (a.paid===true)?1:-1;
+      return (a.club||'').localeCompare(b.club||'') || wiFullName(a).localeCompare(wiFullName(b));
+    });
+
+  if(!filtered.length) {
+    document.getElementById('wi-list').innerHTML = '<div class="panel" style="text-align:center;color:var(--muted);font-family:var(--mono);font-size:10px">No athletes match this filter.</div>';
+    return;
+  }
+
+  // Group by club
+  const groups = {};
+  filtered.forEach(([key,a]) => {
+    const club = a.club || 'Unknown';
+    if(!groups[club]) groups[club] = [];
+    groups[club].push([key,a]);
+  });
+
+  let html = '';
+  Object.entries(groups).sort((a,b)=>a[0].localeCompare(b[0])).forEach(([club, members]) => {
+    const clubIn = members.filter(([,a])=>a.weighIn==='confirmed'||a.weighIn==='overweight').length;
+    const clubPaid = members.filter(([,a])=>a.paid===true).length;
+    html += '<div class="sec-hdr" style="margin-bottom:4px">'
+      + '<div class="sec-name">'+escH(club)+'</div>'
+      + '<div class="sec-sub">'+clubIn+'/'+members.length+' in · '+clubPaid+'/'+members.length+' paid</div>'
+      + '</div>';
+
+    members.forEach(([key,a]) => {
+      const ws = a.weighIn || 'pending';
+      const checkedIn = ws === 'confirmed' || ws === 'overweight';
+      const isPaid = a.paid === true;
+      const checkinColor = checkedIn ? (ws==='overweight'?'var(--orange)':'var(--green)') : 'var(--muted)';
+      const checkinLabel = checkedIn ? (ws==='overweight'?'⚠ OVERWEIGHT':'✓ IN') : 'NOT IN';
+      const confirmedWt = a.weighInWeight ? a.weighInWeight+'kg' : '';
+
+      // Bout proximity warning
+      const myBouts = wiFindBouts(wiFullName(a));
+      const nearBout = myBouts.filter(b=>b.status==='scheduled').sort((x,y)=>wiBotsAway(x.id)-wiBotsAway(y.id))[0];
+      const away = nearBout ? wiBotsAway(nearBout.id) : null;
+      const nearWarning = (away !== null && away <= 3 && (!checkedIn || !isPaid))
+        ? '<span style="background:#1a0800;border:1px solid var(--orange);border-radius:2px;padding:1px 5px;font-family:var(--mono);font-size:8px;color:var(--orange);font-weight:700">'+nearBout.id+' · '+(away===0?'NEXT UP':away+' away')+((!checkedIn)?' · NOT IN':'')+((!isPaid)?' · UNPAID':'')+'</span>'
+        : '';
+
+      const boutInfo = myBouts.length
+        ? myBouts.map(b => {
+            const opp = b.red.name===wiFullName(a) ? b.blue.name : b.red.name;
+            return escH(b.disc||'') + ' vs ' + escH(opp||'TBC') + ' · ' + b.area;
+          }).join(' · ')
+        : '<span style="color:var(--muted)">No bout in draw</span>';
+
+      html += '<div style="background:var(--surf);border:1px solid var(--border);border-left:3px solid '+checkinColor+';border-radius:3px;padding:10px 12px;margin-bottom:5px">'
+        + '<div style="display:flex;align-items:flex-start;gap:8px">'
+        + '<div style="flex:1;min-width:0">'
+        + '<div style="font-weight:600;font-size:13px;line-height:1.3">'+escH(wiFullName(a))+'</div>'
+        + '<div style="font-family:var(--mono);font-size:9px;color:var(--muted);margin-top:2px">'
+        + escH(a.club||'') + ' · ' + (a.age||'?') + 'yr · reg: ' + (a.weight||'?') + 'kg'
+        + (confirmedWt ? ' → <strong style="color:var(--gold)">'+confirmedWt+'</strong>' : '')
+        + '</div>'
+        + (nearWarning ? '<div style="margin-top:4px">'+nearWarning+'</div>' : '')
+        + '<div style="font-family:var(--mono);font-size:9px;color:var(--dim);margin-top:3px">'+boutInfo+'</div>'
+        + '</div>'
+        + '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;padding-top:2px">'
+        + '<span style="font-family:var(--mono);font-size:9px;font-weight:700;color:'+checkinColor+'">'+checkinLabel+'</span>'
+        + '<span style="font-family:var(--mono);font-size:9px;font-weight:700;color:'+(isPaid?'var(--green)':'var(--red)')+'">'+( isPaid?'✓ PAID':'UNPAID')+'</span>'
+        + '</div>'
+        + '</div>'
+        // Action buttons
+        + '<div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:8px">'
+        + (!checkedIn ? '<button class="btn btn-green btn-xs" onclick="setWeighIn(\''+escA(key)+'\',\'confirmed\')">✓ CHECK IN</button>' : '')
+        + (ws!=='overweight' ? '<button class="btn btn-xs" style="background:#1a0e00;border:1px solid var(--orange);color:var(--orange)" onclick="setWeighIn(\''+escA(key)+'\',\'overweight\')">⚠ OVERWEIGHT</button>' : '')
+        + (checkedIn ? '<button class="btn btn-ghost btn-xs" onclick="setWeighIn(\''+escA(key)+'\',\'pending\')">↺ UNDO</button>' : '')
+        + (!isPaid ? '<button class="btn btn-xs" style="background:#001a08;border:1px solid var(--green);color:var(--green)" onclick="setAthletePayment(\''+escA(key)+'\',true)">$ PAID</button>' : '')
+        + (isPaid ? '<button class="btn btn-ghost btn-xs" style="color:var(--muted)" onclick="setAthletePayment(\''+escA(key)+'\',false)">↺ UNPAY</button>' : '')
+        + '</div>'
+        + '</div>';
+    });
+  });
+
+  document.getElementById('wi-list').innerHTML = html;
+};
+
+// ══════════════════════════════════════════
+// PAYMENT IMPORT SYSTEM
+// ══════════════════════════════════════════
+
+window.goWiTab = function(tab) {
+  ['checkin','payments'].forEach(t => {
+    const panel = document.getElementById('wi-panel-'+t);
+    const btn = document.getElementById('wi-tab-'+t);
+    if(panel) panel.style.display = t===tab ? '' : 'none';
+    if(btn) { btn.classList.toggle('on', t===tab); }
+  });
+  if(tab==='checkin') renderWeighIn();
+};
+
+function payNorm(s) {
+  return String(s||'').toLowerCase()
+    .replace(/[^a-z0-9\s]/g,' ')
+    .replace(/\s+/g,' ')
+    .trim();
+}
+
+function paySim(a, b) {
+  const wa = payNorm(a).split(' ').filter(w=>w.length>1);
+  const wb = new Set(payNorm(b).split(' ').filter(w=>w.length>1));
+  if(!wa.length) return 0;
+  const hits = wa.filter(w=>wb.has(w)).length;
+  return hits / wa.length;
+}
+
+function payFindMatch(payName) {
+  let bestKey = null, bestScore = 0;
+  Object.entries(storedRegs).forEach(([key, a]) => {
+    const fullName = wiFullName(a);
+    const score = paySim(payName, fullName);
+    const parts = payNorm(payName).split(' ');
+    const reversed = parts.slice(1).join(' ') + ' ' + parts[0];
+    const scoreRev = paySim(reversed, fullName);
+    const best = Math.max(score, scoreRev);
+    if(best > bestScore) { bestScore = best; bestKey = key; }
+  });
+  return { key: bestKey, score: bestScore };
+}
+
+let payRows = [];
+
+window.processPaymentImport = function() {
+  const raw = document.getElementById('pay-csv-raw').value.trim();
+  if(!raw) { toast('Nothing pasted','red'); return; }
+  const lines = raw.replace(/\r\n/g,'\n').replace(/\r/g,'\n').split('\n').filter(l=>l.trim());
+  const sep = (lines[0].match(/\t/g)||[]).length >= 2 ? '\t' : ',';
+  const parsed = [];
+  lines.forEach(line => {
+    const cols = line.split(sep).map(c=>c.trim());
+    if(cols.length < 3) return;
+    if(cols[0].toLowerCase().includes('timestamp') || cols[0].toLowerCase().includes('date')) return;
+    const name = cols[1].replace(/;/g,' ').replace(/\s+/g,' ').trim();
+    const amount = parseFloat(cols[2]);
+    if(!name || isNaN(amount) || amount <= 0) return;
+    parsed.push({ date: cols[0], name, amount });
+  });
+  if(!parsed.length) { toast('No valid rows found','red'); return; }
+  const aggregated = {};
+  parsed.forEach(row => {
+    const n = payNorm(row.name);
+    if(!aggregated[n]) aggregated[n] = { rawName: row.name, amount: 0, dates: [] };
+    aggregated[n].amount += row.amount;
+    aggregated[n].dates.push(row.date);
+  });
+  if(!Object.keys(storedRegs).length) { toast('Load registrations first','red'); return; }
+  payRows = Object.values(aggregated).map((p, i) => {
+    const { key, score } = payFindMatch(p.rawName);
+    return {
+      id: i, rawName: p.rawName, amount: p.amount, dates: p.dates,
+      matchKey: score >= 0.5 ? key : null,
+      matchScore: score,
+      confirmed: score >= 0.8,
+      manualKey: null
+    };
+  });
+  renderPayMatchList();
+};
+
+function renderPayMatchList() {
+  const list = document.getElementById('pay-match-list');
+  const applyRow = document.getElementById('pay-apply-row');
+  const summary = document.getElementById('pay-summary');
+  if(!payRows.length) { list.innerHTML=''; return; }
+  const confirmed = payRows.filter(r=>r.confirmed).length;
+  const unmatched = payRows.filter(r=>!r.matchKey && !r.manualKey).length;
+  summary.innerHTML =
+    '<span style="color:var(--green)">'+confirmed+' auto-confirmed</span> · ' +
+    '<span style="color:var(--gold)">'+(payRows.length-confirmed-unmatched)+' need review</span> · ' +
+    (unmatched ? '<span style="color:var(--red)">'+unmatched+' unmatched</span>' : '');
+  const athleteOpts = Object.entries(storedRegs)
+    .sort(([,a],[,b]) => wiFullName(a).localeCompare(wiFullName(b)))
+    .map(([key,a]) => '<option value="'+escA(key)+'">'+escH(wiFullName(a))+' · '+escH(a.club||'')+' · '+(a.weight||'?')+'kg</option>')
+    .join('');
+  let html = '';
+  payRows.forEach(row => {
+    const effectiveKey = row.manualKey || row.matchKey;
+    const athlete = effectiveKey ? storedRegs[effectiveKey] : null;
+    const isConfirmed = row.confirmed;
+    const borderColor = isConfirmed ? 'var(--green)' : effectiveKey ? 'var(--gold)' : 'var(--red)';
+    const alreadyPaid = athlete && athlete.paid === true;
+    html += '<div id="pay-row-'+row.id+'" style="background:var(--surf);border:1px solid var(--border);border-left:3px solid '+borderColor+';border-radius:3px;padding:10px 12px;margin-bottom:5px">'
+      +'<div style="display:flex;align-items:flex-start;gap:8px;flex-wrap:wrap">'
+      +'<div style="flex:1;min-width:140px">'
+      +'<div style="font-weight:600;font-size:13px">'+escH(row.rawName)+'</div>'
+      +'<div style="font-family:var(--mono);font-size:9px;color:var(--muted);margin-top:2px">$'+row.amount+' · '+row.dates.join(', ')
+      +(row.dates.length>1?' <span style="color:var(--gold)">('+row.dates.length+' payments combined)</span>':'')
+      +'</div></div>'
+      +'<div style="text-align:right;min-width:80px">'
+      +(isConfirmed
+        ? '<span style="font-family:var(--mono);font-size:9px;color:var(--green);font-weight:700">✓ CONFIRMED</span>'
+        : effectiveKey
+          ? '<span style="font-family:var(--mono);font-size:9px;color:var(--gold);font-weight:700">REVIEW</span>'
+          : '<span style="font-family:var(--mono);font-size:9px;color:var(--red);font-weight:700">UNMATCHED</span>')
+      +'</div></div>'
+      +(athlete
+        ? '<div style="background:var(--surf2);border-radius:2px;padding:6px 10px;margin-top:6px;font-size:12px">'
+          +'<span style="color:var(--muted);font-family:var(--mono);font-size:8px">MATCHED → </span>'
+          +'<strong>'+escH(wiFullName(athlete))+'</strong>'
+          +' <span style="color:var(--muted);font-size:11px">'+escH(athlete.club||'')+' · '+(athlete.age||'?')+'yr</span>'
+          +(alreadyPaid?' <span style="color:var(--green);font-family:var(--mono);font-size:8px">ALREADY PAID</span>':'')
+          +'</div>'
+        : '<div style="background:var(--red-bg);border-radius:2px;padding:6px 10px;margin-top:6px;font-family:var(--mono);font-size:10px;color:var(--red)">No match — assign below</div>')
+      +'<div style="margin-top:6px">'
+      +'<select class="csel" style="width:100%;font-size:10px" data-rowid="'+row.id+'" onchange="payReassign(this)">'
+      +'<option value="">— '+(athlete?'Reassign or keep…':'Assign to athlete…')+' —</option>'
+      +athleteOpts
+      +'<option value="__skip__">✕ Skip this payment</option>'
+      +'</select></div>'
+      +'<div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:6px">'
+      +(effectiveKey&&!isConfirmed?'<button class="btn btn-green btn-xs" data-rowid="'+row.id+'" onclick="payConfirm(parseInt(this.dataset.rowid))">✓ CONFIRM</button>':'')
+      +(isConfirmed?'<button class="btn btn-ghost btn-xs" data-rowid="'+row.id+'" onclick="payUnconfirm(parseInt(this.dataset.rowid))">↺ UNDO</button>':'')
+      +'</div></div>';
+  });
+  list.innerHTML = html;
+  applyRow.style.display = payRows.some(r=>r.confirmed) ? '' : 'none';
+}
+
+window.payReassign = function(sel) {
+  const id = parseInt(sel.dataset.rowid);
+  const row = payRows.find(r=>r.id===id);
+  if(!row) return;
+  if(sel.value==='__skip__') { row.matchKey=null; row.manualKey=null; row.confirmed=false; }
+  else if(sel.value) { row.manualKey=sel.value; row.matchKey=null; row.confirmed=false; }
+  renderPayMatchList();
+};
+
+window.payConfirm = function(id) {
+  const row = payRows.find(r=>r.id===id);
+  if(row&&(row.matchKey||row.manualKey)) { row.confirmed=true; renderPayMatchList(); }
+};
+
+window.payUnconfirm = function(id) {
+  const row = payRows.find(r=>r.id===id); if(row) { row.confirmed=false; renderPayMatchList(); }
+};
+
+window.applyPayments = function() {
+  const toApply = payRows.filter(r=>r.confirmed&&(r.matchKey||r.manualKey));
+  if(!toApply.length) { toast('Nothing confirmed','orange'); return; }
+  toApply.forEach(row => {
+    const key = row.manualKey||row.matchKey;
+    if(storedRegs[key]) {
+      storedRegs[key].paid = true;
+      storedRegs[key].paidAmount = (storedRegs[key].paidAmount||0) + row.amount;
+    }
+  });
+  saveRegsToFirebase();
+  toast(toApply.length+' payments applied','green');
+  payRows = payRows.filter(r=>!r.confirmed);
+  renderPayMatchList();
+  if(document.getElementById('view-draw')?.classList.contains('on')) renderDraw();
+};
+
 </script>
-</body>
-</html>
