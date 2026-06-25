@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -291,6 +292,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
     <button class="nav-btn" data-view="pools" onclick="goView('pools')">POOLS</button>
     <button class="nav-btn" data-view="draw" onclick="goView('draw')">DRAW</button>
     <button class="nav-btn" data-view="live" onclick="goView('live')">LIVE</button>
+    <button class="nav-btn" data-view="weighin" onclick="goView('weighin')">WEIGH-IN</button>
     <button class="nav-btn" data-view="results" onclick="goView('results')">RESULTS</button>
     <button class="nav-btn" data-view="setup" onclick="goView('setup')">⚙</button>
   </div>
@@ -577,6 +579,34 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
   <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;margin-bottom:12px">LIVE BOUTS</div>
   <div id="live-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px"></div>
   <div id="live-empty" class="panel" style="text-align:center;color:var(--muted);font-family:var(--mono);font-size:10px;display:none">No live bouts.</div>
+</div>
+
+<!-- WEIGH-IN VIEW -->
+<div id="view-weighin" class="view">
+  <div style="display:flex;gap:2px;margin-bottom:12px;border-bottom:1px solid var(--border);padding-bottom:0">
+    <button id="weigh-tab-checkin" class="nav-btn on" style="font-size:9px" onclick="goWeighTab('checkin')">CHECK-IN</button>
+    <button id="weigh-tab-payments" class="nav-btn" style="font-size:9px" onclick="goWeighTab('payments')">PAYMENTS</button>
+  </div>
+
+  <div id="weigh-panel-checkin">
+    <input id="checkin-search" class="fld" style="margin:0 0 10px 0;background:#0a0a0d;border:1px solid var(--border);color:var(--text);padding:7px 10px;border-radius:2px;font-family:var(--mono);font-size:11px;width:100%" placeholder="Search name or club…" oninput="renderCheckin()"/>
+    <div class="stats" id="checkin-stats" style="margin-bottom:10px"></div>
+    <div id="checkin-body"></div>
+    <div id="checkin-empty" class="panel" style="text-align:center;color:var(--muted);font-family:var(--mono);font-size:10px;display:none">No registrations yet.</div>
+  </div>
+
+  <div id="weigh-panel-payments" style="display:none">
+    <div class="panel">
+      <div class="panel-title">PASTE BANK STATEMENT</div>
+      <div class="panel-sub">Paste three columns: Timestamp, Full Name, Amount Paid. Owed amount is calculated automatically — $40 first style, +$20 each additional style registered. Nothing is saved until you review matches below and tap APPLY ALL CONFIRMED.</div>
+      <div class="fld"><textarea id="payments-raw" placeholder="Paste timestamp, name, amount…" style="height:120px"></textarea></div>
+      <div class="row-btns">
+        <button class="btn btn-gold" onclick="parsePayments()">MATCH →</button>
+      </div>
+    </div>
+    <div id="payments-review"></div>
+    <div id="payments-log"></div>
+  </div>
 </div>
 
 <!-- RESULTS VIEW -->
@@ -1333,7 +1363,7 @@ window.goView=function(v){
   document.querySelectorAll('.nav-btn').forEach(e=>e.classList.remove('on'));
   const viewEl=document.getElementById('view-'+v);const navEl=document.querySelector('[data-view="'+v+'"]');
   if(viewEl)viewEl.classList.add('on');if(navEl)navEl.classList.add('on');
-  if(v==='draw')renderDraw();if(v==='live')renderLive();if(v==='results')renderResults();if(v==='home'){renderDashboard();}if(v==='pools'){renderPools();}if(v==='regs'){updateRegsStatus();updateRegsMatchSummary();renderAthleteList();}if(v==='setup'){loadEventList();updateBanner();}
+  if(v==='draw')renderDraw();if(v==='live')renderLive();if(v==='results')renderResults();if(v==='home'){renderDashboard();}if(v==='pools'){renderPools();}if(v==='regs'){updateRegsStatus();updateRegsMatchSummary();renderAthleteList();}if(v==='setup'){loadEventList();updateBanner();}if(v==='weighin'){goWeighTab('checkin');}
 };
 
 window.goStep=function(n){
@@ -1373,6 +1403,7 @@ function calcAge(dob){if(!dob)return 0;let d;if(typeof dob==='string'){const p=d
 // ══════════════════════════════════════════
 let storedRegs = {};    // keyed by dedupe key
 let storedClubMap = {}; // raw → canonical, persisted
+let appliedPayments = {}; // keyed by transaction key, persisted — prevents double-counting on re-paste
 
 // ── Sub-tab navigation ──
 window.goRegsTab = function(tab) {
@@ -1409,6 +1440,9 @@ function listenRegs() {
       Object.assign(clubMap, storedClubMap);
     }
   });
+  onValue(ref(db, 'events/'+eventId+'/payments'), snap => {
+    appliedPayments = snap.exists() ? (snap.val() || {}) : {};
+  });
 }
 
 function saveRegsToFirebase() {
@@ -1419,6 +1453,11 @@ function saveRegsToFirebase() {
 function saveClubMapToFirebase() {
   if(!db) return;
   set(ref(db, 'events/'+eventId+'/clubMap'), storedClubMap).catch(e => console.warn('ClubMap save failed:', e));
+}
+
+function saveAppliedPayments() {
+  if(!db) return;
+  set(ref(db, 'events/'+eventId+'/payments'), appliedPayments).catch(e => console.warn('Payments save failed:', e));
 }
 
 function regsDedupeKey(a) {
@@ -1733,6 +1772,339 @@ function markAthletesAsDrawn(newBouts) {
   updateRegsStatus();
   updateRegsMatchSummary();
 }
+
+// ══════════════════════════════════════════
+// WEIGH-IN — CHECK-IN + PAYMENTS
+// ══════════════════════════════════════════
+function calcOwed(a){const n=(a.styles||[]).length;return n<=0?0:40+20*(n-1);}
+
+function findRegKeyByFullName(fullName){
+  if(!fullName)return null;
+  const target=normS(fullName);
+  let best=null,bestScore=0;
+  Object.entries(storedRegs).forEach(([k,a])=>{
+    const full=((a.name||'')+' '+(a.sur||'')).trim();
+    const s=jaccardSim(target,normS(full));
+    if(s>bestScore){bestScore=s;best=k;}
+  });
+  return bestScore>0.5?best:null;
+}
+
+window.goWeighTab=function(tab){
+  ['checkin','payments'].forEach(t=>{
+    const panel=document.getElementById('weigh-panel-'+t);
+    const btn=document.getElementById('weigh-tab-'+t);
+    if(panel)panel.style.display=t===tab?'':'none';
+    if(btn)btn.classList.toggle('on',t===tab);
+  });
+  if(tab==='checkin')renderCheckin();
+  if(tab==='payments')renderPaymentsReview();
+};
+
+function getMatNextFightNum(mat){
+  const ms=bouts.filter(b=>b.area===mat&&(b.status==='scheduled'||b.status==='live'));
+  if(!ms.length)return null;
+  return Math.min(...ms.map(b=>b.matFightNum||999));
+}
+
+window.renderCheckin=function(){
+  const body=document.getElementById('checkin-body'),empty=document.getElementById('checkin-empty'),statsEl=document.getElementById('checkin-stats');
+  if(!body)return;
+  const search=(document.getElementById('checkin-search')?.value||'').toLowerCase();
+  let entries=Object.entries(storedRegs).filter(([k,a])=>!a.withdrawn);
+  if(search) entries=entries.filter(([k,a])=>((a.name||'')+' '+(a.sur||'')).toLowerCase().includes(search)||(a.club||a.clubRaw||'').toLowerCase().includes(search));
+  entries.sort((a,b)=>((a[1].name||'')+(a[1].sur||'')).localeCompare((b[1].name||'')+(b[1].sur||'')));
+
+  if(!entries.length){
+    body.innerHTML='';
+    if(empty){empty.style.display='block';empty.textContent=search?'No athletes match that search.':'No registrations yet.';}
+    if(statsEl)statsEl.innerHTML='';
+    return;
+  }
+  if(empty)empty.style.display='none';
+
+  const warnSet=buildArrivalWarnings();
+  let totalArrived=0,totalWeighed=0,totalPaid=0;
+  Object.values(storedRegs).forEach(a=>{if(a.withdrawn)return;const ci=a.checkin||{};if(ci.arrived)totalArrived++;if(ci.weighedIn)totalWeighed++;if(ci.paid)totalPaid++;});
+
+  let html='';
+  entries.forEach(([key,a])=>{
+    const ci=a.checkin||{arrived:false,weighedIn:false,paid:false,paidAmount:0};
+    const owed=calcOwed(a);
+    const fullName=((a.name||'')+' '+(a.sur||'')).trim();
+    const warn=warnSet.has(key)&&!ci.arrived;
+    html+='<div style="background:var(--surf);border:1px solid '+(warn?'var(--orange)':'var(--border)')+';border-radius:3px;margin-bottom:5px;padding:8px 10px">'
+      +'<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px">'
+      +'<div style="flex:1;min-width:140px"><div style="font-weight:600;font-size:13px">'+escH(fullName)+'</div>'
+      +'<div style="font-size:9px;color:var(--muted)">'+escH(a.club||a.clubRaw||'')+' · '+(a.age||'?')+'yr'+(warn?' · <span style="color:var(--orange)">⚠ fighting soon</span>':'')+'</div></div>'
+      +'<div style="font-family:var(--mono);font-size:9px;color:'+(ci.paid?'var(--green)':(ci.paidAmount||0)>0?'var(--orange)':'var(--muted)')+'">$'+(ci.paidAmount||0)+' / $'+owed+(ci.spectatorFees&&ci.spectatorFees.totalAmount?' <span style="color:var(--gold)">+$'+ci.spectatorFees.totalAmount+' spect.</span>':'')+'</div>'
+      +'</div>'
+      +'<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">'
+      +'<input class="cinp" style="width:80px" type="number" value="'+(a.weight||'')+'" placeholder="kg" data-key="'+escA(key)+'" onchange="updateCheckinWeight(this)"/>'
+      +'<button class="checkin-btn'+(ci.arrived?' checked':'')+'" data-key="'+escA(key)+'" data-field="arrived" onclick="toggleCheckinField(this)">'+(ci.arrived?'✓ ARRIVED':'PENDING')+'</button>'
+      +'<button class="checkin-btn'+(ci.weighedIn?' checked':'')+'" data-key="'+escA(key)+'" data-field="weighedIn" onclick="toggleCheckinField(this)">'+(ci.weighedIn?'✓ WEIGHED':'WEIGH-IN')+'</button>'
+      +'<button class="checkin-btn'+(ci.paid?' checked':'')+'" data-key="'+escA(key)+'" data-field="paid" onclick="toggleCheckinField(this)">'+(ci.paid?'✓ PAID':'UNPAID')+'</button>'
+      +'<button class="btn btn-ghost btn-xs" data-key="'+escA(key)+'" onclick="quickCashPaid(this)">+ CASH</button>'
+      +'</div></div>';
+  });
+  body.innerHTML=html;
+  if(statsEl)statsEl.innerHTML=dashStat(entries.length,'SHOWN','var(--gold)')+dashStat(totalArrived,'ARRIVED','var(--green)')+dashStat(totalWeighed,'WEIGHED','var(--blue)')+dashStat(totalPaid,'PAID','var(--green)');
+};
+
+function buildArrivalWarnings(){
+  const set=new Set();
+  const active=bouts.filter(b=>b.status==='scheduled'||b.status==='live');
+  const mats=[...new Set(active.map(b=>b.area))];
+  mats.forEach(mat=>{
+    const nextNum=getMatNextFightNum(mat);
+    active.filter(b=>b.area===mat).forEach(b=>{
+      const fightsOut=(b.matFightNum||0)-(nextNum||0);
+      if(fightsOut<=3){
+        ['red','blue'].forEach(corner=>{
+          const f=b[corner];if(!f.name||f.name==='TBC')return;
+          const key=findRegKeyByFullName(f.name);
+          if(key)set.add(key);
+        });
+      }
+    });
+  });
+  return set;
+}
+
+window.updateCheckinWeight=function(inp){
+  const key=inp.dataset.key,val=parseFloat(inp.value);
+  if(!storedRegs[key])return;
+  if(!val||val<10||val>200){toast('Invalid weight','red');inp.value=storedRegs[key].weight||'';return;}
+  storedRegs[key].weight=val;
+  saveRegsToFirebase();
+  toast('Weight updated','green');
+};
+
+window.quickCashPaid=function(btn){
+  const key=btn.dataset.key;
+  if(!storedRegs[key])return;
+  const owed=calcOwed(storedRegs[key]);
+  const amt=prompt('Cash amount received:',owed);
+  if(amt===null)return;
+  const parsed=parseFloat(amt);
+  if(isNaN(parsed)||parsed<0){toast('Invalid amount','red');return;}
+  if(!storedRegs[key].checkin)storedRegs[key].checkin={arrived:false,weighedIn:false,paid:false,paidAmount:0};
+  storedRegs[key].checkin.paidAmount=(storedRegs[key].checkin.paidAmount||0)+parsed;
+  storedRegs[key].checkin.paid=storedRegs[key].checkin.paidAmount>=owed;
+  saveRegsToFirebase();
+  renderCheckin();
+  toast('$'+parsed+' recorded','green');
+};
+
+window.toggleCheckinField=function(btn){
+  const key=btn.dataset.key,field=btn.dataset.field;
+  if(!key){toast('No registration match — cannot check in','red');return;}
+  if(!storedRegs[key])return;
+  if(!storedRegs[key].checkin)storedRegs[key].checkin={arrived:false,weighedIn:false,paid:false,paidAmount:0};
+  storedRegs[key].checkin[field]=!storedRegs[key].checkin[field];
+  saveRegsToFirebase();
+  renderCheckin();
+};
+
+// ── PAYMENTS ──
+let pendingPayments=[];
+const SPECT_ADULT=10,SPECT_KID=5;
+
+function paymentTxKey(timestamp,fullName,amount){return normS(timestamp)+'|'+normS(fullName)+'|'+amount;}
+function spectAmt(a){return (parseInt(a.spectAdults)||0)*SPECT_ADULT+(parseInt(a.spectKids)||0)*SPECT_KID;}
+
+window.parsePayments=function(){
+  const raw=document.getElementById('payments-raw').value.trim();
+  if(!raw){toast('Nothing pasted','red');return;}
+  const {headers,rows}=parseCSV(raw);
+  const looksLikeHeader=headers.length===3 && !/\d/.test(headers.join(''));
+  const allRows=looksLikeHeader?rows:[headers,...rows];
+
+  pendingPayments=[];
+  allRows.forEach(r=>{
+    if(r.length<3)return;
+    const timestamp=(r[0]||'').trim(),fullName=(r[1]||'').trim(),amountRaw=r[2]||'';
+    if(!fullName)return;
+    const amountPaid=parseFloat(String(amountRaw).replace(/[^0-9.]/g,''))||0;
+    const txKey=paymentTxKey(timestamp,fullName,amountPaid);
+    const already=!!appliedPayments[txKey];
+    const key=findRegKeyByFullName(fullName);
+    pendingPayments.push({timestamp,fullName,amountPaid,txKey,already,allocations:[{key:key||'',amount:amountPaid,spectAdults:0,spectKids:0}]});
+  });
+  renderPaymentsReview();
+  const newCount=pendingPayments.filter(p=>!p.already).length,seenCount=pendingPayments.length-newCount;
+  toast(newCount+' new · '+seenCount+' already imported — review below','gold');
+};
+
+function renderPaymentsReview(){
+  const el=document.getElementById('payments-review');
+  if(!el)return;
+  if(!pendingPayments.length){el.innerHTML='';renderPaymentsLog();return;}
+  let html='<div class="panel"><div class="panel-title">REVIEW MATCHES</div><div class="panel-sub">Nothing is saved until you tap APPLY ALL CONFIRMED. Split a payment across multiple athletes if one parent paid for several kids at once. Add spectator counts ($10 adult / $5 kid) to record them against the family without it counting toward competition fees.</div>';
+  pendingPayments.forEach((p,i)=>{
+    if(p.already){
+      html+='<div style="background:var(--surf2);border:1px solid var(--border);border-radius:3px;padding:8px 10px;margin-bottom:6px;opacity:.55">'
+        +'<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">'
+        +'<div style="flex:1"><div style="font-weight:600;font-size:12px">'+escH(p.fullName)+'</div><div style="font-family:var(--mono);font-size:9px;color:var(--muted)">'+escH(p.timestamp)+' · $'+p.amountPaid+'</div></div>'
+        +'<span style="font-family:var(--mono);font-size:9px;color:var(--muted)">ALREADY IMPORTED</span>'
+        +'</div></div>';
+      return;
+    }
+    const allocTotal=p.allocations.reduce((s,a)=>s+(parseFloat(a.amount)||0)+spectAmt(a),0);
+    const mismatch=Math.abs(allocTotal-p.amountPaid)>0.01;
+    html+='<div style="background:var(--surf2);border:1px solid '+(mismatch?'var(--orange)':'var(--border)')+';border-radius:3px;padding:8px 10px;margin-bottom:6px">'
+      +'<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px">'
+      +'<div style="flex:1"><div style="font-weight:600;font-size:12px">'+escH(p.fullName)+'</div><div style="font-family:var(--mono);font-size:9px;color:var(--muted)">'+escH(p.timestamp)+' · transaction $'+p.amountPaid+'</div></div>'
+      +'<span style="font-family:var(--mono);font-size:9px;color:'+(mismatch?'var(--orange)':'var(--green)')+'">'+(mismatch?'⚠ ALLOCATED $'+allocTotal.toFixed(0)+' / $'+p.amountPaid:'✓ FULLY ALLOCATED')+'</span>'
+      +'</div>';
+    p.allocations.forEach((a,ai)=>{
+      const opts=Object.entries(storedRegs).map(([k,reg])=>{
+        const full=((reg.name||'')+' '+(reg.sur||'')).trim();
+        return '<option value="'+escA(k)+'"'+(k===a.key?' selected':'')+'>'+escH(full)+' · '+escH(reg.club||'')+'</option>';
+      }).join('');
+      const reg=a.key?storedRegs[a.key]:null;
+      html+='<div style="background:var(--surf);border:1px solid var(--border);border-radius:2px;padding:6px 8px;margin-bottom:5px">'
+        +'<div style="display:flex;gap:5px;flex-wrap:wrap;align-items:center;margin-bottom:5px">'
+        +'<select class="csel" style="flex:1;min-width:140px" data-idx="'+i+'" data-aidx="'+ai+'" data-field="key" onchange="updateAllocation(this)"><option value="">— select athlete —</option>'+opts+'</select>'
+        +'<input class="cinp" style="width:70px" type="number" value="'+a.amount+'" placeholder="$" data-idx="'+i+'" data-aidx="'+ai+'" data-field="amount" onchange="updateAllocation(this)"/>'
+        +(p.allocations.length>1?'<button class="btn btn-ghost btn-xs" style="color:var(--red)" data-idx="'+i+'" data-aidx="'+ai+'" onclick="removeAllocationRow(this)">✕</button>':'')
+        +'</div>'
+        +(reg?'<div style="font-family:var(--mono);font-size:9px;color:var(--muted);margin-bottom:4px">owes $'+calcOwed(reg)+' competition fee</div>':'')
+        +'<div style="display:flex;gap:5px;align-items:center;font-family:var(--mono);font-size:9px;color:var(--muted)">'
+        +'SPECTATORS: adults <input class="cinp" style="width:40px" type="number" min="0" value="'+(a.spectAdults||0)+'" data-idx="'+i+'" data-aidx="'+ai+'" data-field="spectAdults" onchange="updateAllocation(this)"/>'
+        +' kids <input class="cinp" style="width:40px" type="number" min="0" value="'+(a.spectKids||0)+'" data-idx="'+i+'" data-aidx="'+ai+'" data-field="spectKids" onchange="updateAllocation(this)"/>'
+        +(spectAmt(a)>0?' <span style="color:var(--gold)">+$'+spectAmt(a)+'</span>':'')
+        +'</div>'
+        +'</div>';
+    });
+    html+='<button class="btn btn-ghost btn-xs" data-idx="'+i+'" onclick="addAllocationRow(this)">+ SPLIT TO ANOTHER ATHLETE</button>'
+      +'</div>';
+  });
+  html+='<div class="row-btns"><button class="btn btn-gold" onclick="applyAllConfirmedPayments()">APPLY ALL CONFIRMED</button><button class="btn btn-ghost btn-sm" onclick="pendingPayments=[];renderPaymentsReview();">✕ DISCARD</button></div></div>';
+  el.innerHTML=html;
+  renderPaymentsLog();
+}
+
+window.updateAllocation=function(inp){
+  const idx=parseInt(inp.dataset.idx),aidx=parseInt(inp.dataset.aidx),field=inp.dataset.field,p=pendingPayments[idx];
+  if(!p||!p.allocations[aidx])return;
+  p.allocations[aidx][field]=field==='key'?inp.value:(parseFloat(inp.value)||0);
+  renderPaymentsReview();
+};
+
+window.addAllocationRow=function(btn){
+  const idx=parseInt(btn.dataset.idx),p=pendingPayments[idx];
+  if(!p)return;
+  p.allocations.push({key:'',amount:0,spectAdults:0,spectKids:0});
+  renderPaymentsReview();
+};
+
+window.removeAllocationRow=function(btn){
+  const idx=parseInt(btn.dataset.idx),aidx=parseInt(btn.dataset.aidx),p=pendingPayments[idx];
+  if(!p)return;
+  p.allocations.splice(aidx,1);
+  renderPaymentsReview();
+};
+
+window.applyAllConfirmedPayments=function(){
+  let applied=0,skippedAlready=0,skippedInvalid=0;
+  pendingPayments.forEach(p=>{
+    if(p.already){skippedAlready++;return;}
+    const validAllocs=p.allocations.filter(a=>a.key&&storedRegs[a.key]);
+    if(!validAllocs.length){skippedInvalid++;return;}
+    validAllocs.forEach(a=>{
+      const reg=storedRegs[a.key];
+      if(!reg.checkin)reg.checkin={arrived:false,weighedIn:false,paid:false,paidAmount:0};
+      if(!reg.checkin.spectatorFees)reg.checkin.spectatorFees={totalAmount:0,entries:[]};
+      reg.checkin.paidAmount=(reg.checkin.paidAmount||0)+(parseFloat(a.amount)||0);
+      reg.checkin.paid=reg.checkin.paidAmount>=calcOwed(reg);
+      reg.checkin.lastPaymentTimestamp=p.timestamp;
+      const sa=spectAmt(a);
+      if(sa>0){
+        reg.checkin.spectatorFees.totalAmount=(reg.checkin.spectatorFees.totalAmount||0)+sa;
+        reg.checkin.spectatorFees.entries.push({timestamp:p.timestamp,adults:parseInt(a.spectAdults)||0,kids:parseInt(a.spectKids)||0,amount:sa});
+      }
+    });
+    appliedPayments[p.txKey]={timestamp:p.timestamp,fullName:p.fullName,amount:p.amountPaid,allocations:validAllocs.map(a=>({key:a.key,amount:parseFloat(a.amount)||0,spectAdults:parseInt(a.spectAdults)||0,spectKids:parseInt(a.spectKids)||0}))};
+    applied++;
+  });
+  saveRegsToFirebase();
+  saveAppliedPayments();
+  pendingPayments=[];
+  const rawEl=document.getElementById('payments-raw');if(rawEl)rawEl.value='';
+  renderPaymentsReview();
+  toast(applied+' new payments applied'+(skippedAlready?' · '+skippedAlready+' already imported':'')+(skippedInvalid?' · '+skippedInvalid+' skipped (no athlete selected)':''),'green');
+  if(document.getElementById('view-weighin')?.classList.contains('on'))renderCheckin();
+};
+
+// ── PAYMENT LOG — view/edit/delete already-applied transactions ──
+function renderPaymentsLog(){
+  const el=document.getElementById('payments-log');
+  if(!el)return;
+  const entries=Object.entries(appliedPayments);
+  if(!entries.length){el.innerHTML='<div class="panel" style="text-align:center;color:var(--muted);font-family:var(--mono);font-size:10px">No payments recorded yet.</div>';return;}
+  entries.sort((a,b)=>(b[1].timestamp||'').localeCompare(a[1].timestamp||''));
+  let html='<div class="panel"><div class="panel-title">PAYMENT LOG</div><div class="panel-sub">Edit reopens it in the review area above for correction. Delete removes it entirely and reverses the amounts.</div>';
+  entries.forEach(([txKey,rec])=>{
+    const allocs=rec.allocations||[];
+    html+='<div style="background:var(--surf2);border:1px solid var(--border);border-radius:3px;padding:8px 10px;margin-bottom:6px">'
+      +'<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:4px">'
+      +'<div style="flex:1"><div style="font-weight:600;font-size:12px">'+escH(rec.fullName)+'</div><div style="font-family:var(--mono);font-size:9px;color:var(--muted)">'+escH(rec.timestamp)+' · $'+rec.amount+'</div></div>'
+      +'<button class="btn btn-ghost btn-xs" data-txkey="'+escA(txKey)+'" onclick="editAppliedPayment(this)">EDIT</button>'
+      +'<button class="btn btn-ghost btn-xs" style="color:var(--red)" data-txkey="'+escA(txKey)+'" onclick="deleteAppliedPayment(this)">DELETE</button>'
+      +'</div>';
+    allocs.forEach(a=>{
+      const reg=a.key?storedRegs[a.key]:null;
+      const full=reg?((reg.name||'')+' '+(reg.sur||'')).trim():'(unmatched)';
+      const sa=spectAmt(a);
+      html+='<div style="font-family:var(--mono);font-size:9px;color:var(--muted);padding-left:4px">→ '+escH(full)+': $'+a.amount+(sa?' + $'+sa+' spectator ('+(a.spectAdults||0)+' adult, '+(a.spectKids||0)+' kid)':'')+'</div>';
+    });
+    html+='</div>';
+  });
+  el.innerHTML=html+'</div>';
+}
+
+function reverseAppliedPayment(txKey){
+  const rec=appliedPayments[txKey];
+  if(!rec)return null;
+  (rec.allocations||[]).forEach(a=>{
+    const reg=a.key?storedRegs[a.key]:null;
+    if(!reg)return;
+    if(!reg.checkin)reg.checkin={arrived:false,weighedIn:false,paid:false,paidAmount:0};
+    reg.checkin.paidAmount=Math.max(0,(reg.checkin.paidAmount||0)-(a.amount||0));
+    reg.checkin.paid=reg.checkin.paidAmount>=calcOwed(reg);
+    const sa=spectAmt(a);
+    if(sa>0&&reg.checkin.spectatorFees){
+      reg.checkin.spectatorFees.totalAmount=Math.max(0,(reg.checkin.spectatorFees.totalAmount||0)-sa);
+      const ei=reg.checkin.spectatorFees.entries.findIndex(e=>e.timestamp===rec.timestamp&&e.amount===sa&&e.adults===(a.spectAdults||0)&&e.kids===(a.spectKids||0));
+      if(ei>-1)reg.checkin.spectatorFees.entries.splice(ei,1);
+    }
+  });
+  delete appliedPayments[txKey];
+  return rec;
+}
+
+window.editAppliedPayment=function(btn){
+  const txKey=btn.dataset.txkey,rec=reverseAppliedPayment(txKey);
+  if(!rec)return;
+  saveRegsToFirebase();
+  saveAppliedPayments();
+  pendingPayments.push({timestamp:rec.timestamp,fullName:rec.fullName,amountPaid:rec.amount,txKey,already:false,allocations:(rec.allocations||[{key:'',amount:rec.amount,spectAdults:0,spectKids:0}]).map(a=>({...a}))});
+  renderPaymentsReview();
+  if(document.getElementById('view-weighin')?.classList.contains('on'))renderCheckin();
+  toast('Reopened for editing above','gold');
+};
+
+window.deleteAppliedPayment=function(btn){
+  if(!confirm('Delete this payment record permanently? This reverses the amounts.'))return;
+  const txKey=btn.dataset.txkey,rec=reverseAppliedPayment(txKey);
+  if(!rec)return;
+  saveRegsToFirebase();
+  saveAppliedPayments();
+  renderPaymentsLog();
+  if(document.getElementById('view-weighin')?.classList.contains('on'))renderCheckin();
+  toast('Payment deleted','red');
+};
 
 // ── DEMO DATA ──
 window.loadRegsDemo = function() {
