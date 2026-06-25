@@ -340,9 +340,10 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
     </div>
 
     <!-- PAYMENT folder -->
-    <div class="panel" style="border-top:2px solid var(--green);opacity:.5">
+    <div class="panel" style="cursor:pointer;border-top:2px solid var(--green)" onclick="goView('weighin');setTimeout(()=>goWeighTab('payments'),100)">
       <div class="panel-title" style="font-size:13px;color:var(--green)">PAYMENT</div>
-      <div style="font-family:var(--mono);font-size:9px;color:var(--muted);line-height:2">Coming — Stage 5</div>
+      <div id="dash-payment-summary" style="font-family:var(--mono);font-size:9px;color:var(--muted);line-height:2">Loading…</div>
+      <button class="btn btn-ghost btn-xs" style="margin-top:6px" onclick="event.stopPropagation();printPaymentReport()">🖨 PRINT REPORT</button>
     </div>
 
   </div>
@@ -1312,6 +1313,27 @@ function renderDashboard() {
     }
   }
 
+  // Payment summary
+  const paymentEl = document.getElementById('dash-payment-summary');
+  if(paymentEl) {
+    const activeRegs = Object.values(storedRegs).filter(a=>!a.withdrawn);
+    let totalOwed=0,totalPaid=0,totalSpect=0;
+    activeRegs.forEach(a=>{
+      totalOwed+=calcOwed(a);
+      totalPaid+=(a.checkin&&a.checkin.paidAmount)||0;
+      totalSpect+=(a.checkin&&a.checkin.spectatorFees&&a.checkin.spectatorFees.totalAmount)||0;
+    });
+    const outstanding=Math.max(0,totalOwed-totalPaid);
+    if(!activeRegs.length){
+      paymentEl.innerHTML='<span style="color:var(--muted)">No registrations yet</span>';
+    } else {
+      paymentEl.innerHTML =
+        '<span style="color:var(--green)">$'+totalPaid+' collected</span> / <span style="color:var(--text)">$'+totalOwed+' owed</span>\n'+
+        (outstanding?'<span style="color:var(--orange)">$'+outstanding+' outstanding</span>':'<span style="color:var(--green)">✓ fully collected</span>')+
+        (totalSpect?' · <span style="color:var(--gold)">+$'+totalSpect+' spectator</span>':'');
+    }
+  }
+
   // Alerts
   const alertsEl = document.getElementById('dash-alerts');
   if(alertsEl) {
@@ -2103,6 +2125,37 @@ window.deleteAppliedPayment=function(btn){
   renderPaymentsLog();
   if(document.getElementById('view-weighin')?.classList.contains('on'))renderCheckin();
   toast('Payment deleted','red');
+};
+
+// ── PRINTABLE PAYMENT REPORT ──
+window.printPaymentReport=function(){
+  const activeRegs=Object.values(storedRegs).filter(a=>!a.withdrawn);
+  if(!activeRegs.length){toast('No registrations yet','red');return;}
+
+  let totalOwed=0,totalPaid=0,totalSpect=0;
+  const rows=activeRegs.map(a=>{
+    const owed=calcOwed(a),paid=(a.checkin&&a.checkin.paidAmount)||0,spect=(a.checkin&&a.checkin.spectatorFees&&a.checkin.spectatorFees.totalAmount)||0;
+    totalOwed+=owed;totalPaid+=paid;totalSpect+=spect;
+    return {name:((a.name||'')+' '+(a.sur||'')).trim(),club:a.club||a.clubRaw||'',owed,paid,spect,balance:owed-paid};
+  }).sort((a,b)=>a.club.localeCompare(b.club)||a.name.localeCompare(b.name));
+
+  const outstanding=Math.max(0,totalOwed-totalPaid);
+  let html='<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Payment Report — '+escH(eventId)+'</title>'
+    +'<style>body{font-family:Arial,sans-serif;padding:24px;color:#111}h1{font-size:18px;margin-bottom:2px}h2{font-size:12px;color:#555;margin-bottom:16px;font-weight:normal}table{width:100%;border-collapse:collapse;font-size:12px}th,td{padding:6px 8px;border-bottom:1px solid #ccc;text-align:left}th{background:#f0f0f0;font-size:10px;letter-spacing:1px;text-transform:uppercase}.num{text-align:right}.bal-owe{color:#c0392b;font-weight:600}.bal-ok{color:#27ae60}.summary{margin:16px 0;font-size:13px}.summary b{font-size:15px}@media print{.no-print{display:none}}</style></head><body>'
+    +'<button class="no-print" onclick="window.print()" style="margin-bottom:14px;padding:8px 16px;cursor:pointer">PRINT / SAVE PDF</button>'
+    +'<h1>Eagle DS Combat Games Series — Payment Report</h1>'
+    +'<h2>'+escH(eventId)+' · Generated '+new Date().toLocaleString()+'</h2>'
+    +'<div class="summary"><b>$'+totalPaid.toFixed(2)+'</b> collected of <b>$'+totalOwed.toFixed(2)+'</b> owed'+(totalSpect?' · <b>$'+totalSpect.toFixed(2)+'</b> spectator fees':'')+' — <b style="color:'+(outstanding>0?'#c0392b':'#27ae60')+'">$'+outstanding.toFixed(2)+' outstanding</b></div>'
+    +'<table><thead><tr><th>Name</th><th>Club</th><th class="num">Owed</th><th class="num">Paid</th><th class="num">Spectator</th><th class="num">Balance</th></tr></thead><tbody>';
+  rows.forEach(r=>{
+    html+='<tr><td>'+escH(r.name)+'</td><td>'+escH(r.club)+'</td><td class="num">$'+r.owed.toFixed(2)+'</td><td class="num">$'+r.paid.toFixed(2)+'</td><td class="num">'+(r.spect?'$'+r.spect.toFixed(2):'—')+'</td><td class="num '+(r.balance>0?'bal-owe':'bal-ok')+'">'+(r.balance>0?'$'+r.balance.toFixed(2)+' owing':'paid')+'</td></tr>';
+  });
+  html+='</tbody></table></body></html>';
+
+  const w=window.open('','_blank');
+  if(!w){toast('Pop-up blocked — allow pop-ups to print','red');return;}
+  w.document.write(html);
+  w.document.close();
 };
 
 // ── DEMO DATA ──
