@@ -605,6 +605,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
       </div>
     </div>
     <div id="payments-review"></div>
+    <div id="unassigned-payments"></div>
     <div id="payments-log"></div>
   </div>
 </div>
@@ -1324,13 +1325,15 @@ function renderDashboard() {
       totalSpect+=(a.checkin&&a.checkin.spectatorFees&&a.checkin.spectatorFees.totalAmount)||0;
     });
     const outstanding=Math.max(0,totalOwed-totalPaid);
+    const unassignedTotal=getUnassignedList().reduce((s,x)=>s+(parseFloat(x.amount)||0)+(x.spectAdults||0)*SPECT_ADULT+(x.spectKids||0)*SPECT_KID,0);
     if(!activeRegs.length){
       paymentEl.innerHTML='<span style="color:var(--muted)">No registrations yet</span>';
     } else {
       paymentEl.innerHTML =
         '<span style="color:var(--green)">$'+totalPaid+' collected</span> / <span style="color:var(--text)">$'+totalOwed+' owed</span>\n'+
         (outstanding?'<span style="color:var(--orange)">$'+outstanding+' outstanding</span>':'<span style="color:var(--green)">✓ fully collected</span>')+
-        (totalSpect?' · <span style="color:var(--gold)">+$'+totalSpect+' spectator</span>':'');
+        (totalSpect?' · <span style="color:var(--gold)">+$'+totalSpect+' spectator</span>':'')+
+        (unassignedTotal?'\n<span style="color:var(--orange)">⚠ $'+unassignedTotal+' unassigned</span>':'');
     }
   }
 
@@ -1950,7 +1953,7 @@ window.parsePayments=function(){
     const txKey=paymentTxKey(timestamp,fullName,amountPaid);
     const already=!!appliedPayments[txKey];
     const key=findRegKeyByFullName(fullName);
-    pendingPayments.push({timestamp,fullName,amountPaid,txKey,already,allocations:[{key:key||'',amount:amountPaid,spectAdults:0,spectKids:0}]});
+    pendingPayments.push({timestamp,fullName,amountPaid,txKey,already,allocations:[{key:key||'__unassigned__',amount:amountPaid,spectAdults:0,spectKids:0,unassignedName:key?'':fullName}]});
   });
   renderPaymentsReview();
   const newCount=pendingPayments.filter(p=>!p.already).length,seenCount=pendingPayments.length-newCount;
@@ -1960,7 +1963,7 @@ window.parsePayments=function(){
 function renderPaymentsReview(){
   const el=document.getElementById('payments-review');
   if(!el)return;
-  if(!pendingPayments.length){el.innerHTML='';renderPaymentsLog();return;}
+  if(!pendingPayments.length){el.innerHTML='';renderUnassignedPayments();renderPaymentsLog();return;}
   let html='<div class="panel"><div class="panel-title">REVIEW MATCHES</div><div class="panel-sub">Nothing is saved until you tap APPLY ALL CONFIRMED. Split a payment across multiple athletes if one parent paid for several kids at once. Add spectator counts ($10 adult / $5 kid) to record them against the family without it counting toward competition fees.</div>';
   pendingPayments.forEach((p,i)=>{
     if(p.already){
@@ -1983,14 +1986,15 @@ function renderPaymentsReview(){
         const full=((reg.name||'')+' '+(reg.sur||'')).trim();
         return '<option value="'+escA(k)+'"'+(k===a.key?' selected':'')+'>'+escH(full)+' · '+escH(reg.club||'')+'</option>';
       }).join('');
-      const reg=a.key?storedRegs[a.key]:null;
-      html+='<div style="background:var(--surf);border:1px solid var(--border);border-radius:2px;padding:6px 8px;margin-bottom:5px">'
+      const reg=a.key&&a.key!=='__unassigned__'?storedRegs[a.key]:null;
+      html+='<div style="background:var(--surf);border:1px solid '+(a.key==='__unassigned__'?'var(--orange)':'var(--border)')+';border-radius:2px;padding:6px 8px;margin-bottom:5px">'
         +'<div style="display:flex;gap:5px;flex-wrap:wrap;align-items:center;margin-bottom:5px">'
-        +'<select class="csel" style="flex:1;min-width:140px" data-idx="'+i+'" data-aidx="'+ai+'" data-field="key" onchange="updateAllocation(this)"><option value="">— select athlete —</option>'+opts+'</select>'
+        +'<select class="csel" style="flex:1;min-width:140px" data-idx="'+i+'" data-aidx="'+ai+'" data-field="key" onchange="updateAllocation(this)"><option value="">— select athlete —</option>'+opts+'<option value="__unassigned__"'+(a.key==='__unassigned__'?' selected':'')+'>⚠ not registered yet (track as unassigned)</option></select>'
         +'<input class="cinp" style="width:70px" type="number" value="'+a.amount+'" placeholder="$" data-idx="'+i+'" data-aidx="'+ai+'" data-field="amount" onchange="updateAllocation(this)"/>'
         +(p.allocations.length>1?'<button class="btn btn-ghost btn-xs" style="color:var(--red)" data-idx="'+i+'" data-aidx="'+ai+'" onclick="removeAllocationRow(this)">✕</button>':'')
         +'</div>'
         +(reg?'<div style="font-family:var(--mono);font-size:9px;color:var(--muted);margin-bottom:4px">owes $'+calcOwed(reg)+' competition fee</div>':'')
+        +(a.key==='__unassigned__'?'<input class="cinp" style="width:100%;margin-bottom:4px" placeholder="name (so you can find this later)" value="'+escA(a.unassignedName||'')+'" data-idx="'+i+'" data-aidx="'+ai+'" data-field="unassignedName" onchange="updateAllocation(this)"/>':'')
         +'<div style="display:flex;gap:5px;align-items:center;font-family:var(--mono);font-size:9px;color:var(--muted)">'
         +'SPECTATORS: adults <input class="cinp" style="width:40px" type="number" min="0" value="'+(a.spectAdults||0)+'" data-idx="'+i+'" data-aidx="'+ai+'" data-field="spectAdults" onchange="updateAllocation(this)"/>'
         +' kids <input class="cinp" style="width:40px" type="number" min="0" value="'+(a.spectKids||0)+'" data-idx="'+i+'" data-aidx="'+ai+'" data-field="spectKids" onchange="updateAllocation(this)"/>'
@@ -2003,13 +2007,14 @@ function renderPaymentsReview(){
   });
   html+='<div class="row-btns"><button class="btn btn-gold" onclick="applyAllConfirmedPayments()">APPLY ALL CONFIRMED</button><button class="btn btn-ghost btn-sm" onclick="pendingPayments=[];renderPaymentsReview();">✕ DISCARD</button></div></div>';
   el.innerHTML=html;
+  renderUnassignedPayments();
   renderPaymentsLog();
 }
 
 window.updateAllocation=function(inp){
   const idx=parseInt(inp.dataset.idx),aidx=parseInt(inp.dataset.aidx),field=inp.dataset.field,p=pendingPayments[idx];
   if(!p||!p.allocations[aidx])return;
-  p.allocations[aidx][field]=field==='key'?inp.value:(parseFloat(inp.value)||0);
+  p.allocations[aidx][field]=(field==='key'||field==='unassignedName')?inp.value:(parseFloat(inp.value)||0);
   renderPaymentsReview();
 };
 
@@ -2028,12 +2033,13 @@ window.removeAllocationRow=function(btn){
 };
 
 window.applyAllConfirmedPayments=function(){
-  let applied=0,skippedAlready=0,skippedInvalid=0;
+  let applied=0,skippedAlready=0,skippedInvalid=0,trackedUnassigned=0;
   pendingPayments.forEach(p=>{
     if(p.already){skippedAlready++;return;}
-    const validAllocs=p.allocations.filter(a=>a.key&&storedRegs[a.key]);
-    if(!validAllocs.length){skippedInvalid++;return;}
-    validAllocs.forEach(a=>{
+    const matchedAllocs=p.allocations.filter(a=>a.key&&a.key!=='__unassigned__'&&storedRegs[a.key]);
+    const unassignedAllocs=p.allocations.filter(a=>a.key==='__unassigned__'&&((parseFloat(a.amount)||0)>0||spectAmt(a)>0));
+    if(!matchedAllocs.length&&!unassignedAllocs.length){skippedInvalid++;return;}
+    matchedAllocs.forEach(a=>{
       const reg=storedRegs[a.key];
       if(!reg.checkin)reg.checkin={arrived:false,weighedIn:false,paid:false,paidAmount:0};
       if(!reg.checkin.spectatorFees)reg.checkin.spectatorFees={totalAmount:0,entries:[]};
@@ -2046,7 +2052,11 @@ window.applyAllConfirmedPayments=function(){
         reg.checkin.spectatorFees.entries.push({timestamp:p.timestamp,adults:parseInt(a.spectAdults)||0,kids:parseInt(a.spectKids)||0,amount:sa});
       }
     });
-    appliedPayments[p.txKey]={timestamp:p.timestamp,fullName:p.fullName,amount:p.amountPaid,allocations:validAllocs.map(a=>({key:a.key,amount:parseFloat(a.amount)||0,spectAdults:parseInt(a.spectAdults)||0,spectKids:parseInt(a.spectKids)||0}))};
+    if(unassignedAllocs.length)trackedUnassigned+=unassignedAllocs.length;
+    appliedPayments[p.txKey]={timestamp:p.timestamp,fullName:p.fullName,amount:p.amountPaid,allocations:[
+      ...matchedAllocs.map(a=>({key:a.key,amount:parseFloat(a.amount)||0,spectAdults:parseInt(a.spectAdults)||0,spectKids:parseInt(a.spectKids)||0})),
+      ...unassignedAllocs.map(a=>({key:'__unassigned__',unassignedName:a.unassignedName||p.fullName,amount:parseFloat(a.amount)||0,spectAdults:parseInt(a.spectAdults)||0,spectKids:parseInt(a.spectKids)||0}))
+    ]};
     applied++;
   });
   saveRegsToFirebase();
@@ -2054,8 +2064,66 @@ window.applyAllConfirmedPayments=function(){
   pendingPayments=[];
   const rawEl=document.getElementById('payments-raw');if(rawEl)rawEl.value='';
   renderPaymentsReview();
-  toast(applied+' new payments applied'+(skippedAlready?' · '+skippedAlready+' already imported':'')+(skippedInvalid?' · '+skippedInvalid+' skipped (no athlete selected)':''),'green');
+  toast(applied+' new payments applied'+(trackedUnassigned?' · '+trackedUnassigned+' tracked as unassigned':'')+(skippedAlready?' · '+skippedAlready+' already imported':'')+(skippedInvalid?' · '+skippedInvalid+' skipped':''),'green');
   if(document.getElementById('view-weighin')?.classList.contains('on'))renderCheckin();
+};
+
+// ── UNASSIGNED PAYMENTS — paid but no completed registration yet ──
+function getUnassignedList(){
+  const list=[];
+  Object.entries(appliedPayments).forEach(([txKey,rec])=>{
+    (rec.allocations||[]).forEach((a,ai)=>{
+      if(a.key==='__unassigned__') list.push({txKey,allocIdx:ai,name:a.unassignedName||rec.fullName,amount:a.amount,spectAdults:a.spectAdults,spectKids:a.spectKids,timestamp:rec.timestamp});
+    });
+  });
+  return list;
+}
+
+function renderUnassignedPayments(){
+  const el=document.getElementById('unassigned-payments');
+  if(!el)return;
+  const list=getUnassignedList();
+  if(!list.length){el.innerHTML='';return;}
+  const total=list.reduce((s,x)=>s+(parseFloat(x.amount)||0)+(x.spectAdults||0)*SPECT_ADULT+(x.spectKids||0)*SPECT_KID,0);
+  let html='<div class="panel" style="border-color:var(--orange)"><div class="panel-title" style="color:var(--orange)">⚠ UNASSIGNED PAYMENTS — '+list.length+' · $'+total.toFixed(0)+'</div><div class="panel-sub">Paid but registration not completed yet. Assign once they finish registering — the amount moves onto their record automatically.</div>';
+  list.forEach(u=>{
+    const opts=Object.entries(storedRegs).map(([k,reg])=>{
+      const full=((reg.name||'')+' '+(reg.sur||'')).trim();
+      return '<option value="'+escA(k)+'">'+escH(full)+' · '+escH(reg.club||'')+'</option>';
+    }).join('');
+    html+='<div style="background:var(--surf2);border:1px solid var(--border);border-radius:3px;padding:8px 10px;margin-bottom:6px">'
+      +'<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:6px">'
+      +'<div style="flex:1"><div style="font-weight:600;font-size:12px">'+escH(u.name)+'</div><div style="font-family:var(--mono);font-size:9px;color:var(--muted)">'+escH(u.timestamp)+' · $'+u.amount+((u.spectAdults||u.spectKids)?' + spectator':'')+'</div></div>'
+      +'</div>'
+      +'<select class="csel" style="width:100%" data-txkey="'+escA(u.txKey)+'" data-allocidx="'+u.allocIdx+'" onchange="assignUnassignedPayment(this)"><option value="">— assign to athlete —</option>'+opts+'</select>'
+      +'</div>';
+  });
+  html+='</div>';
+  el.innerHTML=html;
+}
+
+window.assignUnassignedPayment=function(sel){
+  const txKey=sel.dataset.txkey,allocIdx=parseInt(sel.dataset.allocidx),athleteKey=sel.value;
+  if(!athleteKey)return;
+  const rec=appliedPayments[txKey];if(!rec)return;
+  const alloc=rec.allocations[allocIdx];if(!alloc)return;
+  const reg=storedRegs[athleteKey];if(!reg){toast('Athlete not found','red');return;}
+  if(!reg.checkin)reg.checkin={arrived:false,weighedIn:false,paid:false,paidAmount:0};
+  if(!reg.checkin.spectatorFees)reg.checkin.spectatorFees={totalAmount:0,entries:[]};
+  reg.checkin.paidAmount=(reg.checkin.paidAmount||0)+(parseFloat(alloc.amount)||0);
+  reg.checkin.paid=reg.checkin.paidAmount>=calcOwed(reg);
+  const sa=spectAmt(alloc);
+  if(sa>0){
+    reg.checkin.spectatorFees.totalAmount=(reg.checkin.spectatorFees.totalAmount||0)+sa;
+    reg.checkin.spectatorFees.entries.push({timestamp:rec.timestamp,adults:parseInt(alloc.spectAdults)||0,kids:parseInt(alloc.spectKids)||0,amount:sa});
+  }
+  alloc.key=athleteKey;
+  saveRegsToFirebase();
+  saveAppliedPayments();
+  renderUnassignedPayments();
+  renderPaymentsLog();
+  if(document.getElementById('view-weighin')?.classList.contains('on'))renderCheckin();
+  toast('Assigned $'+alloc.amount+' to '+((reg.name||'')+' '+(reg.sur||'')).trim(),'green');
 };
 
 // ── PAYMENT LOG — view/edit/delete already-applied transactions ──
@@ -2075,10 +2143,11 @@ function renderPaymentsLog(){
       +'<button class="btn btn-ghost btn-xs" style="color:var(--red)" data-txkey="'+escA(txKey)+'" onclick="deleteAppliedPayment(this)">DELETE</button>'
       +'</div>';
     allocs.forEach(a=>{
-      const reg=a.key?storedRegs[a.key]:null;
-      const full=reg?((reg.name||'')+' '+(reg.sur||'')).trim():'(unmatched)';
+      const isUnassigned=a.key==='__unassigned__';
+      const reg=(a.key&&!isUnassigned)?storedRegs[a.key]:null;
+      const full=isUnassigned?'⚠ UNASSIGNED — '+(a.unassignedName||''):(reg?((reg.name||'')+' '+(reg.sur||'')).trim():'(unmatched)');
       const sa=spectAmt(a);
-      html+='<div style="font-family:var(--mono);font-size:9px;color:var(--muted);padding-left:4px">→ '+escH(full)+': $'+a.amount+(sa?' + $'+sa+' spectator ('+(a.spectAdults||0)+' adult, '+(a.spectKids||0)+' kid)':'')+'</div>';
+      html+='<div style="font-family:var(--mono);font-size:9px;color:'+(isUnassigned?'var(--orange)':'var(--muted)')+';padding-left:4px">→ '+escH(full)+': $'+a.amount+(sa?' + $'+sa+' spectator ('+(a.spectAdults||0)+' adult, '+(a.spectKids||0)+' kid)':'')+'</div>';
     });
     html+='</div>';
   });
@@ -2150,7 +2219,21 @@ window.printPaymentReport=function(){
   rows.forEach(r=>{
     html+='<tr><td>'+escH(r.name)+'</td><td>'+escH(r.club)+'</td><td class="num">$'+r.owed.toFixed(2)+'</td><td class="num">$'+r.paid.toFixed(2)+'</td><td class="num">'+(r.spect?'$'+r.spect.toFixed(2):'—')+'</td><td class="num '+(r.balance>0?'bal-owe':'bal-ok')+'">'+(r.balance>0?'$'+r.balance.toFixed(2)+' owing':'paid')+'</td></tr>';
   });
-  html+='</tbody></table></body></html>';
+  html+='</tbody></table>';
+
+  const unassignedList=getUnassignedList();
+  if(unassignedList.length){
+    const unassignedTotal=unassignedList.reduce((s,x)=>s+(parseFloat(x.amount)||0)+(x.spectAdults||0)*SPECT_ADULT+(x.spectKids||0)*SPECT_KID,0);
+    html+='<h2 style="margin-top:24px;color:#c0392b">Unassigned payments — $'+unassignedTotal.toFixed(2)+' (paid, registration not completed)</h2>'
+      +'<table><thead><tr><th>Name</th><th>Timestamp</th><th class="num">Amount</th></tr></thead><tbody>';
+    unassignedList.forEach(u=>{
+      const sa=(u.spectAdults||0)*SPECT_ADULT+(u.spectKids||0)*SPECT_KID;
+      html+='<tr><td>'+escH(u.name)+'</td><td>'+escH(u.timestamp)+'</td><td class="num">$'+(parseFloat(u.amount)+sa).toFixed(2)+'</td></tr>';
+    });
+    html+='</tbody></table>';
+  }
+
+  html+='</body></html>';
 
   const w=window.open('','_blank');
   if(!w){toast('Pop-up blocked — allow pop-ups to print','red');return;}
