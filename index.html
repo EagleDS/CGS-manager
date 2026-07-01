@@ -606,6 +606,14 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
     </div>
     <div id="payments-review"></div>
     <div id="unassigned-payments"></div>
+    <div class="panel" style="border-color:var(--gold-dk)">
+      <div class="panel-title">EXPORT OUTSTANDING TO CRM</div>
+      <div class="panel-sub">Copies Name / Email / Balance for everyone who hasn't fully paid. Paste this straight into the CRM's Import tab — tag it with this event so you can broadcast a payment reminder with open tracking.</div>
+      <div id="outstanding-summary" style="font-family:var(--mono);font-size:10px;color:var(--muted);margin-bottom:10px"></div>
+      <div class="row-btns">
+        <button class="btn btn-gold" onclick="copyOutstandingList()">📋 COPY OUTSTANDING LIST</button>
+      </div>
+    </div>
     <div id="payments-log"></div>
   </div>
 </div>
@@ -1517,7 +1525,8 @@ window.regsProcessImport = function() {
     iGender=colIdx(headers,['Gender']),iWeight=colIdx(headers,['Weight']),
     iDOB=colIdx(headers,['Date of Birth','DOB']),
     iStyles=colIdx(headers,["style(s) are you registering","styles","style"]),
-    iClub=colIdx(headers,['Club Name','club']);
+    iClub=colIdx(headers,['Club Name','club']),
+    iEmail=colIdx(headers,['Email address','Email']);
 
   if([iName,iSur,iGender,iWeight,iDOB,iStyles].includes(-1)) {
     document.getElementById('regs-import-result').innerHTML =
@@ -1535,7 +1544,8 @@ window.regsProcessImport = function() {
       age=calcAge(dob),
       stylesRaw=(r[iStyles]||'').trim(),
       styles=stylesRaw.split(',').map(s=>s.trim().toUpperCase()).filter(s=>s),
-      clubRaw=(iClub>-1?(r[iClub]||''):'').trim();
+      clubRaw=(iClub>-1?(r[iClub]||''):'').trim(),
+      email=(iEmail>-1?(r[iEmail]||''):'').trim().toLowerCase();
 
     // Resolve club
     let club = storedClubMap[clubRaw] || clubMap[clubRaw] || '';
@@ -1553,12 +1563,13 @@ window.regsProcessImport = function() {
       storedRegs[key] = {
         ...existing,
         weight, age, dob, styles, clubRaw, club,
+        email: email||existing.email||'',
         updatedAt: new Date().toISOString()
       };
       if(changed) updated++; else skipped++;
     } else {
       storedRegs[key] = {
-        name, sur, gender, weight, age, dob, styles, clubRaw, club,
+        name, sur, gender, weight, age, dob, styles, clubRaw, club, email,
         withdrawn: false, inDraw: false,
         weighIn: 'pending',
         addedAt: new Date().toISOString()
@@ -1822,7 +1833,7 @@ window.goWeighTab=function(tab){
     if(btn)btn.classList.toggle('on',t===tab);
   });
   if(tab==='checkin')renderCheckin();
-  if(tab==='payments')renderPaymentsReview();
+  if(tab==='payments'){renderPaymentsReview();renderOutstandingSummary();}
 };
 
 function getMatNextFightNum(mat){
@@ -1963,6 +1974,7 @@ window.parsePayments=function(){
 function renderPaymentsReview(){
   const el=document.getElementById('payments-review');
   if(!el)return;
+  renderOutstandingSummary();
   if(!pendingPayments.length){el.innerHTML='';renderUnassignedPayments();renderPaymentsLog();return;}
   let html='<div class="panel"><div class="panel-title">REVIEW MATCHES</div><div class="panel-sub">Nothing is saved until you tap APPLY ALL CONFIRMED. Split a payment across multiple athletes if one parent paid for several kids at once. Add spectator counts ($10 adult / $5 kid) to record them against the family without it counting toward competition fees.</div>';
   pendingPayments.forEach((p,i)=>{
@@ -2197,6 +2209,37 @@ window.deleteAppliedPayment=function(btn){
 };
 
 // ── PRINTABLE PAYMENT REPORT ──
+// ── EXPORT OUTSTANDING TO CRM ──
+function renderOutstandingSummary(){
+  const el=document.getElementById('outstanding-summary');
+  if(!el)return;
+  const list=getOutstandingList();
+  if(!list.length){el.innerHTML='<span style="color:var(--green)">✓ Everyone registered has paid in full.</span>';return;}
+  const total=list.reduce((s,x)=>s+x.balance,0);
+  const noEmail=list.filter(x=>!x.email).length;
+  el.innerHTML='<span style="color:var(--orange)">'+list.length+' outstanding</span> · <span style="color:var(--orange)">$'+total.toFixed(0)+' owing</span>'+(noEmail?' · <span style="color:var(--red)">⚠ '+noEmail+' missing email — re-paste their registration row to capture it</span>':'');
+}
+
+function getOutstandingList(){
+  return Object.values(storedRegs).filter(a=>!a.withdrawn).map(a=>{
+    const owed=calcOwed(a),paid=(a.checkin&&a.checkin.paidAmount)||0;
+    return {name:((a.name||'')+' '+(a.sur||'')).trim(),email:a.email||'',balance:owed-paid};
+  }).filter(x=>x.balance>0.01);
+}
+
+window.copyOutstandingList=function(){
+  const list=getOutstandingList();
+  if(!list.length){toast('Nobody is outstanding','green');return;}
+  const missing=list.filter(x=>!x.email).length;
+  const rows=['Name\tEmail\tBalance'].concat(list.map(x=>x.name+'\t'+x.email+'\t'+x.balance.toFixed(2)));
+  const text=rows.join('\n');
+  navigator.clipboard.writeText(text).then(()=>{
+    toast('Copied '+list.length+' outstanding'+(missing?' · '+missing+' missing email':''),'gold');
+  }).catch(()=>{
+    toast('Copy failed — select and copy manually','red');
+  });
+};
+
 window.printPaymentReport=function(){
   const activeRegs=Object.values(storedRegs).filter(a=>!a.withdrawn);
   if(!activeRegs.length){toast('No registrations yet','red');return;}
@@ -2613,4 +2656,3 @@ window.goStep=function(n){_origGoStep(n);if(n===2)renderClubs();};
 </script>
 </body>
 </html>
-
