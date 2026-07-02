@@ -198,7 +198,7 @@ h1.brand{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.4rem,4vw,2.4rem);
 .pub-fighter-score.pop{animation:pubPop .22s ease}
 @keyframes pubPop{0%,100%{transform:scale(1)}50%{transform:scale(1.09)}}
 .pub-fighter-pen{font-size:1rem;color:var(--orange);letter-spacing:.1em;text-align:center;min-height:1em}
-.pub-center-col{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px 20px;gap:4px;width:220px;flex-shrink:0;overflow:hidden}
+.pub-center-col{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:6px 20px;gap:3px;width:220px;flex-shrink:0;overflow:visible}
 .pub-vs-big{font-family:'Bebas Neue',sans-serif;font-size:clamp(1rem,4vh,2rem);color:var(--muted)}
 .pub-round-big{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.6rem,10vh,4.5rem);color:var(--text);line-height:1;text-align:center}
 .pub-round-lbl{font-size:.65rem;letter-spacing:.3em;color:var(--muted);text-transform:uppercase;text-align:center}
@@ -206,12 +206,12 @@ h1.brand{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.4rem,4vw,2.4rem);
 .pub-timer-big.warning{color:#ff6020}
 /* Round-by-round score table with totals underneath — the actual scorecard breakdown */
 .score-table{border-collapse:collapse;width:100%;max-width:220px;font-family:'Rajdhani',sans-serif}
-.score-table th{font-family:'Bebas Neue',sans-serif;font-size:.75rem;letter-spacing:.1em;color:var(--gold);text-transform:uppercase;padding:4px 6px;border-bottom:1px solid rgba(245,197,24,.3)}
-.score-table td{font-size:.8rem;font-weight:600;text-align:center;padding:4px 6px;color:var(--text);border-bottom:1px solid rgba(255,255,255,.05)}
+.score-table th{font-family:'Bebas Neue',sans-serif;font-size:.7rem;letter-spacing:.1em;color:var(--gold);text-transform:uppercase;padding:2px 6px;border-bottom:1px solid rgba(245,197,24,.3)}
+.score-table td{font-size:.78rem;font-weight:600;text-align:center;padding:2px 6px;color:var(--text);border-bottom:1px solid rgba(255,255,255,.05)}
 .score-table td:first-child{color:var(--muted);font-weight:400;font-size:.7rem}
 .score-table tr:last-child td{border-bottom:none}
 .score-table.totals-table{margin-top:6px;padding-top:4px;border-top:2px solid rgba(29,185,84,.4)}
-.score-table.totals-table td{color:var(--green);font-weight:700;border-bottom:none}
+.score-table.totals-table td{font-weight:700;border-bottom:none}
 .pub-footer{flex:1;padding:16px 32px;border-top:1px solid var(--border);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;min-height:0}
 .pub-judge-bars{flex:1;display:flex;flex-direction:column;justify-content:center;gap:clamp(16px,3.5vh,36px);width:100%;max-width:1100px;padding:clamp(16px,3vh,32px) 36px;background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:14px}
 .pub-jbar-row{display:flex;align-items:center;gap:14px}
@@ -1223,11 +1223,12 @@ function initPub(){
         T("p-rpen",(s.redDeductions||0)>0?"\u26a0 Point Deducted":"");
         T("p-bpen",(s.blueDeductions||0)>0?"\u26a0 Point Deducted":"");
       }
-      // Footer: judge lean bars with running totals — non-TKD only, driven by
-      // cumulative judgeCardHistory (updates once per round-end, not live).
+      // Footer: judge lean bars move live during an active round (fed by the raw
+      // tallies stream below), while the pills underneath show the committed
+      // round-by-round history once each round ends.
       const wrap=el("p-tally-wrap");
       if(wrap) wrap.style.display=isTKD?"none":"flex";
-      if(!isTKD){ renderJudgeBars(s.judgeCardHistory||{}, JC); renderJudgePillsPublic(s.judgeCardHistory||{}, JC); }
+      if(!isTKD) renderJudgePillsPublic(s.judgeCardHistory||{}, JC);
       // Round-by-round score table with totals underneath — always rendered.
       renderScoreTable(s.roundResults||[], style, isTKD, s.judgeCardHistory||{}, maxRounds(style), JC);
       if(s.winner){
@@ -1237,29 +1238,34 @@ function initPub(){
       }else el("p-wo").classList.remove("show");
     }catch(err){console.error("pub error",err);}
   });
+  // Live judge lean bars — fed straight from the tallies node judges write to as they
+  // score, so the bar visibly moves during an active round instead of only appearing
+  // once the round ends and the scorecard is committed.
+  onValue(ref(db3,`sessions/${SES}/tallies`),snap=>{
+    try{
+      const tallies=snap.val()||{};
+      renderJudgeBars(tallies, JC);
+    }catch(e){}
+  });
 }
 function penDots(cid,gam,side,kyong){
   const c=el(cid);if(!c)return;c.innerHTML="";
   for(let i=0;i<Math.min(gam,5);i++){const d=document.createElement("div");d.className=`pub-dot a${side}`;c.appendChild(d);}
   for(let i=0;i<Math.min(kyong,5);i++){const d=document.createElement("div");d.className="pub-dot aw";c.appendChild(d);}
 }
-// Per-judge lean bars in the footer. Driven by cumulative judgeCardHistory — the actual
-// running scorecard totals, not live per-round hit tallies — so it updates once, discretely,
-// when a round ends rather than growing/shrinking mid-round. This is the compact centered
-// capsule design (Dafydd's reference photos) — red grows from center-left, blue from
-// center-right, each capped at half the track width.
-function renderJudgeBars(judgeCardHistory, judgeCount){
+// Per-judge lean bars in the footer. Fed live from the raw tallies each judge writes
+// to as they tap during an active round — so the bar actually moves in real time,
+// not just when the round ends. Percentage-based width (capped at half the track per
+// side) means the visual size never depends on how many rounds have happened — it's
+// the same scale in round 1 as round 3.
+function renderJudgeBars(tallies, judgeCount){
   const c=el("p-judge-bars");if(!c)return;
-  const history=judgeCardHistory||{};
-  const rounds=Object.keys(history).sort((a,b)=>a-b);
   let html="";
   for(let j=1;j<=judgeCount;j++){
-    const key="judge"+j;
-    let redTotal=0,blueTotal=0;
-    rounds.forEach(r=>{const c2=history[r][key];if(c2){redTotal+=c2.red;blueTotal+=c2.blue;}});
-    const total=redTotal+blueTotal;
-    const rPct = total ? (redTotal/total)*50 : 0;
-    const bPct = total ? (blueTotal/total)*50 : 0;
+    const t=(tallies||{})["judge"+j];
+    const r=t?.red||0, b=t?.blue||0, total=r+b;
+    const rPct = total ? (r/total)*50 : 0;
+    const bPct = total ? (b/total)*50 : 0;
     html += `<div class="pub-jbar-row">
       <div class="pub-jbar-label">J${j}</div>
       <div class="pub-jbar-track">
@@ -1314,7 +1320,8 @@ function buildScoreTableHTML(results,style,isTKD,judgeCardHistory,mr,judgeCount)
       html+=`<tr><td>${r}</td><td>${res?res.red+"\u2013"+res.blue:"\u2014"}</td></tr>`;
       if(res){totalR+=res.red;totalB+=res.blue;}
     }
-    totalsHtml+=`<tr><td>TOTAL</td><td>${totalR}\u2013${totalB}</td></tr>`;
+    const tWinner=totalR>totalB?"var(--red)":totalB>totalR?"var(--blue)":"var(--gold)";
+    totalsHtml+=`<tr><td>TOTAL</td><td style="color:${tWinner}">${totalR}\u2013${totalB}</td></tr>`;
   }else{
     html+='<tr><th>RD</th>';
     for(let j=1;j<=judgeCount;j++) html+=`<th>J${j}</th>`;
@@ -1335,7 +1342,9 @@ function buildScoreTableHTML(results,style,isTKD,judgeCardHistory,mr,judgeCount)
     totalsHtml+='<tr><td>TOT</td>';
     for(let j=1;j<=judgeCount;j++){
       const t=totals["judge"+j];
-      totalsHtml+=`<td>${(t.red||t.blue)?t.red+"\u2013"+t.blue:"\u2014"}</td>`;
+      const hasData=t.red||t.blue;
+      const jWinner=t.red>t.blue?"var(--red)":t.blue>t.red?"var(--blue)":"var(--gold)";
+      totalsHtml+=`<td style="color:${hasData?jWinner:"var(--muted)"}">${hasData?t.red+"\u2013"+t.blue:"\u2014"}</td>`;
     }
     totalsHtml+='</tr>';
   }
@@ -1357,3 +1366,4 @@ try{
 </script>
 </body>
 </html>
+
