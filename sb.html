@@ -324,15 +324,13 @@ h1.brand{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.4rem,4vw,2.4rem);
           <button class="btn btn-ghost btn-sm" onclick="CGS.timerReset()">Reset</button>
         </div>
       </div>
-      <!-- NEW: Host stopwatch — local to this device only, counts up from zero, never
-           written to Firebase so it can never appear on the public scoreboard. -->
+      <!-- Round stopwatch — starts automatically the instant the round starts and
+           stops automatically when the round ends. No separate controls. Local to
+           this device only, never written to Firebase, so it can never appear on
+           the public scoreboard. -->
       <div class="h-stopwatch-block">
-        <div style="font-size:.62rem;letter-spacing:.2em;color:var(--muted);text-transform:uppercase">Host Stopwatch</div>
-        <div class="h-stopwatch-display" id="h-stopwatch">0:00</div>
-        <div style="display:flex;gap:5px">
-          <button class="btn btn-blue btn-sm" id="h-sw-btn" onclick="CGS.stopwatchToggle()">&#9654; Start</button>
-          <button class="btn btn-ghost btn-sm" onclick="CGS.stopwatchReset()">Reset</button>
-        </div>
+        <div style="font-size:.62rem;letter-spacing:.2em;color:var(--muted);text-transform:uppercase">Round Stopwatch</div>
+        <div class="h-stopwatch-display" id="h-stopwatch">0:00.0</div>
       </div>
     </div>
 
@@ -708,22 +706,25 @@ function initSetup(){
 const db = getDatabase(fbApp("cgs-host"));
 let timerRunning=false, timerInterval=null, lastTick=null, cachedSecs=120;
 
-// ── NEW: host-only stopwatch state. Purely local — never written to Firebase,
-// so it is only ever visible on this device and can never leak to the public page. ──
-let swSeconds=0, swRunning=false, swInterval=null;
-function stopwatchToggle(){
-  if(swRunning){
-    clearInterval(swInterval);swInterval=null;swRunning=false;
-  }else{
-    swRunning=true;
-    swInterval=setInterval(()=>{swSeconds++;T("h-stopwatch",fmt(swSeconds));},1000);
-  }
-  const b=el("h-sw-btn");if(b)b.textContent=swRunning?"\u23f8 Pause":"\u25b6 Start";
+// ── Round stopwatch — tenths-of-a-second precision, starts automatically the
+// instant the round starts and stops automatically when the round ends. Purely
+// local — never written to Firebase — so it can never appear on the public page. ──
+let swStartTs=null, swInterval=null;
+function fmtStopwatch(ms){
+  ms=Math.max(0,ms||0);
+  const mins=Math.floor(ms/60000);
+  const secs=Math.floor((ms%60000)/1000);
+  const tenths=Math.floor((ms%1000)/100);
+  return mins+":"+String(secs).padStart(2,"0")+"."+tenths;
 }
-function stopwatchReset(){
-  clearInterval(swInterval);swInterval=null;swRunning=false;swSeconds=0;
-  T("h-stopwatch","0:00");
-  const b=el("h-sw-btn");if(b)b.textContent="\u25b6 Start";
+function stopwatchStart(){
+  clearInterval(swInterval);
+  swStartTs=Date.now();
+  T("h-stopwatch","0:00.0");
+  swInterval=setInterval(()=>{T("h-stopwatch",fmtStopwatch(Date.now()-swStartTs));},100);
+}
+function stopwatchStop(){
+  clearInterval(swInterval);swInterval=null;
 }
 
 // ── NEW: collapsible "Details" section for less-essential host controls ──
@@ -786,8 +787,8 @@ function initHost(){
     timerSet:()=>timerSet(),
     setName:(side,val)=>set(ref(db,`sessions/${SES}/state/${side}Name`),val),
     toggleTimer:()=>toggleTimer(),
-    newBout:()=>{if(confirm("Start new bout? Clears all scores."))initState(el("h-style-sel")?.value||"boxing");},
-    onStyleChange:()=>{const s=el("h-style-sel").value;if(confirm("Change to "+styleLabel(s)+"? Resets scores."))initState(s);},
+    newBout:()=>{if(confirm("Start new bout? Clears all scores.")){stopwatchStop();T("h-stopwatch","0:00.0");initState(el("h-style-sel")?.value||"boxing");}},
+    onStyleChange:()=>{const s=el("h-style-sel").value;if(confirm("Change to "+styleLabel(s)+"? Resets scores.")){stopwatchStop();T("h-stopwatch","0:00.0");initState(s);}},
     endRound:()=>endRoundNow(null),
     toggleRound:()=>toggleRound(),
     pauseRound:()=>pauseRound(),
@@ -800,8 +801,6 @@ function initHost(){
     chScore:(side,d)=>chScore(side,d),
     applyDeduct:side=>applyDeduct(side),
     applyDQ:side=>applyDQ(side),
-    stopwatchToggle:()=>stopwatchToggle(),
-    stopwatchReset:()=>stopwatchReset(),
     toggleDetails:()=>toggleDetails(),
     toggleSubPicker:()=>toggleSubPicker(),
     submissionWin:side=>submissionWin(side),
@@ -832,6 +831,13 @@ function renderHost(s){
   T("h-bpn",(s.blueName||"FIGHTER 2").toUpperCase());
   T("h-r-lbl",isTKD?"SCORE":"10-PT TOTAL");
   T("h-b-lbl",isTKD?"SCORE":"10-PT TOTAL");
+  // Only TKD uses a live running score on the host panel — for every other style
+  // the number is just the 10-point-must card total, which isn't decided until the
+  // round ends, so showing it mid-round is noise. Hide it entirely otherwise.
+  el("h-rs").style.display=isTKD?"block":"none";
+  el("h-bs").style.display=isTKD?"block":"none";
+  el("h-r-lbl").style.display=isTKD?"block":"none";
+  el("h-b-lbl").style.display=isTKD?"block":"none";
   el("h-tkd-panel").style.display=isTKD?"grid":"none";
   el("h-pen-panel").style.display=isTKD?"none":"grid";
   el("h-tally-panel").style.display=isTKD?"none":"flex";
@@ -943,6 +949,7 @@ async function toggleRound(){
 }
 
 async function startRoundNow(st){
+  stopwatchStart();
   // Clear tallies, mark active, start timer if visible
   await set(ref(db,`sessions/${SES}/judgeCards`),null);
   await set(ref(db,`sessions/${SES}/tallies`),null);
@@ -962,6 +969,7 @@ async function endRoundNow(st){
   const isLastRound=round>=mr;
 
   // Stop timer immediately
+  stopwatchStop();
   await set(ref(db,`sessions/${SES}/state/timerRunning`),false);
   await set(ref(db,`sessions/${SES}/state/roundActive`),false);
 
@@ -1074,6 +1082,7 @@ async function pauseRound(){
 
 async function undoRound(){
   if(!confirm("Undo — cancel this round and clear judge tallies?")) return;
+  stopwatchStop();T("h-stopwatch","0:00.0");
   await set(ref(db,`sessions/${SES}/state/roundActive`),false);
   await set(ref(db,`sessions/${SES}/state/timerRunning`),false);
   await set(ref(db,`sessions/${SES}/judgeCards`),null);
@@ -1464,4 +1473,3 @@ try{
 </script>
 </body>
 </html>
-
