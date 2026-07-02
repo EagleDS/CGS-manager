@@ -208,7 +208,9 @@ h1.brand{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.4rem,4vw,2.4rem);
 .score-table th{font-family:'Bebas Neue',sans-serif;font-size:.75rem;letter-spacing:.1em;color:var(--gold);text-transform:uppercase;padding:4px 6px;border-bottom:1px solid rgba(245,197,24,.3)}
 .score-table td{font-size:.8rem;font-weight:600;text-align:center;padding:4px 6px;color:var(--text);border-bottom:1px solid rgba(255,255,255,.05)}
 .score-table td:first-child{color:var(--muted);font-weight:400;font-size:.7rem}
-.score-table tr.total-row td{color:var(--green);font-weight:700;border-top:2px solid rgba(29,185,84,.4);border-bottom:none}
+.score-table tr:last-child td{border-bottom:none}
+.score-table.totals-table{margin-top:6px;padding-top:4px;border-top:2px solid rgba(29,185,84,.4)}
+.score-table.totals-table td{color:var(--green);font-weight:700;border-bottom:none}
 .pub-footer{flex:1;padding:16px 32px;border-top:1px solid var(--border);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;min-height:0}
 .pub-judge-bars{flex:1;display:flex;flex-direction:column;justify-content:center;gap:clamp(10px,2.4vh,26px);width:100%;max-width:900px;padding:clamp(10px,2vh,24px) 28px;background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:14px}
 .pub-jbar-row{display:flex;align-items:center;gap:14px}
@@ -217,9 +219,8 @@ h1.brand{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.4rem,4vw,2.4rem);
 .pub-jbar-total.r{color:var(--red)}
 .pub-jbar-total.b{color:var(--blue)}
 .pub-jbar-track{flex:1;height:clamp(26px,6.5vh,58px);background:linear-gradient(180deg,#181822,#0f0f16);border-radius:14px;position:relative;overflow:hidden;box-shadow:inset 0 2px 6px rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.04)}
-.pub-jbar-track::after{content:'';position:absolute;left:50%;top:0;bottom:0;width:2px;background:rgba(255,255,255,.15);transform:translateX(-50%);z-index:2}
-.pub-jbar-r{position:absolute;right:50%;top:0;height:100%;background:linear-gradient(90deg,var(--red-dark),var(--red));border-radius:12px 0 0 12px;transition:width .45s cubic-bezier(.34,1.4,.64,1);width:0%;box-shadow:0 0 16px var(--red-glow)}
-.pub-jbar-b{position:absolute;left:50%;top:0;height:100%;background:linear-gradient(270deg,var(--blue-dark),var(--blue));border-radius:0 12px 12px 0;transition:width .45s cubic-bezier(.34,1.4,.64,1);width:0%;box-shadow:0 0 16px var(--blue-glow)}
+.pub-jbar-r{position:absolute;left:0;top:0;height:100%;background:linear-gradient(90deg,var(--red-dark),var(--red));border-radius:14px 0 0 14px;transition:width .45s cubic-bezier(.34,1.4,.64,1);width:50%;box-shadow:0 0 16px var(--red-glow)}
+.pub-jbar-b{position:absolute;right:0;top:0;height:100%;background:linear-gradient(270deg,var(--blue-dark),var(--blue));border-radius:0 14px 14px 0;transition:width .45s cubic-bezier(.34,1.4,.64,1);width:50%;box-shadow:0 0 16px var(--blue-glow)}
 .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.93);z-index:100;align-items:center;justify-content:center;flex-direction:column;gap:16px;padding:20px;text-align:center}
 .overlay.show{display:flex}
 .ov-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.2rem,4vw,2rem);letter-spacing:.3em;color:var(--muted)}
@@ -1220,6 +1221,8 @@ function penDots(cid,gam,side,kyong){
 // running scorecard totals — NOT live per-round hit tallies. The bar no longer grows or
 // shrinks during a round; it updates once, discretely, when a round ends, and always shows
 // the real point totals on each side rather than an animated proportion tied to raw hits.
+// Full-width stacked split: red fills its actual share of the whole bar, blue fills the
+// rest. An even score fills the bar edge-to-edge, split down the middle — not half-empty.
 function renderJudgeBars(judgeCardHistory, judgeCount){
   const c=el("p-judge-bars");if(!c)return;
   const history=judgeCardHistory||{};
@@ -1230,8 +1233,8 @@ function renderJudgeBars(judgeCardHistory, judgeCount){
     let redTotal=0,blueTotal=0;
     rounds.forEach(r=>{const c2=history[r][key];if(c2){redTotal+=c2.red;blueTotal+=c2.blue;}});
     const total=redTotal+blueTotal;
-    const rPct = total ? (redTotal/total)*50 : 0;
-    const bPct = total ? (blueTotal/total)*50 : 0;
+    const rPct = total ? (redTotal/total)*100 : 50;
+    const bPct = 100 - rPct;
     html += `<div class="pub-jbar-row">
       <div class="pub-jbar-total r">${redTotal||"\u2014"}</div>
       <div class="pub-jbar-label">J${j}</div>
@@ -1246,12 +1249,13 @@ function renderJudgeBars(judgeCardHistory, judgeCount){
 }
 // The center-column score display. Replaces the old free-floating, unlabeled chip stack
 // with an actual table: rows = rounds, columns = judges (or a single SCORE column for TKD),
-// filling in as rounds complete, with a TOTAL row at the bottom. Sized to however many
-// rounds the style actually has (mr) — MMA (1 round) never shows a fake Round 2.
+// filling in as rounds complete, with a TOTAL block underneath the table. Sized to however
+// many rounds the style actually has (mr) — MMA (1 round) never shows a fake Round 2.
 function renderScoreTable(results,style,isTKD,judgeCardHistory,mr,judgeCount){
   const c=el("p-score-table");if(!c)return;
   const history=judgeCardHistory||{};
   let html='<table class="score-table">';
+  let totalsHtml='<table class="score-table totals-table">';
   if(isTKD){
     html+='<tr><th>RD</th><th>SCORE</th></tr>';
     let totalR=0,totalB=0;
@@ -1260,7 +1264,7 @@ function renderScoreTable(results,style,isTKD,judgeCardHistory,mr,judgeCount){
       html+=`<tr><td>${r}</td><td>${res?res.red+"\u2013"+res.blue:"\u2014"}</td></tr>`;
       if(res){totalR+=res.red;totalB+=res.blue;}
     }
-    html+=`<tr class="total-row"><td>TOTAL</td><td>${totalR}\u2013${totalB}</td></tr>`;
+    totalsHtml+=`<tr><td>TOTAL</td><td>${totalR}\u2013${totalB}</td></tr>`;
   }else{
     html+='<tr><th>RD</th>';
     for(let j=1;j<=judgeCount;j++) html+=`<th>J${j}</th>`;
@@ -1278,15 +1282,16 @@ function renderScoreTable(results,style,isTKD,judgeCardHistory,mr,judgeCount){
       }
       html+='</tr>';
     }
-    html+='<tr class="total-row"><td>TOT</td>';
+    totalsHtml+='<tr><td>TOT</td>';
     for(let j=1;j<=judgeCount;j++){
       const t=totals["judge"+j];
-      html+=`<td>${(t.red||t.blue)?t.red+"\u2013"+t.blue:"\u2014"}</td>`;
+      totalsHtml+=`<td>${(t.red||t.blue)?t.red+"\u2013"+t.blue:"\u2014"}</td>`;
     }
-    html+='</tr>';
+    totalsHtml+='</tr>';
   }
   html+='</table>';
-  c.innerHTML=html;
+  totalsHtml+='</table>';
+  c.innerHTML=html+totalsHtml;
 }
 
 try{
@@ -1302,4 +1307,3 @@ try{
 </script>
 </body>
 </html>
-
