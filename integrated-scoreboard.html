@@ -159,6 +159,7 @@ h1.brand{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.4rem,4vw,2.4rem);
 .j-tkd-col{display:flex;flex-direction:column;gap:6px;align-items:center}
 .j-tkd-btn{border:none;border-radius:12px;cursor:pointer;user-select:none;transition:transform .1s;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:14px 8px;gap:3px;width:100%;font-family:'Rajdhani',sans-serif;font-weight:700;touch-action:manipulation}
 .j-tkd-btn:active{transform:scale(.92)}
+.j-tkd-btn:disabled{opacity:.3;cursor:not-allowed}
 .j-tkd-btn.r1{background:linear-gradient(135deg,#9b1414,#6a0a0a);color:#fff;box-shadow:0 3px 16px rgba(224,32,32,.3)}
 .j-tkd-btn.r2{background:linear-gradient(135deg,#c01818,#800e0e);color:#fff;box-shadow:0 3px 20px rgba(224,32,32,.4)}
 .j-tkd-btn.r3{background:linear-gradient(135deg,#e02020,#9b1414);color:#fff;box-shadow:0 3px 24px rgba(224,32,32,.5)}
@@ -182,14 +183,14 @@ h1.brand{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.4rem,4vw,2.4rem);
 .submit-btn.ready{background:linear-gradient(135deg,rgba(245,197,24,.18),rgba(245,197,24,.08));border-color:var(--gold);color:var(--gold);box-shadow:0 3px 20px rgba(245,197,24,.15)}
 /* ── PUBLIC PAGE — locked to viewport, no scroll ─────────── */
 /* pub page layout handled via JS */
-.pub-header{display:flex;align-items:center;justify-content:space-between;padding:8px 24px;border-bottom:1px solid var(--border);flex-shrink:0}
+.pub-header{display:flex;align-items:center;justify-content:space-between;padding:8px 24px;border-bottom:1px solid var(--border);flex-shrink:0;width:100%}
 .pub-header-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.2rem,3vw,2rem);letter-spacing:.3em;color:var(--gold)}
 .pub-header-meta{font-family:monospace;font-size:.75rem;letter-spacing:.2em;color:var(--muted);text-transform:uppercase;text-align:right}
-.pub-main{flex:1;display:flex;flex-direction:row;min-height:0;width:100%}
+.pub-main{flex:0 0 30%;display:flex;flex-direction:row;min-height:0;width:100%}
 .pub-fighter{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 16px;position:relative;overflow:hidden;gap:8px;flex:1}
 .pub-fighter.red-side{background:linear-gradient(135deg,rgba(155,20,20,.4),rgba(80,10,10,.2));border-right:1px solid var(--border)}
 .pub-fighter.blue-side{background:linear-gradient(225deg,rgba(15,74,142,.4),rgba(10,40,90,.2));border-left:1px solid var(--border)}
-.pub-fighter-name{font-family:'Bebas Neue',sans-serif;font-size:clamp(2rem,5vw,5rem);letter-spacing:.1em;text-align:center;line-height:1}
+.pub-fighter-name{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.1rem,2.4vw,2.2rem);letter-spacing:.1em;text-align:center;line-height:1}
 .pub-fighter-name.r{color:#ff6060}.pub-fighter-name.b{color:#60a0ff}
 .pub-fighter-score{font-family:'Bebas Neue',sans-serif;font-size:clamp(8rem,22vw,22rem);line-height:.85;text-align:center}
 .pub-fighter-score.r{color:var(--red);text-shadow:0 0 80px var(--red-glow)}
@@ -197,21 +198,27 @@ h1.brand{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.4rem,4vw,2.4rem);
 .pub-fighter-score.pop{animation:pubPop .22s ease}
 @keyframes pubPop{0%,100%{transform:scale(1)}50%{transform:scale(1.09)}}
 .pub-fighter-pen{font-size:1rem;color:var(--orange);letter-spacing:.1em;text-align:center;min-height:1em}
-.pub-center-col{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:12px 20px;gap:8px;width:160px;flex-shrink:0}
-.pub-vs-big{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.4rem,3vw,2.5rem);color:var(--muted)}
-.pub-round-big{font-family:'Bebas Neue',sans-serif;font-size:clamp(4rem,10vw,10rem);color:var(--text);line-height:1;text-align:center}
-.pub-round-lbl{font-size:.7rem;letter-spacing:.3em;color:var(--muted);text-transform:uppercase;text-align:center}
-.pub-chips-row{display:flex;gap:6px;justify-content:center;flex-wrap:wrap}
-.pub-chip{font-family:'Bebas Neue',sans-serif;font-size:1rem;padding:3px 10px;border-radius:6px;border:1px solid rgba(245,197,24,.25);color:var(--gold);background:rgba(245,197,24,.07)}
+.pub-center-col{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:6px 20px;gap:3px;width:220px;flex-shrink:0;overflow:visible}
+.pub-vs-big{font-family:'Bebas Neue',sans-serif;font-size:clamp(1rem,4vh,2rem);color:var(--muted)}
+.pub-round-big{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.6rem,10vh,4.5rem);color:var(--text);line-height:1;text-align:center}
+.pub-round-lbl{font-size:.65rem;letter-spacing:.3em;color:var(--muted);text-transform:uppercase;text-align:center}
 .pub-timer-big{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.5rem,6vw,6rem);color:var(--gold);text-shadow:0 0 40px rgba(245,197,24,.5);line-height:1;text-align:center}
 .pub-timer-big.warning{color:#ff6020}
-.pub-footer{flex-shrink:0;padding:8px 24px;border-top:1px solid var(--border);display:flex;flex-direction:column;align-items:center;gap:6px}
-.pub-tally-row{display:flex;align-items:center;gap:16px;justify-content:center;width:100%;max-width:700px}
-.pub-tally-num{font-family:'Bebas Neue',sans-serif;font-size:2rem;min-width:2.5rem;text-align:center}
-.pub-tally-bar{flex:1;position:relative;height:8px;background:#1a1a24;border-radius:4px;overflow:hidden}
-.pub-tbar-r{position:absolute;right:50%;top:0;height:100%;background:var(--red);border-radius:4px;transition:width .4s;width:0%}
-.pub-tbar-b{position:absolute;left:50%;top:0;height:100%;background:var(--blue);border-radius:4px;transition:width .4s;width:0%}
-.pub-lean{font-family:'Bebas Neue',sans-serif;font-size:1.2rem;letter-spacing:.15em;color:var(--gold);text-align:center}
+/* Round-by-round score table with totals underneath — the actual scorecard breakdown */
+.score-table{border-collapse:collapse;width:100%;max-width:220px;font-family:'Rajdhani',sans-serif}
+.score-table th{font-family:'Bebas Neue',sans-serif;font-size:.7rem;letter-spacing:.1em;color:var(--gold);text-transform:uppercase;padding:2px 6px;border-bottom:1px solid rgba(245,197,24,.3)}
+.score-table td{font-size:.78rem;font-weight:600;text-align:center;padding:2px 6px;color:var(--text);border-bottom:1px solid rgba(255,255,255,.05)}
+.score-table td:first-child{color:var(--muted);font-weight:400;font-size:.7rem}
+.score-table tr:last-child td{border-bottom:none}
+.score-table.totals-table{margin-top:6px;padding-top:4px;border-top:2px solid rgba(29,185,84,.4)}
+.score-table.totals-table td{font-weight:700;border-bottom:none}
+.pub-footer{flex:1;width:100%;padding:16px 32px;border-top:1px solid var(--border);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;min-height:0}
+.pub-judge-bars{flex:1;display:flex;flex-direction:column;justify-content:center;gap:clamp(16px,3.5vh,36px);width:100%;max-width:1100px;padding:clamp(16px,3vh,32px) 36px;background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:14px}
+.pub-jbar-row{display:flex;align-items:center;gap:14px}
+.pub-jbar-label{flex-shrink:0;width:clamp(48px,7.5vh,90px);height:clamp(48px,7.5vh,90px);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:clamp(1.3rem,2.6vh,2.1rem);letter-spacing:.05em;color:var(--gold);background:rgba(245,197,24,.1);border:1px solid rgba(245,197,24,.35);box-shadow:0 0 12px rgba(245,197,24,.15)}
+.pub-jbar-track{flex:1;height:clamp(38px,9.5vh,90px);background:linear-gradient(180deg,#181822,#0f0f16);border-radius:18px;position:relative;overflow:hidden;box-shadow:inset 0 2px 6px rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.04)}
+.pub-jbar-r{position:absolute;left:0;top:0;height:100%;background:linear-gradient(90deg,var(--red-dark),var(--red));transition:width .35s linear;width:0%;box-shadow:0 0 16px var(--red-glow)}
+.pub-jbar-b{position:absolute;right:0;top:0;height:100%;background:linear-gradient(270deg,var(--blue-dark),var(--blue));transition:width .35s linear;width:0%;box-shadow:0 0 16px var(--blue-glow)}
 .pub-judge-pills{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
 .pub-jpill{font-family:'Bebas Neue',sans-serif;font-size:.9rem;letter-spacing:.1em;padding:3px 14px;border-radius:16px;border:1px solid #2a2a3a;color:#444}
 .pub-jpill.red{background:rgba(224,32,32,.12);border-color:rgba(224,32,32,.4);color:var(--red)}
@@ -224,6 +231,7 @@ h1.brand{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.4rem,4vw,2.4rem);
 @keyframes pulse{from{opacity:.7;transform:scale(.97)}to{opacity:1;transform:scale(1.03)}}
 .ov-sub{font-size:1rem;letter-spacing:.2em;color:var(--muted)}
 .ov-score{font-family:'Bebas Neue',sans-serif;font-size:2rem;color:var(--text)}
+.ov-scores{display:flex;flex-direction:column;gap:8px;margin-top:14px;width:100%;max-width:320px}
 .qr-card{background:#fff;border-radius:12px;padding:14px;display:flex;flex-direction:column;align-items:center;gap:8px;min-width:140px}
 .qr-label{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.85rem;letter-spacing:.1em;text-transform:uppercase;color:#111;text-align:center}
 .qr-sublabel{font-size:.7rem;color:#555;text-align:center}
@@ -502,7 +510,7 @@ h1.brand{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.4rem,4vw,2.4rem);
       <div class="pub-round-big" id="p-round">1</div>
       <div class="pub-round-lbl">Round</div>
       <div class="pub-vs-big">VS</div>
-      <div class="pub-chips-row" id="p-chips"></div>
+      <div id="p-score-table"></div>
     </div>
     <div class="pub-fighter blue-side">
       <div class="pub-fighter-name b" id="p-bn">FIGHTER 2</div>
@@ -511,23 +519,16 @@ h1.brand{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.4rem,4vw,2.4rem);
       <div class="pub-dots" id="p-bdots" style="display:none"></div>
     </div>
   </div>
-  <!-- Footer: tally + judge leanings -->
+  <!-- Footer: per-judge lean bars with running totals -->
   <div class="pub-footer" id="p-tally-wrap" style="display:none">
-    <div class="pub-tally-row">
-      <div class="pub-tally-num" style="color:#ff8080" id="p-tally-r">0</div>
-      <div class="pub-tally-bar">
-        <div class="pub-tbar-r" id="p-tbar-r"></div>
-        <div class="pub-tbar-b" id="p-tbar-b"></div>
-      </div>
-      <div class="pub-tally-num" style="color:#80b0ff" id="p-tally-b">0</div>
-      <div class="pub-lean" id="p-projected"></div>
-    </div>
+    <div class="pub-judge-bars" id="p-judge-bars"></div>
     <div class="pub-judge-pills" id="p-judge-leanings"></div>
   </div>
   <div class="overlay" id="p-wo">
     <div class="ov-title">Match Winner</div>
     <div class="ov-winner" id="p-wt" style="color:var(--gold)"></div>
     <div class="ov-sub">by Points Decision</div>
+    <div class="ov-scores" id="p-wo-scores"></div>
   </div>
 </div>
 
@@ -720,7 +721,7 @@ function initState(style){
     redDeductions:0,blueDeductions:0,
     round:1,style:style||"boxing",
     timerSeconds:120,timerMax:120,timerRunning:false,timerVisible:false,
-    winner:"",roundResults:[],roundEnded:0,roundActive:false
+    winner:"",roundResults:[],judgeCardHistory:{},roundEnded:0,roundActive:false
   });
   set(ref(db,`sessions/${SES}/judgeCards`),null);
   set(ref(db,`sessions/${SES}/tallies`),null);
@@ -868,6 +869,7 @@ async function endRoundNow(st){
 
   // ── Score calculation ──────────────────────────────────────
   let rp=0,bp=0,winner="draw";
+  let roundJudgeCards=null; // per-judge card for THIS round (non-TKD only)
 
   if(isTKD){
     const rs=st.redScore||0,bs=st.blueScore||0;
@@ -882,10 +884,13 @@ async function endRoundNow(st){
       // Each judge scores independently — majority rules
       let redWins=0,blueWins=0,draws=0;
       let redPtsFromWinners=0,bluePtsFromWinners=0;
+      roundJudgeCards={};
 
       keys.forEach(k=>{
         const t=tallies[k];
         const jcard=calcCard(t.red||0,t.blue||0);
+        // Record this judge's individual scorecard for this round
+        roundJudgeCards[k]={red:jcard.redPts,blue:jcard.bluePts,winner:jcard.winner};
         if(jcard.winner==="red"){ redWins++; redPtsFromWinners+=jcard.redPts; bluePtsFromWinners+=jcard.bluePts; }
         else if(jcard.winner==="blue"){ blueWins++; redPtsFromWinners+=jcard.redPts; bluePtsFromWinners+=jcard.bluePts; }
         else { draws++; redPtsFromWinners+=10; bluePtsFromWinners+=10; }
@@ -911,6 +916,10 @@ async function endRoundNow(st){
   const results=[...(st.roundResults||[])];
   results[round-1]={red:rp,blue:bp,winner};
 
+  // Commit per-judge scorecard history for this round (non-TKD only)
+  const judgeCardHistory={...(st.judgeCardHistory||{})};
+  if(!isTKD && roundJudgeCards) judgeCardHistory[round]=roundJudgeCards;
+
   // ── Fight winner: majority of rounds won (not total points) ──
   let redRounds=0,blueRounds=0;
   results.forEach(r=>{if(r){if(r.winner==="red")redRounds++;else if(r.winner==="blue")blueRounds++;}});
@@ -923,6 +932,7 @@ async function endRoundNow(st){
     roundActive:false,
     roundEnded:Date.now(),
     roundResults:results,
+    judgeCardHistory,
     redScore:rt,
     blueScore:bt,
     redDeductions:0,
@@ -931,8 +941,15 @@ async function endRoundNow(st){
   };
 
   if(isLastRound){
-    // Majority of rounds wins the fight
-    const fightWinner=redRounds>blueRounds?"red":blueRounds>redRounds?"blue":"draw";
+    // Majority of rounds wins the fight. If tied on rounds, the fight
+    // goes to whoever won the final round rather than being called a draw.
+    let fightWinner=redRounds>blueRounds?"red":blueRounds>redRounds?"blue":"draw";
+    if(fightWinner==="draw"){
+      const lastRoundResult=results[mr-1];
+      if(lastRoundResult && lastRoundResult.winner!=="draw"){
+        fightWinner=lastRoundResult.winner;
+      }
+    }
     next.winner=fightWinner==="red"?(st.redName||"RED").toUpperCase()+" WINS!":
                 fightWinner==="blue"?(st.blueName||"BLUE").toUpperCase()+" WINS!":
                 "IT'S A DRAW!";
@@ -973,7 +990,11 @@ async function declareWinner(){
   const results=s.roundResults||[];
   let redRounds=0,blueRounds=0;
   results.forEach(r=>{if(r){if(r.winner==="red")redRounds++;else if(r.winner==="blue")blueRounds++;}});
-  const w=redRounds>blueRounds?"red":blueRounds>redRounds?"blue":"draw";
+  let w=redRounds>blueRounds?"red":blueRounds>redRounds?"blue":"draw";
+  if(w==="draw"&&results.length){
+    const last=results[results.length-1];
+    if(last && last.winner!=="draw") w=last.winner;
+  }
   await set(ref(db,`sessions/${SES}/state/winner`),
     w==="red"?(s.redName||"RED").toUpperCase()+" WINS!":
     w==="blue"?(s.blueName||"BLUE").toUpperCase()+" WINS!":
@@ -1060,6 +1081,8 @@ function initJudge(){
           seg.className="hybrid-seg "+(sr<curRound?"done":sr===curRound?"active":"pending");
         });
       }
+      // Round became active/inactive — rebuild buttons so the disabled state
+      // (baked in at creation time) stays correct.
       if(isTKD)buildTKD(db2,flipped);else buildTally(flipped);
     }catch(err){console.error("judge state error",err);}
   });
@@ -1120,6 +1143,10 @@ function initJudge(){
     buildTally(flipped);
     set(ref(db2,`sessions/${SES}/tallies/judge${JID}`),{...tally,ts:Date.now()}).catch(()=>{});
   };
+  // BUG FIX: TKD scoring buttons previously had no roundActive gate at all — a judge
+  // could tap Punch Body / Kick Body / Kick Head any time, including before the round
+  // started or after it ended. Every button below now checks roundActive both visually
+  // (disabled + dimmed) and functionally (onclick bails out) — matching mkActBtn above.
   function buildTKD(db2,flip){
     const ls=flip?"blue":"red",rs=flip?"red":"blue";
     const ln=flip?bn:rn,rn2=flip?rn:bn;
@@ -1135,14 +1162,24 @@ function initJudge(){
     const mkVC=(side)=>{const d=document.createElement("div");d.id="vc-"+side;d.style.cssText="font-size:.7rem;color:rgba(255,255,255,.6);text-align:center;min-height:1em";return d;};
     lCol.appendChild(mkVC(ls));rCol.appendChild(mkVC(rs));
     if(JC===1){
-      el("j-bonusR").onclick=()=>set(ref(db2,`sessions/${SES}/judgeCards/judge${JID}`),{jid:JID,side:"red",pts:2,ts:Date.now()}).catch(()=>{});
-      el("j-bonusB").onclick=()=>set(ref(db2,`sessions/${SES}/judgeCards/judge${JID}`),{jid:JID,side:"blue",pts:2,ts:Date.now()}).catch(()=>{});
+      el("j-bonusR").disabled=!roundActive;
+      el("j-bonusB").disabled=!roundActive;
+      el("j-bonusR").style.opacity=roundActive?"1":"0.25";
+      el("j-bonusB").style.opacity=roundActive?"1":"0.25";
+      el("j-bonusR").onclick=()=>{if(!roundActive)return;set(ref(db2,`sessions/${SES}/judgeCards/judge${JID}`),{jid:JID,side:"red",pts:2,ts:Date.now()}).catch(()=>{});};
+      el("j-bonusB").onclick=()=>{if(!roundActive)return;set(ref(db2,`sessions/${SES}/judgeCards/judge${JID}`),{jid:JID,side:"blue",pts:2,ts:Date.now()}).catch(()=>{});};
     }
   }
   function mkTKDBtn(cls,pts,lbl,side,db2){
     const b=document.createElement("button");b.className=`j-tkd-btn ${cls}`;
+    b.disabled=!roundActive;
+    if(!roundActive) b.style.opacity="0.25";
     b.innerHTML=`<div class="pts">+${pts}</div><div class="lbl">${lbl.replace("\n","<br>")}</div>`;
-    b.onclick=()=>{set(ref(db2,`sessions/${SES}/judgeCards/judge${JID}`),{jid:JID,side,pts,ts:Date.now()}).catch(()=>{});b.classList.add("voted");setTimeout(()=>b.classList.remove("voted"),320);};
+    b.onclick=()=>{
+      if(!roundActive)return;
+      set(ref(db2,`sessions/${SES}/judgeCards/judge${JID}`),{jid:JID,side,pts,ts:Date.now()}).catch(()=>{});
+      b.classList.add("voted");setTimeout(()=>b.classList.remove("voted"),320);
+    };
     return b;
   }
   el("j-flip").onclick=()=>{flipped=!flipped;if(curStyle==="tkd")buildTKD(db2,flipped);else buildTally(flipped);};
@@ -1164,10 +1201,17 @@ function initPub(){
         el("p-timer").classList.toggle("warning",(s.timerSeconds??120)<=30);
       }
       T("p-ruleset",style==="hybrid"?" \u00b7 "+hybridName(s.round??1):"");
-      const pr=el("p-rs").textContent,pb=el("p-bs").textContent;
-      T("p-rs",s.redScore??0);T("p-bs",s.blueScore??0);
-      if(String(s.redScore??0)!==pr){el("p-rs").classList.add("pop");setTimeout(()=>el("p-rs").classList.remove("pop"),250);}
-      if(String(s.blueScore??0)!==pb){el("p-bs").classList.add("pop");setTimeout(()=>el("p-bs").classList.remove("pop"),250);}
+      // The big fighter number only means something for TKD (real points scored).
+      // For everything else it's a 10-point-must card total — hide it, let the
+      // judge bars/table below carry that information instead.
+      el("p-rs").style.display=isTKD?"block":"none";
+      el("p-bs").style.display=isTKD?"block":"none";
+      if(isTKD){
+        const pr=el("p-rs").textContent,pb=el("p-bs").textContent;
+        T("p-rs",s.redScore??0);T("p-bs",s.blueScore??0);
+        if(String(s.redScore??0)!==pr){el("p-rs").classList.add("pop");setTimeout(()=>el("p-rs").classList.remove("pop"),250);}
+        if(String(s.blueScore??0)!==pb){el("p-bs").classList.add("pop");setTimeout(()=>el("p-bs").classList.remove("pop"),250);}
+      }
       if(isTKD){
         el("p-rdots").style.display="flex";el("p-bdots").style.display="flex";
         el("p-rpen").style.display="none";el("p-bpen").style.display="none";
@@ -1179,47 +1223,28 @@ function initPub(){
         T("p-rpen",(s.redDeductions||0)>0?"\u26a0 Point Deducted":"");
         T("p-bpen",(s.blueDeductions||0)>0?"\u26a0 Point Deducted":"");
       }
-      pubChips(s.roundResults||[],style);
-      if(s.winner){T("p-wt",s.winner);el("p-wo").classList.add("show");}else el("p-wo").classList.remove("show");
+      // Footer: judge lean bars move live during an active round (fed by the raw
+      // tallies stream below), while the pills underneath show the committed
+      // round-by-round history once each round ends.
+      const wrap=el("p-tally-wrap");
+      if(wrap) wrap.style.display=isTKD?"none":"flex";
+      if(!isTKD) renderJudgePillsPublic(s.judgeCardHistory||{}, JC);
+      // Round-by-round score table with totals underneath — always rendered.
+      renderScoreTable(s.roundResults||[], style, isTKD, s.judgeCardHistory||{}, maxRounds(style), JC);
+      if(s.winner){
+        T("p-wt",s.winner);
+        renderWinnerScores(s.roundResults||[], style, isTKD, s.judgeCardHistory||{}, maxRounds(style), JC);
+        el("p-wo").classList.add("show");
+      }else el("p-wo").classList.remove("show");
     }catch(err){console.error("pub error",err);}
   });
-  // Live tally feed
+  // Live judge lean bars — fed straight from the tallies node judges write to as they
+  // score, so the bar visibly moves during an active round instead of only appearing
+  // once the round ends and the scorecard is committed.
   onValue(ref(db3,`sessions/${SES}/tallies`),snap=>{
     try{
       const tallies=snap.val()||{};
-      const keys=Object.keys(tallies);
-      const wrap=el("p-tally-wrap");
-      if(!keys.length){if(wrap)wrap.style.display="none";return;}
-      let rt=0,bt=0;
-      keys.forEach(k=>{rt+=tallies[k].red||0;bt+=tallies[k].blue||0;});
-      const avg=keys.length,ra=Math.round(rt/avg),ba=Math.round(bt/avg);
-      T("p-tally-r",rt);T("p-tally-b",bt);
-      const mx=Math.max(rt,bt,1);
-      const rb=el("p-tbar-r"),bb=el("p-tbar-b");
-      if(rb)rb.style.width=Math.min(50,(rt/mx)*50)+"%";
-      if(bb)bb.style.width=Math.min(50,(bt/mx)*50)+"%";
-      const card=calcCard(ra,ba);
-      const proj=el("p-projected");
-      if(proj){
-        proj.textContent=card.winner==="draw"?"EVEN":"Leaning "+card.winner.toUpperCase();
-        proj.style.color=card.winner==="red"?"var(--red)":card.winner==="blue"?"var(--blue)":"var(--gold)";
-      }
-      // Per-judge leanings
-      const leanDiv=el("p-judge-leanings");
-      if(leanDiv){
-        let html="";
-        for(let j=1;j<=JC;j++){
-          const t=tallies["judge"+j];
-          const cls=!t?"":"judge"+j&&calcCard(t.red||0,t.blue||0).winner==="red"?"red":calcCard(t.red||0,t.blue||0).winner==="blue"?"blue":"even";
-          if(!t){html+=`<div class="pub-jpill">J${j} —</div>`;continue;}
-          const jcard=calcCard(t.red||0,t.blue||0);
-          const lbl=jcard.winner==="draw"?"EVEN":jcard.winner.toUpperCase();
-          const pcls=jcard.winner==="red"?"red":jcard.winner==="blue"?"blue":"even";
-          html+=`<div class="pub-jpill ${pcls}">J${j} \u2192 ${lbl}</div>`;
-        }
-        leanDiv.innerHTML=html;
-      }
-      if(wrap)wrap.style.display="flex";
+      renderJudgeBars(tallies, JC);
     }catch(e){}
   });
 }
@@ -1228,14 +1253,104 @@ function penDots(cid,gam,side,kyong){
   for(let i=0;i<Math.min(gam,5);i++){const d=document.createElement("div");d.className=`pub-dot a${side}`;c.appendChild(d);}
   for(let i=0;i<Math.min(kyong,5);i++){const d=document.createElement("div");d.className="pub-dot aw";c.appendChild(d);}
 }
-function pubChips(results,style){
-  const c=el("p-chips");if(!c)return;let html="";
-  results.forEach((r,i)=>{
-    if(!r)return;
-    const sub=style==="hybrid"?" \u00b7 "+hybridName(i+1):"";
-    html+=`<div class="pub-chip">R${i+1}${sub}: ${r.red}\u2013${r.blue}</div>`;
-  });
+// Per-judge lean bar — full-width stacked split, no neutral space once there's any
+// data. One point for red only = 100% red. Tied = exactly 50/50, boundary dead center.
+// As the ratio shifts, the boundary between red and blue slides toward whichever side
+// is trailing. CSS transition on width makes that boundary glide smoothly rather than
+// jump. Resets to empty (both 0%) whenever tallies clear at the start of a round.
+function renderJudgeBars(tallies, judgeCount){
+  const c=el("p-judge-bars");if(!c)return;
+  let html="";
+  for(let j=1;j<=judgeCount;j++){
+    const t=(tallies||{})["judge"+j];
+    const r=t?.red||0, b=t?.blue||0, total=r+b;
+    const rPct = total ? (r/total)*100 : 0;
+    const bPct = total ? (b/total)*100 : 0;
+    html += `<div class="pub-jbar-row">
+      <div class="pub-jbar-label">J${j}</div>
+      <div class="pub-jbar-track">
+        <div class="pub-jbar-r" style="width:${rPct}%"></div>
+        <div class="pub-jbar-b" style="width:${bPct}%"></div>
+      </div>
+    </div>`;
+  }
+  c.innerHTML = html;
+}
+// Round-history badges underneath the bars (e.g. "J1: 10-10, 10-9") — shows each judge's
+// full scorecard across completed rounds, color-coded by that judge's current lean.
+function renderJudgePillsPublic(judgeCardHistory, judgeCount){
+  const c=el("p-judge-leanings");if(!c)return;
+  const history=judgeCardHistory||{};
+  const rounds=Object.keys(history).sort((a,b)=>a-b);
+  let html="";
+  for(let j=1;j<=judgeCount;j++){
+    const key="judge"+j;
+    const cards=rounds.map(r=>history[r][key]).filter(Boolean);
+    if(!cards.length){html+=`<div class="pub-jpill">J${j} \u2014</div>`;continue;}
+    const text=cards.map(c=>c.red+"\u2013"+c.blue).join(", ");
+    const last=cards[cards.length-1];
+    const pcls=last.winner==="red"?"red":last.winner==="blue"?"blue":"even";
+    html+=`<div class="pub-jpill ${pcls}">J${j}: ${text}</div>`;
+  }
   c.innerHTML=html;
+}
+// The center-column score display — the actual scorecard breakdown. Rows = rounds,
+// columns = judges (or a single SCORE column for TKD), filling in as rounds complete,
+// with a TOTAL block underneath the table showing each judge's cumulative score.
+// Sized to however many rounds the style actually has (mr) — MMA never shows a fake Round 2.
+function renderScoreTable(results,style,isTKD,judgeCardHistory,mr,judgeCount){
+  const c=el("p-score-table");if(!c)return;
+  c.innerHTML=buildScoreTableHTML(results,style,isTKD,judgeCardHistory,mr,judgeCount);
+}
+// Same table, reused on the victory overlay so the final verdict is shown alongside
+// the winner's name — the actual scorecards that decided the fight.
+function renderWinnerScores(results,style,isTKD,judgeCardHistory,mr,judgeCount){
+  const c=el("p-wo-scores");if(!c)return;
+  c.innerHTML=buildScoreTableHTML(results,style,isTKD,judgeCardHistory,mr,judgeCount);
+}
+function buildScoreTableHTML(results,style,isTKD,judgeCardHistory,mr,judgeCount){
+  const history=judgeCardHistory||{};
+  let html='<table class="score-table">';
+  let totalsHtml='<table class="score-table totals-table">';
+  if(isTKD){
+    html+='<tr><th>RD</th><th>SCORE</th></tr>';
+    let totalR=0,totalB=0;
+    for(let r=1;r<=mr;r++){
+      const res=results[r-1];
+      html+=`<tr><td>${r}</td><td>${res?res.red+"\u2013"+res.blue:"\u2014"}</td></tr>`;
+      if(res){totalR+=res.red;totalB+=res.blue;}
+    }
+    const tWinner=totalR>totalB?"var(--red)":totalB>totalR?"var(--blue)":"var(--gold)";
+    totalsHtml+=`<tr><td>TOTAL</td><td style="color:${tWinner}">${totalR}\u2013${totalB}</td></tr>`;
+  }else{
+    html+='<tr><th>RD</th>';
+    for(let j=1;j<=judgeCount;j++) html+=`<th>J${j}</th>`;
+    html+='</tr>';
+    const totals={};
+    for(let j=1;j<=judgeCount;j++) totals["judge"+j]={red:0,blue:0};
+    for(let r=1;r<=mr;r++){
+      const jc=history[r];
+      html+=`<tr><td>${r}</td>`;
+      for(let j=1;j<=judgeCount;j++){
+        const key="judge"+j;
+        const card=jc&&jc[key];
+        html+=`<td>${card?card.red+"\u2013"+card.blue:"\u2014"}</td>`;
+        if(card){totals[key].red+=card.red;totals[key].blue+=card.blue;}
+      }
+      html+='</tr>';
+    }
+    totalsHtml+='<tr><td>TOT</td>';
+    for(let j=1;j<=judgeCount;j++){
+      const t=totals["judge"+j];
+      const hasData=t.red||t.blue;
+      const jWinner=t.red>t.blue?"var(--red)":t.blue>t.red?"var(--blue)":"var(--gold)";
+      totalsHtml+=`<td style="color:${hasData?jWinner:"var(--muted)"}">${hasData?t.red+"\u2013"+t.blue:"\u2014"}</td>`;
+    }
+    totalsHtml+='</tr>';
+  }
+  html+='</table>';
+  totalsHtml+='</table>';
+  return html+totalsHtml;
 }
 
 try{
