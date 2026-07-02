@@ -985,36 +985,43 @@ async function endRoundNow(st){
     const talliesSnap=await get(ref(db,`sessions/${SES}/tallies`));
     const tallies=talliesSnap.val()||{};
     const keys=Object.keys(tallies);
+    const redDed=st.redDeductions||0;
+    const blueDed=st.blueDeductions||0;
 
     if(keys.length){
-      // Each judge scores independently — majority rules
+      // Each judge scores independently. Point deductions are applied to EVERY
+      // judge's individual card for this round — a full point off the offending
+      // fighter's own score, exactly like a real ringside deduction — not as an
+      // after-the-fact tweak to an averaged aggregate that never reached the
+      // actual scorecards.
       let redWins=0,blueWins=0,draws=0;
-      let redPtsFromWinners=0,bluePtsFromWinners=0;
+      let redPtsSum=0,bluePtsSum=0;
       roundJudgeCards={};
 
       keys.forEach(k=>{
         const t=tallies[k];
         const jcard=calcCard(t.red||0,t.blue||0);
-        // Record this judge's individual scorecard for this round
-        roundJudgeCards[k]={red:jcard.redPts,blue:jcard.bluePts,winner:jcard.winner};
-        if(jcard.winner==="red"){ redWins++; redPtsFromWinners+=jcard.redPts; bluePtsFromWinners+=jcard.bluePts; }
-        else if(jcard.winner==="blue"){ blueWins++; redPtsFromWinners+=jcard.redPts; bluePtsFromWinners+=jcard.bluePts; }
-        else { draws++; redPtsFromWinners+=10; bluePtsFromWinners+=10; }
+        const rPts=Math.max(0,jcard.redPts-redDed);
+        const bPts=Math.max(0,jcard.bluePts-blueDed);
+        const jWinner=rPts>bPts?"red":bPts>rPts?"blue":"draw";
+        // Record this judge's individual scorecard for this round, deductions included
+        roundJudgeCards[k]={red:rPts,blue:bPts,winner:jWinner};
+        if(jWinner==="red")redWins++; else if(jWinner==="blue")blueWins++; else draws++;
+        redPtsSum+=rPts; bluePtsSum+=bPts;
       });
 
       if(redWins>blueWins){ winner="red"; }
       else if(blueWins>redWins){ winner="blue"; }
       else { winner="draw"; }
 
-      // Points on the scorecard come from average of all judges' cards for that round
-      rp=Math.round(redPtsFromWinners/keys.length);
-      bp=Math.round(bluePtsFromWinners/keys.length);
-
-      // Apply deductions to the loser's score
-      if(winner==="red") bp=Math.max(0,bp-(st.blueDeductions||0));
-      if(winner==="blue") rp=Math.max(0,rp-(st.redDeductions||0));
+      // Round total shown on the host/public board is the average of the
+      // already-deducted individual judge cards for that round.
+      rp=Math.round(redPtsSum/keys.length);
+      bp=Math.round(bluePtsSum/keys.length);
     } else {
-      rp=10;bp=10;winner="draw";
+      rp=Math.max(0,10-redDed);
+      bp=Math.max(0,10-blueDed);
+      winner=rp>bp?"red":bp>rp?"blue":"draw";
     }
   }
 
@@ -1473,4 +1480,3 @@ try{
 </script>
 </body>
 </html>
-
