@@ -1,0 +1,1303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<style>
+  * { -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; }
+  /* touch-action: manipulation disables double-tap zoom on the element itself */
+  button { touch-action: manipulation; }
+</style>
+<script>
+  document.addEventListener('touchstart', function(e){
+    if(e.touches.length > 1) e.preventDefault();
+  }, {passive: false});
+</script>
+<title>CGS Integrated Scoreboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --red:#e02020;--red-dark:#9b1414;--red-glow:rgba(224,32,32,.35);
+  --blue:#1a6fd4;--blue-dark:#0f4a8e;--blue-glow:rgba(26,111,212,.35);
+  --gold:#f5c518;--bg:#0a0a0f;--panel:#13131c;--border:#2a2a3a;
+  --text:#f0f0f8;--muted:#7a7a9a;--green:#1db954;--orange:#f07020;
+}
+body{background:var(--bg);color:var(--text);font-family:'Rajdhani',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:16px;
+  background-image:radial-gradient(ellipse 80% 40% at 50% 0%,rgba(245,197,24,.06) 0%,transparent 70%)}
+.page{display:none;flex-direction:column;align-items:center;width:100%;max-width:960px;gap:12px}
+h1.brand{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.4rem,4vw,2.4rem);letter-spacing:.15em;color:var(--gold);text-shadow:0 0 30px rgba(245,197,24,.5);text-align:center}
+.brand-sub{font-size:.78rem;letter-spacing:.35em;color:var(--muted);text-transform:uppercase;text-align:center;margin-bottom:4px}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:18px;width:100%}
+.btn{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.85rem;letter-spacing:.1em;border:none;border-radius:8px;cursor:pointer;padding:7px 14px;transition:transform .1s;text-transform:uppercase;user-select:none;touch-action:manipulation}
+.btn:active{transform:scale(.93)}
+.btn-gold{background:var(--gold);color:#1a1200}
+.btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--border)}
+.btn-ghost:hover{border-color:var(--text);color:var(--text)}
+.btn-green{background:var(--green);color:#fff}
+.btn-red{background:var(--red);color:#fff}
+.btn-blue{background:var(--blue);color:#fff}
+.btn-sm{padding:4px 10px;font-size:.75rem}
+.btn-danger{background:#3a1010;color:#ff6060;border:1px solid #5a1515}
+.btn-orange{background:#3a1800;color:var(--orange);border:1px solid #6a2800}
+.setup-form{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.setup-form label{font-size:.72rem;color:var(--muted);letter-spacing:.15em;text-transform:uppercase;display:block;margin-bottom:3px}
+.setup-form input,.setup-form select{width:100%;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Rajdhani',sans-serif;font-size:.9rem;padding:7px 10px}
+.setup-form input:focus,.setup-form select:focus{outline:none;border-color:var(--gold)}
+.form-full{grid-column:1/-1}
+.link-box{display:flex;flex-direction:column;gap:10px}
+.link-row{display:flex;gap:8px;align-items:center}
+.link-row label{min-width:85px;font-size:.75rem;color:var(--muted);text-transform:uppercase;flex-shrink:0}
+.link-row input{flex:1;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:monospace;font-size:.68rem;padding:6px 10px}
+.hybrid-bar{display:flex;gap:4px;width:100%;border-radius:10px;overflow:hidden}
+.hybrid-seg{flex:1;text-align:center;padding:7px 4px;font-family:'Bebas Neue',sans-serif;font-size:.9rem;letter-spacing:.08em;transition:all .3s}
+.hybrid-seg.active{color:#000;background:var(--gold)}
+.hybrid-seg.done{color:var(--green);background:rgba(29,185,84,.1);border:1px solid rgba(29,185,84,.3)}
+.hybrid-seg.pending{color:var(--muted);background:rgba(255,255,255,.04);border:1px solid var(--border)}
+.host-top{display:flex;gap:10px;align-items:flex-start;width:100%;flex-wrap:wrap}
+.host-top-left{display:flex;flex-direction:column;gap:8px;flex:1;min-width:200px}
+.style-sel{background:rgba(245,197,24,.08);border:1px solid rgba(245,197,24,.3);border-radius:10px;padding:10px 14px;display:flex;flex-direction:column;gap:6px}
+.style-sel label{font-size:.65rem;letter-spacing:.2em;color:var(--gold);text-transform:uppercase}
+.style-sel select{background:#0a0a0f;border:1px solid var(--border);color:var(--text);font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:.08em;padding:6px 10px;border-radius:8px;width:100%}
+.style-sel select:focus{outline:none;border-color:var(--gold)}
+.nohead-warn{background:rgba(240,112,32,.12);border:1px solid var(--orange);border-radius:6px;padding:4px 10px;font-size:.65rem;color:var(--orange);letter-spacing:.1em;text-align:center}
+.round-block{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:10px 20px;display:flex;flex-direction:column;align-items:center;gap:4px}
+.round-big{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.4rem,7vw,3.8rem);line-height:1;color:var(--text)}
+.round-lbl{font-size:.65rem;letter-spacing:.3em;color:var(--muted);text-transform:uppercase}
+.round-ruleset{font-size:.7rem;color:var(--gold);letter-spacing:.15em;text-transform:uppercase;min-height:1em;text-align:center}
+.timer-block{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:10px 14px;display:flex;flex-direction:column;align-items:center;gap:6px}
+.timer-display{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.4rem,7vw,3.8rem);line-height:1;color:var(--gold);text-shadow:0 0 30px rgba(245,197,24,.5)}
+.timer-display.warning{color:#ff6020}
+.tnum{width:38px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:'Rajdhani',sans-serif;font-size:.85rem;padding:3px 5px;text-align:center}
+.judges-block{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:10px 14px;display:flex;flex-direction:column;gap:6px;min-width:120px}
+.judges-label{font-size:.65rem;letter-spacing:.2em;color:var(--muted);text-transform:uppercase}
+.judge-pills{display:flex;gap:6px;flex-wrap:wrap}
+.judge-pill{font-family:'Bebas Neue',sans-serif;font-size:.85rem;padding:4px 12px;border-radius:20px;border:1px solid var(--border);color:var(--muted);letter-spacing:.08em;transition:all .3s}
+.judge-pill.submitted{background:rgba(29,185,84,.15);border-color:var(--green);color:var(--green)}
+.judge-pill.waiting{background:rgba(245,197,24,.1);border-color:var(--gold);color:var(--gold);animation:jpulse 1s ease-in-out infinite alternate}
+@keyframes jpulse{from{opacity:.5}to{opacity:1}}
+.scoreboard{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;width:100%}
+.fp{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:16px;display:flex;flex-direction:column;align-items:center;gap:8px;position:relative;overflow:hidden}
+.fp::before{content:'';position:absolute;inset:0;border-radius:14px;pointer-events:none}
+.rp::before{box-shadow:inset 0 0 60px var(--red-glow)}
+.bp::before{box-shadow:inset 0 0 60px var(--blue-glow)}
+.ctag{padding:3px 12px;border-radius:20px;font-size:.75rem;font-weight:700;letter-spacing:.1em}
+.rp .ctag{background:var(--red-dark);color:#ffcdd2}
+.bp .ctag{background:var(--blue-dark);color:#bbdefb}
+.ninput{background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Rajdhani',sans-serif;font-size:1rem;font-weight:700;text-align:center;padding:6px 10px;width:100%;text-transform:uppercase}
+.ninput:focus{outline:none;border-color:var(--gold)}
+.score-lbl{font-size:.62rem;letter-spacing:.2em;color:var(--muted);text-transform:uppercase}
+.score-big{font-family:'Bebas Neue',sans-serif;font-size:clamp(3.5rem,12vw,6.5rem);line-height:1}
+.rp .score-big{color:var(--red);text-shadow:0 0 40px var(--red-glow)}
+.bp .score-big{color:var(--blue);text-shadow:0 0 40px var(--blue-glow)}
+.score-big.pop{animation:sPop .2s ease}
+@keyframes sPop{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
+.pen-status{font-size:.68rem;padding:2px 8px;border-radius:10px;letter-spacing:.08em;font-weight:700;text-transform:uppercase;min-height:1.4em;text-align:center;color:var(--muted)}
+.pen-status.deducted{background:rgba(224,32,32,.15);border:1px solid var(--red);color:#ff6060}
+.pen-status.dq{background:rgba(224,32,32,.3);border:1px solid var(--red);color:#ff3030}
+.center-panel{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px}
+.vs-badge{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;color:var(--muted)}
+.host-tally{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:12px 16px;width:100%;display:flex;flex-direction:column;gap:8px}
+.ht-counts{display:flex;justify-content:space-between;font-family:'Bebas Neue',sans-serif;font-size:1.2rem}
+.ht-bar-wrap{flex:1;height:10px;background:#1a1a24;border-radius:5px;overflow:hidden;position:relative}
+.ht-bar-r{height:100%;background:var(--red);border-radius:5px;transition:width .3s;position:absolute;right:50%;top:0}
+.ht-bar-b{height:100%;background:var(--blue);border-radius:5px;transition:width .3s;position:absolute;left:50%;top:0}
+.ht-row{display:flex;align-items:center;gap:8px}
+.ht-label{font-size:.62rem;letter-spacing:.18em;color:var(--muted);text-transform:uppercase;min-width:34px}
+.ht-card-preview{text-align:center;font-family:'Bebas Neue',sans-serif;font-size:.95rem;letter-spacing:.1em;padding:5px 12px;border-radius:8px;background:rgba(245,197,24,.06);border:1px solid rgba(245,197,24,.2);color:var(--gold)}
+.pen-row{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:12px 16px;width:100%;display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.pen-blk{display:flex;flex-direction:column;align-items:center;gap:6px}
+.pen-title{font-size:.65rem;letter-spacing:.25em;text-transform:uppercase;color:var(--muted)}
+.pen-name{font-size:.85rem;font-weight:700}
+.rpen .pen-name{color:#ff8080}
+.bpen .pen-name{color:#80b0ff}
+.pen-btns{display:flex;gap:5px;flex-wrap:wrap;justify-content:center}
+.round-cards{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;width:100%}
+.round-card{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:8px;padding:6px 14px;text-align:center;min-width:90px}
+.round-card.active{border-color:var(--gold);background:rgba(245,197,24,.06)}
+.rc-label{font-size:.58rem;letter-spacing:.2em;color:var(--muted);text-transform:uppercase;margin-bottom:2px}
+.rc-score{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;line-height:1.1}
+.tkd-panel{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:12px 16px;width:100%;display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.tkd-col{display:flex;flex-direction:column;align-items:center;gap:6px}
+.tkd-pen-num{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;line-height:1}
+.rtkd .tkd-pen-num{color:var(--red)}
+.btkd .tkd-pen-num{color:var(--blue)}
+.tkd-pen-lbl{font-size:.58rem;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;text-align:center}
+.action-bar{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;width:100%}
+.j-header{text-align:center}
+.j-badge{display:inline-block;font-family:'Bebas Neue',sans-serif;letter-spacing:.2em;padding:4px 16px;border-radius:20px;background:rgba(245,197,24,.15);color:var(--gold);border:1px solid rgba(245,197,24,.3);margin-bottom:6px}
+.j-info{display:flex;gap:12px;justify-content:center;align-items:center;font-size:.9rem;flex-wrap:wrap}
+.j-timer{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:var(--gold)}
+.j-timer.warning{color:#ff6020}
+.j-strip{display:flex;gap:12px;justify-content:center;align-items:center;background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:10px 20px;width:100%;max-width:560px}
+.j-strip-score{font-family:'Bebas Neue',sans-serif;font-size:2.4rem;line-height:1}
+.j-strip-score.r{color:var(--red)}.j-strip-score.b{color:var(--blue)}
+.j-strip-label{font-size:.68rem;color:var(--muted);letter-spacing:.2em;text-transform:uppercase}
+.j-strip-vs{font-family:'Bebas Neue',sans-serif;font-size:1rem;color:var(--border)}
+.j-tally-wrap{width:100%;max-width:560px;display:flex;flex-direction:column;gap:10px}
+.j-tally-fighters{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.j-tally-col{display:flex;flex-direction:column;gap:6px;align-items:center}
+.j-name-tag{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;text-align:center;padding:6px 8px;border-radius:8px;width:100%}
+.j-name-tag.r{background:var(--red-dark);color:#ffcdd2}
+.j-name-tag.b{background:var(--blue-dark);color:#bbdefb}
+.j-tally-count{font-family:'Bebas Neue',sans-serif;font-size:3.2rem;line-height:1;text-align:center}
+.j-tally-count.r{color:#ff8080}.j-tally-count.b{color:#80b0ff}
+.j-action-btns{display:flex;gap:5px;flex-wrap:wrap;justify-content:center;width:100%}
+.j-act-btn{border:none;border-radius:10px;cursor:pointer;user-select:none;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 6px;gap:2px;font-family:'Rajdhani',sans-serif;font-weight:700;transition:transform .1s;min-width:70px;flex:1;touch-action:manipulation}
+.j-act-btn:active{transform:scale(.91)}
+.j-act-btn.r{background:linear-gradient(135deg,#c01818,#800e0e);color:#fff;box-shadow:0 2px 12px rgba(224,32,32,.35)}
+.j-act-btn.b{background:linear-gradient(135deg,#155db5,#0c3a72);color:#fff;box-shadow:0 2px 12px rgba(26,111,212,.35)}
+.j-act-btn:disabled{opacity:.3;cursor:not-allowed}
+.j-act-pts{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;line-height:1}
+.j-act-lbl{font-size:.62rem;letter-spacing:.06em;text-transform:uppercase;opacity:.85;text-align:center;line-height:1.2}
+.j-act-btn.flash{animation:jFlash .2s ease}
+@keyframes jFlash{0%,100%{opacity:1}40%{opacity:.1;transform:scale(1.06)}}
+.j-card-preview{background:rgba(245,197,24,.08);border:1px solid rgba(245,197,24,.25);border-radius:10px;padding:8px 16px;text-align:center;width:100%;max-width:560px}
+.j-card-score{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:.1em;color:var(--gold)}
+.j-card-lbl{font-size:.65rem;letter-spacing:.2em;color:var(--muted);text-transform:uppercase}
+.j-tkd-area{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;max-width:560px}
+.j-tkd-col{display:flex;flex-direction:column;gap:6px;align-items:center}
+.j-tkd-btn{border:none;border-radius:12px;cursor:pointer;user-select:none;transition:transform .1s;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:14px 8px;gap:3px;width:100%;font-family:'Rajdhani',sans-serif;font-weight:700;touch-action:manipulation}
+.j-tkd-btn:active{transform:scale(.92)}
+.j-tkd-btn.r1{background:linear-gradient(135deg,#9b1414,#6a0a0a);color:#fff;box-shadow:0 3px 16px rgba(224,32,32,.3)}
+.j-tkd-btn.r2{background:linear-gradient(135deg,#c01818,#800e0e);color:#fff;box-shadow:0 3px 20px rgba(224,32,32,.4)}
+.j-tkd-btn.r3{background:linear-gradient(135deg,#e02020,#9b1414);color:#fff;box-shadow:0 3px 24px rgba(224,32,32,.5)}
+.j-tkd-btn.b1{background:linear-gradient(135deg,#0f4a8e,#082e5a);color:#fff;box-shadow:0 3px 16px rgba(26,111,212,.3)}
+.j-tkd-btn.b2{background:linear-gradient(135deg,#155db5,#0c3a72);color:#fff;box-shadow:0 3px 20px rgba(26,111,212,.4)}
+.j-tkd-btn.b3{background:linear-gradient(135deg,#1a6fd4,#0f4a8e);color:#fff;box-shadow:0 3px 24px rgba(26,111,212,.5)}
+.j-tkd-btn .pts{font-family:'Bebas Neue',sans-serif;font-size:2rem;line-height:1}
+.j-tkd-btn .lbl{font-size:.7rem;letter-spacing:.06em;text-transform:uppercase;opacity:.85;text-align:center}
+.j-tkd-btn.voted{animation:jFlash .3s ease}
+.j-bonus-row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;width:100%;max-width:560px}
+.j-undo-row{display:flex;gap:8px;justify-content:center;width:100%;max-width:560px}
+.submitted-banner{background:rgba(29,185,84,.1);border:1px solid rgba(29,185,84,.4);border-radius:8px;padding:10px 16px;font-size:.85rem;color:var(--green);text-align:center;width:100%;max-width:560px;display:none}
+.end-round-banner{background:rgba(245,197,24,.12);border:1px solid rgba(245,197,24,.5);border-radius:8px;padding:12px 16px;font-size:1rem;color:var(--gold);text-align:center;width:100%;max-width:560px;display:none;font-family:'Bebas Neue',sans-serif;letter-spacing:.12em;animation:endPulse 1s ease-in-out infinite alternate}
+@keyframes endPulse{from{opacity:.6}to{opacity:1}}
+.j-flip-btn{display:flex;justify-content:center;width:100%;max-width:560px}
+.j-status{font-size:.8rem;color:var(--muted);text-align:center;min-height:1.4em;max-width:480px;line-height:1.5}
+.nohead-banner{background:rgba(240,112,32,.12);border:1px solid var(--orange);border-radius:8px;padding:6px 16px;font-size:.72rem;color:var(--orange);letter-spacing:.15em;text-transform:uppercase;text-align:center;width:100%;max-width:560px}
+.submit-btn{width:100%;max-width:560px;padding:16px;font-size:1rem;border-radius:14px;border:1px solid rgba(245,197,24,.3);cursor:pointer;font-family:'Bebas Neue',sans-serif;letter-spacing:.15em;transition:transform .1s,opacity .2s,background .2s;background:rgba(255,255,255,.04);color:var(--muted)}
+.submit-btn:active{transform:scale(.95)}
+.submit-btn:disabled{opacity:.35;cursor:not-allowed;transform:none}
+.submit-btn.ready{background:linear-gradient(135deg,rgba(245,197,24,.18),rgba(245,197,24,.08));border-color:var(--gold);color:var(--gold);box-shadow:0 3px 20px rgba(245,197,24,.15)}
+/* ── PUBLIC PAGE — locked to viewport, no scroll ─────────── */
+/* pub page layout handled via JS */
+.pub-header{display:flex;align-items:center;justify-content:space-between;padding:8px 24px;border-bottom:1px solid var(--border);flex-shrink:0}
+.pub-header-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.2rem,3vw,2rem);letter-spacing:.3em;color:var(--gold)}
+.pub-header-meta{font-family:monospace;font-size:.75rem;letter-spacing:.2em;color:var(--muted);text-transform:uppercase;text-align:right}
+.pub-main{flex:0 0 30%;display:flex;flex-direction:row;min-height:0;width:100%}
+.pub-fighter{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 16px;position:relative;overflow:hidden;gap:8px;flex:1}
+.pub-fighter.red-side{background:linear-gradient(135deg,rgba(155,20,20,.4),rgba(80,10,10,.2));border-right:1px solid var(--border)}
+.pub-fighter.blue-side{background:linear-gradient(225deg,rgba(15,74,142,.4),rgba(10,40,90,.2));border-left:1px solid var(--border)}
+.pub-fighter-name{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.1rem,2.4vw,2.2rem);letter-spacing:.1em;text-align:center;line-height:1}
+.pub-fighter-name.r{color:#ff6060}.pub-fighter-name.b{color:#60a0ff}
+.pub-fighter-score{font-family:'Bebas Neue',sans-serif;font-size:clamp(8rem,22vw,22rem);line-height:.85;text-align:center}
+.pub-fighter-score.r{color:var(--red);text-shadow:0 0 80px var(--red-glow)}
+.pub-fighter-score.b{color:var(--blue);text-shadow:0 0 100px var(--blue-glow)}
+.pub-fighter-score.pop{animation:pubPop .22s ease}
+@keyframes pubPop{0%,100%{transform:scale(1)}50%{transform:scale(1.09)}}
+.pub-fighter-pen{font-size:1rem;color:var(--orange);letter-spacing:.1em;text-align:center;min-height:1em}
+.pub-center-col{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px 20px;gap:4px;width:220px;flex-shrink:0;overflow:hidden}
+.pub-vs-big{font-family:'Bebas Neue',sans-serif;font-size:clamp(1rem,4vh,2rem);color:var(--muted)}
+.pub-round-big{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.6rem,10vh,4.5rem);color:var(--text);line-height:1;text-align:center}
+.pub-round-lbl{font-size:.65rem;letter-spacing:.3em;color:var(--muted);text-transform:uppercase;text-align:center}
+.pub-timer-big{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.5rem,6vw,6rem);color:var(--gold);text-shadow:0 0 40px rgba(245,197,24,.5);line-height:1;text-align:center}
+.pub-timer-big.warning{color:#ff6020}
+/* Round-by-round score table — replaces the old free-floating chip stack */
+.score-table{border-collapse:collapse;width:100%;max-width:220px;font-family:'Rajdhani',sans-serif}
+.score-table th{font-family:'Bebas Neue',sans-serif;font-size:.75rem;letter-spacing:.1em;color:var(--gold);text-transform:uppercase;padding:4px 6px;border-bottom:1px solid rgba(245,197,24,.3)}
+.score-table td{font-size:.8rem;font-weight:600;text-align:center;padding:4px 6px;color:var(--text);border-bottom:1px solid rgba(255,255,255,.05)}
+.score-table td:first-child{color:var(--muted);font-weight:400;font-size:.7rem}
+.score-table tr:last-child td{border-bottom:none}
+.score-table.totals-table{margin-top:6px;padding-top:4px;border-top:2px solid rgba(29,185,84,.4)}
+.score-table.totals-table td{color:var(--green);font-weight:700;border-bottom:none}
+.pub-footer{flex:1;padding:16px 32px;border-top:1px solid var(--border);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;min-height:0}
+.pub-judge-bars{flex:1;display:flex;flex-direction:column;justify-content:center;gap:clamp(10px,2.4vh,26px);width:100%;max-width:900px;padding:clamp(10px,2vh,24px) 28px;background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:14px}
+.pub-jbar-row{display:flex;align-items:center;gap:14px}
+.pub-jbar-label{flex-shrink:0;width:clamp(36px,5.5vh,64px);height:clamp(36px,5.5vh,64px);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:clamp(1rem,1.8vh,1.5rem);letter-spacing:.05em;color:var(--gold);background:rgba(245,197,24,.1);border:1px solid rgba(245,197,24,.35);box-shadow:0 0 12px rgba(245,197,24,.15)}
+.pub-jbar-total{flex-shrink:0;width:clamp(40px,6vh,70px);text-align:center;font-family:'Bebas Neue',sans-serif;font-size:clamp(1.2rem,3vh,2rem);line-height:1}
+.pub-jbar-total.r{color:var(--red)}
+.pub-jbar-total.b{color:var(--blue)}
+.pub-jbar-track{flex:1;height:clamp(26px,6.5vh,58px);background:linear-gradient(180deg,#181822,#0f0f16);border-radius:14px;position:relative;overflow:hidden;box-shadow:inset 0 2px 6px rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.04)}
+.pub-jbar-r{position:absolute;left:0;top:0;height:100%;background:linear-gradient(90deg,var(--red-dark),var(--red));border-radius:14px 0 0 14px;transition:width .45s cubic-bezier(.34,1.4,.64,1);width:50%;box-shadow:0 0 16px var(--red-glow)}
+.pub-jbar-b{position:absolute;right:0;top:0;height:100%;background:linear-gradient(270deg,var(--blue-dark),var(--blue));border-radius:0 14px 14px 0;transition:width .45s cubic-bezier(.34,1.4,.64,1);width:50%;box-shadow:0 0 16px var(--blue-glow)}
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.93);z-index:100;align-items:center;justify-content:center;flex-direction:column;gap:16px;padding:20px;text-align:center}
+.overlay.show{display:flex}
+.ov-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.2rem,4vw,2rem);letter-spacing:.3em;color:var(--muted)}
+.ov-winner{font-family:'Bebas Neue',sans-serif;font-size:clamp(4rem,14vw,9rem);letter-spacing:.08em;text-shadow:0 0 60px currentColor;animation:pulse 1s ease-in-out infinite alternate}
+@keyframes pulse{from{opacity:.7;transform:scale(.97)}to{opacity:1;transform:scale(1.03)}}
+.ov-sub{font-size:1rem;letter-spacing:.2em;color:var(--muted)}
+.ov-score{font-family:'Bebas Neue',sans-serif;font-size:2rem;color:var(--text)}
+.qr-card{background:#fff;border-radius:12px;padding:14px;display:flex;flex-direction:column;align-items:center;gap:8px;min-width:140px}
+.qr-label{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.85rem;letter-spacing:.1em;text-transform:uppercase;color:#111;text-align:center}
+.qr-sublabel{font-size:.7rem;color:#555;text-align:center}
+.err-banner{background:#3a0808;border:1px solid var(--red);border-radius:8px;padding:12px;color:#ff8080;font-size:.8rem;text-align:center;width:100%;max-width:600px;display:none}
+/* Integrated banner */
+.integrated-badge{background:rgba(29,185,84,.1);border:1px solid rgba(29,185,84,.3);border-radius:8px;padding:6px 16px;font-family:'Bebas Neue',sans-serif;font-size:.85rem;letter-spacing:.15em;color:var(--green);text-align:center;width:100%;max-width:600px}
+@media(max-width:600px){.scoreboard{grid-template-columns:1fr 1fr}.center-panel{display:none}.setup-form{grid-template-columns:1fr}.host-top{flex-direction:column}}
+@media print{body{background:#fff!important;padding:0}.page{display:none!important}#page-setup{display:flex!important}.card:not(#qrSection){display:none!important}#qrSection{display:block!important;border:none;background:#fff}#qrSection>p,#qrSection button{display:none}#qrGrid{grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:24px}.qr-card{border:1px solid #ddd;padding:20px}}
+</style>
+</head>
+<body>
+
+<!-- SETUP -->
+<div class="page" id="page-setup">
+  <h1 class="brand">&#9876; CGS Integrated Scoreboard</h1>
+  <p class="brand-sub">Combat Games Series &middot; CGS-Manager Database</p>
+  <div class="integrated-badge">&#10003; Connected to CGS-Manager Firebase</div>
+  <div class="err-banner" id="setup-err"></div>
+  <div class="card" style="max-width:720px">
+    <form id="setupForm">
+      <div class="setup-form">
+        <div class="form-full"><label>Session / Mat ID</label><input id="f-session" value="mat-1" placeholder="e.g. mat-1, mat-2"/></div>
+        <div><label>Number of Judges</label>
+          <select id="f-jc"><option value="1">1 Judge</option><option value="2">2 Judges</option><option value="3" selected>3 Judges &mdash; 2 of 3</option></select>
+        </div>
+        <div><label>Age Category</label>
+          <select id="f-age"><option value="adult">Adult / 18+</option><option value="u18">Under 18</option><option value="u12">Under 12 &mdash; No Head Contact</option></select>
+        </div>
+        <div class="form-full" style="text-align:center;margin-top:10px">
+          <button type="submit" class="btn btn-gold" style="padding:10px 32px;font-size:1rem">&#9889; Generate Links</button>
+        </div>
+      </div>
+    </form>
+  </div>
+  <div class="card" id="generatedLinks" style="display:none;max-width:720px">
+    <p style="font-size:.78rem;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;margin-bottom:12px">Share these links</p>
+    <div class="link-box">
+      <div class="link-row"><label>Host</label><input id="link-host" readonly/><button class="btn btn-ghost btn-sm" onclick="copyLink('link-host',this)">Copy</button></div>
+      <div class="link-row" id="j1r"><label>Judge 1</label><input id="link-j1" readonly/><button class="btn btn-ghost btn-sm" onclick="copyLink('link-j1',this)">Copy</button></div>
+      <div class="link-row" id="j2r"><label>Judge 2</label><input id="link-j2" readonly/><button class="btn btn-ghost btn-sm" onclick="copyLink('link-j2',this)">Copy</button></div>
+      <div class="link-row" id="j3r"><label>Judge 3</label><input id="link-j3" readonly/><button class="btn btn-ghost btn-sm" onclick="copyLink('link-j3',this)">Copy</button></div>
+      <div class="link-row"><label>Public</label><input id="link-pub" readonly/><button class="btn btn-ghost btn-sm" onclick="copyLink('link-pub',this)">Copy</button></div>
+    </div>
+    <p id="linkNote" style="font-size:.78rem;color:var(--muted);margin-top:10px;line-height:1.6"></p>
+  </div>
+  <div class="card" id="qrSection" style="display:none;max-width:720px">
+    <p style="font-size:.78rem;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;margin-bottom:16px">QR Codes</p>
+    <div id="qrGrid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;justify-items:center"></div>
+    <div style="text-align:center;margin-top:12px"><button class="btn btn-ghost btn-sm" onclick="window.print()">Print QR Codes</button></div>
+  </div>
+</div>
+
+<!-- HOST -->
+<div class="page" id="page-host">
+  <h1 class="brand">&#9876; CGS Integrated Scoreboard</h1>
+  <p class="brand-sub" id="h-subtitle">Host View</p>
+  <div class="integrated-badge">&#10003; CGS-Manager Database</div>
+  <div class="err-banner" id="host-err"></div>
+
+  <!-- DOMINANT ROUND CONTROL -->
+  <div style="width:100%;display:flex;gap:8px;align-items:stretch">
+    <button id="h-round-toggle" onclick="CGS.toggleRound()"
+      style="flex:1;padding:18px 24px;font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:.15em;border:none;border-radius:14px;cursor:pointer;background:var(--gold);color:#1a1200;touch-action:manipulation;transition:background .2s,color .2s">
+      &#9654; START ROUND <span id="h-round-in-btn" style="opacity:.6">· R1</span>
+    </button>
+    <button id="h-pause-btn" onclick="CGS.pauseRound()" style="display:none;padding:18px 16px;font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:.1em;border:none;border-radius:14px;cursor:pointer;background:#1a1a2a;color:var(--gold);border:1px solid rgba(245,197,24,.3);touch-action:manipulation">&#9646;&#9646;<br>PAUSE</button>
+    <button id="h-undo-btn" onclick="CGS.undoRound()" style="display:none;padding:18px 16px;font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:.1em;border:none;border-radius:14px;cursor:pointer;background:#1a0808;color:#ff6060;border:1px solid #5a1515;touch-action:manipulation">&#8617;<br>UNDO</button>
+  </div>
+  <div class="host-top">
+    <div class="host-top-left">
+      <div class="style-sel">
+        <label>Combat Style</label>
+        <select id="h-style-sel" onchange="CGS.onStyleChange()">
+          <option value="boxing">Boxing Light</option><option value="k1">K1 Light</option>
+          <option value="mma">MMA</option><option value="hybrid">Hybrid Light</option>
+          <option value="tkd">Taekwondo</option>
+        </select>
+      </div>
+      <div id="h-hybrid-bar" style="display:none">
+        <div class="hybrid-bar" id="h-hbar">
+          <div class="hybrid-seg pending" data-r="1">R1 &middot; Boxing</div>
+          <div class="hybrid-seg pending" data-r="2">R2 &middot; Kickboxing</div>
+          <div class="hybrid-seg pending" data-r="3">R3 &middot; MMA</div>
+        </div>
+      </div>
+      <div id="h-nohead" class="nohead-warn" style="display:none">&#9888; UNDER-12 &middot; NO HEAD CONTACT</div>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-start">
+      <div class="round-block">
+        <div class="round-lbl">Round</div>
+        <div class="round-big" id="h-round">1</div>
+        <div class="round-ruleset" id="h-ruleset-lbl"></div>
+      </div>
+      <div class="timer-block" id="h-timer-block" style="display:none">
+        <div class="timer-display" id="h-timer">2:00</div>
+        <div style="display:flex;gap:5px;flex-wrap:wrap;justify-content:center">
+          <button class="btn btn-gold btn-sm" id="h-ss" onclick="CGS.timerToggle()">&#9654; Start</button>
+          <button class="btn btn-ghost btn-sm" onclick="CGS.timerReset()">Reset</button>
+        </div>
+        <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap;justify-content:center">
+          <input type="number" id="h-tm" min="0" max="9" value="2" class="tnum">
+          <span style="color:var(--muted);font-size:.8rem">m</span>
+          <input type="number" id="h-ts" min="0" max="59" value="0" class="tnum">
+          <span style="color:var(--muted);font-size:.8rem">s</span>
+          <button class="btn btn-ghost btn-sm" onclick="CGS.timerSet()">Set</button>
+        </div>
+      </div>
+      <div class="judges-block">
+        <div class="judges-label">Judge Cards</div>
+        <div class="judge-pills" id="h-judge-pills"></div>
+      </div>
+    </div>
+  </div>
+  <div class="host-tally" id="h-tally-panel">
+    <div class="ht-counts">
+      <span style="color:#ff8080" id="h-ht-r">0</span>
+      <span style="color:var(--muted);font-size:.7rem;letter-spacing:.1em">ROUND TALLY</span>
+      <span style="color:#80b0ff" id="h-ht-b">0</span>
+    </div>
+    <div class="ht-row"><span class="ht-label" style="color:#ff8080">Red</span><div class="ht-bar-wrap"><div class="ht-bar-r" id="h-bar-r" style="width:0%"></div></div></div>
+    <div class="ht-row"><span class="ht-label" style="color:#80b0ff">Blue</span><div class="ht-bar-wrap"><div class="ht-bar-b" id="h-bar-b" style="width:0%"></div></div></div>
+    <div class="ht-card-preview" id="h-card-preview">Awaiting tally...</div>
+  </div>
+  <div class="round-cards" id="h-round-cards"></div>
+  <div class="scoreboard">
+    <div class="fp rp">
+      <span class="ctag">&#128308; Red Corner</span>
+      <input class="ninput" id="h-rn" value="FIGHTER 1" oninput="CGS.setName('red',this.value)"/>
+      <div class="score-lbl" id="h-r-lbl">10-PT TOTAL</div>
+      <div class="score-big" id="h-rs">0</div>
+      <div class="pen-status" id="h-rpen-status"></div>
+    </div>
+    <div class="center-panel"><span class="vs-badge">VS</span></div>
+    <div class="fp bp">
+      <span class="ctag">&#128309; Blue Corner</span>
+      <input class="ninput" id="h-bn" value="FIGHTER 2" oninput="CGS.setName('blue',this.value)"/>
+      <div class="score-lbl" id="h-b-lbl">10-PT TOTAL</div>
+      <div class="score-big" id="h-bs">0</div>
+      <div class="pen-status" id="h-bpen-status"></div>
+    </div>
+  </div>
+  <div id="h-tkd-panel" class="tkd-panel" style="display:none">
+    <div class="tkd-col rtkd">
+      <div style="font-size:.65rem;letter-spacing:.2em;color:var(--muted);text-transform:uppercase">Red Penalties</div>
+      <div style="display:flex;gap:16px">
+        <div style="text-align:center"><div class="tkd-pen-num" id="h-rg">0</div><div class="tkd-pen-lbl">Gam-jeom</div></div>
+        <div style="text-align:center"><div class="tkd-pen-num" id="h-rk">0</div><div class="tkd-pen-lbl">Kyong-go</div></div>
+      </div>
+      <div style="display:flex;gap:5px;flex-wrap:wrap;justify-content:center">
+        <button class="btn btn-danger btn-sm" onclick="CGS.addGam('red')">+ Gam-jeom</button>
+        <button class="btn btn-orange btn-sm" onclick="CGS.addKyong('red')">+ Kyong-go</button>
+        <button class="btn btn-ghost btn-sm" onclick="CGS.undoPen('red')">&#8617; Undo</button>
+        <button class="btn btn-danger btn-sm" onclick="CGS.chScore('red',-1)">&#8722; Score</button>
+      </div>
+    </div>
+    <div class="tkd-col btkd">
+      <div style="font-size:.65rem;letter-spacing:.2em;color:var(--muted);text-transform:uppercase">Blue Penalties</div>
+      <div style="display:flex;gap:16px">
+        <div style="text-align:center"><div class="tkd-pen-num" id="h-bg">0</div><div class="tkd-pen-lbl">Gam-jeom</div></div>
+        <div style="text-align:center"><div class="tkd-pen-num" id="h-bk">0</div><div class="tkd-pen-lbl">Kyong-go</div></div>
+      </div>
+      <div style="display:flex;gap:5px;flex-wrap:wrap;justify-content:center">
+        <button class="btn btn-danger btn-sm" onclick="CGS.addGam('blue')">+ Gam-jeom</button>
+        <button class="btn btn-orange btn-sm" onclick="CGS.addKyong('blue')">+ Kyong-go</button>
+        <button class="btn btn-ghost btn-sm" onclick="CGS.undoPen('blue')">&#8617; Undo</button>
+        <button class="btn btn-danger btn-sm" onclick="CGS.chScore('blue',-1)">&#8722; Score</button>
+      </div>
+    </div>
+  </div>
+  <div id="h-pen-panel" class="pen-row">
+    <div class="pen-blk rpen">
+      <div class="pen-title">Red Discipline</div>
+      <div class="pen-name" id="h-rpn">FIGHTER 1</div>
+      <div class="pen-btns">
+        <button class="btn btn-danger btn-sm" onclick="CGS.applyDeduct('red')">Point Deduction</button>
+        <button class="btn btn-ghost btn-sm" style="color:#ff3030;border-color:#5a0000" onclick="CGS.applyDQ('red')">DQ Red</button>
+      </div>
+      <div class="pen-status" id="h-rpen2"></div>
+    </div>
+    <div class="pen-blk bpen">
+      <div class="pen-title">Blue Discipline</div>
+      <div class="pen-name" id="h-bpn">FIGHTER 2</div>
+      <div class="pen-btns">
+        <button class="btn btn-danger btn-sm" onclick="CGS.applyDeduct('blue')">Point Deduction</button>
+        <button class="btn btn-ghost btn-sm" style="color:#ff3030;border-color:#5a0000" onclick="CGS.applyDQ('blue')">DQ Blue</button>
+      </div>
+      <div class="pen-status" id="h-bpen2"></div>
+    </div>
+  </div>
+  <div class="action-bar">
+    <button class="btn btn-ghost btn-sm" onclick="CGS.toggleTimer()">&#9201; Toggle Timer</button>
+    <button class="btn btn-ghost btn-sm" onclick="CGS.newBout()">&#8635; New Bout</button>
+    <button class="btn btn-green btn-sm" onclick="CGS.declareWinner()">&#127942; Declare Winner</button>
+  </div>
+  <div class="overlay" id="h-wo">
+    <div class="ov-title">Match Winner</div>
+    <div class="ov-winner" id="h-wt" style="color:var(--gold)"></div>
+    <div class="ov-sub">by Points Decision</div>
+    <button class="btn btn-ghost" style="margin-top:10px" onclick="CGS.clearWinner()">&#10005; Close</button>
+  </div>
+</div>
+
+<!-- JUDGE -->
+<div class="page" id="page-judge">
+  <div class="j-header">
+    <div class="j-badge" id="j-badge">JUDGE 1</div>
+    <div class="j-info">
+      <span>Round <strong id="j-round" style="color:var(--text)">1</strong></span>
+      <span id="j-style-tag" style="font-size:.8rem;color:var(--gold)"></span>
+      <span class="j-timer" id="j-timer" style="display:none"></span>
+    </div>
+  </div>
+  <div id="j-hybrid-bar" style="display:none;width:100%;max-width:560px">
+    <div class="hybrid-bar" id="j-hbar">
+      <div class="hybrid-seg pending" data-r="1">R1 &middot; Boxing</div>
+      <div class="hybrid-seg pending" data-r="2">R2 &middot; Kickboxing</div>
+      <div class="hybrid-seg pending" data-r="3">R3 &middot; MMA</div>
+    </div>
+  </div>
+  <div id="j-nohead-banner" class="nohead-banner" style="display:none">&#9888; UNDER-12 &middot; NO HEAD CONTACT</div>
+  <div class="j-strip">
+    <div style="text-align:center"><div class="j-strip-score r" id="j-rs">0</div><div class="j-strip-label" id="j-rns">FIGHTER 1</div></div>
+    <div class="j-strip-vs">VS</div>
+    <div style="text-align:center"><div class="j-strip-score b" id="j-bs">0</div><div class="j-strip-label" id="j-bns">FIGHTER 2</div></div>
+  </div>
+  <div class="j-tally-wrap" id="j-tally-wrap">
+    <div class="j-tally-fighters">
+      <div class="j-tally-col" id="j-left-col"></div>
+      <div class="j-tally-col" id="j-right-col"></div>
+    </div>
+    <div class="j-card-preview">
+      <div class="j-card-lbl">Projected Card</div>
+      <div class="j-card-score" id="j-card-score">&#8212; vs &#8212;</div>
+    </div>
+  </div>
+  <div class="j-tkd-area" id="j-tkd-area" style="display:none">
+    <div class="j-tkd-col" id="j-tkd-left"></div>
+    <div class="j-tkd-col" id="j-tkd-right"></div>
+  </div>
+  <div class="j-bonus-row" id="j-bonus-row" style="display:none">
+    <div style="font-size:.68rem;color:var(--muted);letter-spacing:.15em;text-transform:uppercase;width:100%;text-align:center">Bonus &mdash; Spinning Kicks (+2)</div>
+    <button class="btn btn-red" id="j-bonusR">+2 Red</button>
+    <button class="btn btn-blue" id="j-bonusB">+2 Blue</button>
+  </div>
+  <div class="j-undo-row" id="j-undo-row">
+    <button class="btn btn-danger btn-sm" id="j-undoL">&#8617; Undo Left</button>
+    <button class="btn btn-danger btn-sm" id="j-undoR">&#8617; Undo Right</button>
+  </div>
+  <div class="j-flip-btn"><button class="btn btn-ghost btn-sm" id="j-flip">&#128260; Swap Red / Blue Sides</button></div>
+  <div class="j-status" id="j-status"></div>
+</div>
+
+<!-- PUBLIC -->
+<div class="page" id="page-pub">
+  <!-- Header bar -->
+  <div class="pub-header">
+    <div class="pub-header-title">&#9876; Combat Games Series</div>
+    <div class="pub-header-meta">
+      <span id="p-style-name"></span>
+      <span id="p-ruleset"></span>
+    </div>
+  </div>
+  <!-- Main grid: RED | CENTER | BLUE -->
+  <div class="pub-main">
+    <div class="pub-fighter red-side">
+      <div class="pub-fighter-name r" id="p-rn">FIGHTER 1</div>
+      <div class="pub-fighter-score r" id="p-rs">0</div>
+      <div class="pub-fighter-pen" id="p-rpen"></div>
+      <div class="pub-dots" id="p-rdots" style="display:none"></div>
+    </div>
+    <div class="pub-center-col">
+      <div id="p-timer-wrap" style="display:none;text-align:center">
+        <div class="pub-timer-big" id="p-timer">2:00</div>
+        <div style="font-size:.6rem;letter-spacing:.25em;color:var(--muted);text-transform:uppercase">Time</div>
+      </div>
+      <div class="pub-round-big" id="p-round">1</div>
+      <div class="pub-round-lbl">Round</div>
+      <div class="pub-vs-big">VS</div>
+      <div id="p-score-table"></div>
+    </div>
+    <div class="pub-fighter blue-side">
+      <div class="pub-fighter-name b" id="p-bn">FIGHTER 2</div>
+      <div class="pub-fighter-score b" id="p-bs">0</div>
+      <div class="pub-fighter-pen" id="p-bpen"></div>
+      <div class="pub-dots" id="p-bdots" style="display:none"></div>
+    </div>
+  </div>
+  <!-- Footer: per-judge lean bars with static running totals -->
+  <div class="pub-footer" id="p-tally-wrap" style="display:none">
+    <div class="pub-judge-bars" id="p-judge-bars"></div>
+  </div>
+  <div class="overlay" id="p-wo">
+    <div class="ov-title">Match Winner</div>
+    <div class="ov-winner" id="p-wt" style="color:var(--gold)"></div>
+    <div class="ov-sub">by Points Decision</div>
+  </div>
+</div>
+
+<script>
+window.CGS = {};
+function copyLink(id,btn){
+  navigator.clipboard.writeText(document.getElementById(id).value).then(()=>{btn.textContent="Copied";setTimeout(()=>btn.textContent="Copy",1600);});
+}
+function generateQRCodes(links){
+  var grid=document.getElementById("qrGrid");grid.innerHTML="";
+  links.forEach(function(l){
+    var card=document.createElement("div");card.className="qr-card";
+    var qrDiv=document.createElement("div");card.appendChild(qrDiv);
+    new QRCode(qrDiv,{text:l.url,width:160,height:160,colorDark:l.color||"#000",colorLight:"#ffffff",correctLevel:QRCode.CorrectLevel.M});
+    var lbl=document.createElement("div");lbl.className="qr-label";lbl.textContent=l.label;card.appendChild(lbl);
+    if(l.sublabel){var sub=document.createElement("div");sub.className="qr-sublabel";sub.textContent=l.sublabel;card.appendChild(sub);}
+    grid.appendChild(card);
+  });
+  document.getElementById("qrSection").style.display="block";
+}
+function showErr(id,msg){var e=document.getElementById(id);if(e){e.textContent=msg;e.style.display="block";}}
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+<script type="module">
+import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, set, get, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+// ── CGS-MANAGER FIREBASE CONFIG (integrated) ──
+const FB = {
+  apiKey:"AIzaSyDKqodxFjM0EG_qu4zkCAQ37udwYTdSSQY",
+  authDomain:"cgs-manager.firebaseapp.com",
+  databaseURL:"https://cgs-manager-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId:"cgs-manager",
+  storageBucket:"cgs-manager.firebasestorage.app",
+  messagingSenderId:"928662574013",
+  appId:"1:928662574013:web:be540e308d022d28f678d4"
+};
+
+const params = new URLSearchParams(location.search);
+const MODE = params.get("mode") || "setup";
+const JID  = params.get("judge") || "1";
+const SES  = params.get("session") || "mat-1";
+const JC   = parseInt(params.get("judges") || "3");
+const AGE  = params.get("age") || "adult";
+
+const STYLES = {
+  boxing:{label:"Boxing Light",rounds:3},
+  k1:    {label:"K1 Light",    rounds:3},
+  mma:   {label:"MMA",         rounds:1},
+  hybrid:{label:"Hybrid Light",rounds:3,hybridNames:["Boxing","Kickboxing","MMA"]},
+  tkd:   {label:"Taekwondo",   rounds:3}
+};
+const ACTIONS = {
+  boxing:[{label:"Clean Strike",pts:1}],
+  k1:    [{label:"Clean Strike",pts:1}],
+  mma:   [{label:"Clean Strike",pts:1},{label:"Takedown",pts:2}],
+  hybrid:{1:[{label:"Clean Strike",pts:1}],2:[{label:"Clean Strike",pts:1}],3:[{label:"Clean Strike",pts:1},{label:"Takedown",pts:2}]}
+};
+
+function styleLabel(s){return STYLES[s]?.label||s;}
+function hybridName(r){return STYLES.hybrid.hybridNames[r-1]||"";}
+function maxRounds(s){return STYLES[s]?.rounds||3;}
+function actionsFor(style,round){return style==="hybrid"?(ACTIONS.hybrid[round]||ACTIONS.hybrid[1]):(ACTIONS[style]||ACTIONS.boxing);}
+function calcCard(r,b){
+  const gap=Math.abs(r-b),winner=r>b?"red":b>r?"blue":"draw",pts=gap>=10?8:9;
+  if(winner==="draw")return{winner:"draw",redPts:10,bluePts:10,label:"10\u201310 EVEN"};
+  return{winner,redPts:winner==="red"?10:pts,bluePts:winner==="blue"?10:pts,label:winner==="red"?`Red 10\u2013${pts}`:`Blue 10\u2013${pts}`};
+}
+function mkHash(c){return "#"+Object.entries(c).map(([k,v])=>`${k}=${encodeURIComponent(v)}`).join("&");}
+
+function fbApp(name){
+  const existing=getApps().find(a=>a.name===name);
+  return existing||initializeApp(FB,name);
+}
+
+const el=id=>document.getElementById(id);
+const T=(id,val)=>{const e=el(id);if(e)e.textContent=val;};
+const I=(id,val)=>{const e=el(id);if(e&&document.activeElement!==e)e.value=val;};
+const vv=id=>{const e=el(id);return e?e.value.trim():"";};
+const fmt=s=>{s=Math.max(0,s||0);return Math.floor(s/60)+":"+String(s%60).padStart(2,"0");};
+
+function showPage(id){
+  document.querySelectorAll(".page").forEach(e=>e.style.display="none");
+  const p=el(id);
+  if(p){
+    p.style.display="flex";
+    if(id==="page-pub"){
+      p.style.position="fixed";
+      p.style.inset="0";
+      p.style.width="100%";
+      p.style.maxWidth="100%";
+      p.style.flexDirection="column";
+      p.style.overflow="hidden";
+    }
+  }
+}
+
+function initSetup(){
+  setTimeout(()=>{
+    try{el("setupForm").dispatchEvent(new Event("submit",{cancelable:true,bubbles:true}));}catch(e){}
+  },200);
+  el("setupForm").onsubmit=e=>{
+    e.preventDefault();
+    try{
+      const ses=vv("f-session")||"mat-1",jc=parseInt(el("f-jc").value)||3,age=el("f-age").value;
+      const base=location.origin+location.pathname,hash=mkHash(FB),q=`?session=${ses}&judges=${jc}&age=${age}`;
+      el("link-host").value=`${base}${q}&mode=host${hash}`;
+      el("link-j1").value=`${base}${q}&mode=judge&judge=1${hash}`;
+      el("link-j2").value=`${base}${q}&mode=judge&judge=2${hash}`;
+      el("link-j3").value=`${base}${q}&mode=judge&judge=3${hash}`;
+      el("link-pub").value=`${base}${q}&mode=pub${hash}`;
+      el("j1r").style.display="flex";
+      el("j2r").style.display=jc>=2?"flex":"none";
+      el("j3r").style.display=jc>=3?"flex":"none";
+      T("linkNote",jc===1?"1 judge — result applies as soon as they submit."
+        :jc===2?"Both judges submit each round — majority decides."
+        :"All 3 submit — 2 of 3 decide.");
+      el("generatedLinks").style.display="block";
+      generateQRCodes([
+        {label:"Host",sublabel:"Full controls",url:el("link-host").value,color:"#b8860b"},
+        ...(jc>=1?[{label:"Judge 1",sublabel:"Scoring pad",url:el("link-j1").value,color:"#9b1414"}]:[]),
+        ...(jc>=2?[{label:"Judge 2",sublabel:"Scoring pad",url:el("link-j2").value,color:"#9b1414"}]:[]),
+        ...(jc>=3?[{label:"Judge 3",sublabel:"Scoring pad",url:el("link-j3").value,color:"#9b1414"}]:[]),
+        {label:"Public",sublabel:"Display screen",url:el("link-pub").value,color:"#0f4a8e"},
+      ]);
+    }catch(err){showErr("setup-err","Error: "+err.message);}
+  };
+}
+
+const db = getDatabase(fbApp("cgs-host"));
+let timerRunning=false, timerInterval=null, lastTick=null, cachedSecs=120;
+
+function initHost(){
+  if(AGE==="u12") el("h-nohead").style.display="block";
+  get(ref(db,`sessions/${SES}/state`)).then(s=>{if(!s.exists())initState("boxing");}).catch(()=>{});
+  onValue(ref(db,`sessions/${SES}/state`),snap=>{
+    try{
+      if(!snap.exists())return;
+      const s=snap.val();
+      renderHost(s);
+      cachedSecs=s.timerSeconds??120;
+      if(s.timerRunning&&!timerRunning){
+        timerRunning=true;lastTick=Date.now();
+        timerInterval=setInterval(async()=>{
+          const elapsed=Math.floor((Date.now()-lastTick)/1000);
+          if(elapsed<1)return;
+          lastTick=Date.now();cachedSecs=Math.max(0,cachedSecs-elapsed);
+          await set(ref(db,`sessions/${SES}/state/timerSeconds`),cachedSecs);
+          if(cachedSecs<=0)await set(ref(db,`sessions/${SES}/state/timerRunning`),false);
+        },250);
+      }else if(!s.timerRunning&&timerRunning){clearInterval(timerInterval);timerRunning=false;}
+    }catch(err){showErr("host-err","Render error: "+err.message);console.error(err);}
+  });
+  onValue(ref(db,`sessions/${SES}/tallies`),snap=>{
+    try{
+      const tallies=snap.val()||{};
+      renderHostTallies(tallies);
+      renderJudgePills(tallies);
+    }catch(e){}
+  });
+  Object.assign(window.CGS,{
+    adjRound:d=>adjRound(d),
+    timerToggle:()=>timerToggle(),
+    timerReset:()=>timerReset(),
+    timerSet:()=>timerSet(),
+    setName:(side,val)=>set(ref(db,`sessions/${SES}/state/${side}Name`),val),
+    toggleTimer:()=>toggleTimer(),
+    newBout:()=>{if(confirm("Start new bout? Clears all scores."))initState(el("h-style-sel")?.value||"boxing");},
+    onStyleChange:()=>{const s=el("h-style-sel").value;if(confirm("Change to "+styleLabel(s)+"? Resets scores."))initState(s);},
+    endRound:()=>endRoundNow(null),
+    toggleRound:()=>toggleRound(),
+    pauseRound:()=>pauseRound(),
+    undoRound:()=>undoRound(),
+    declareWinner:()=>declareWinner(),
+    clearWinner:()=>{set(ref(db,`sessions/${SES}/state/winner`),"");el("h-wo").classList.remove("show");},
+    addGam:side=>addGam(side),
+    addKyong:side=>addKyong(side),
+    undoPen:side=>undoPen(side),
+    chScore:(side,d)=>chScore(side,d),
+    applyDeduct:side=>applyDeduct(side),
+    applyDQ:side=>applyDQ(side),
+  });
+}
+
+function initState(style){
+  set(ref(db,`sessions/${SES}/state`),{
+    redName:"FIGHTER 1",blueName:"FIGHTER 2",
+    redScore:0,blueScore:0,redGam:0,blueGam:0,redKyong:0,blueKyong:0,
+    redDeductions:0,blueDeductions:0,
+    round:1,style:style||"boxing",
+    timerSeconds:120,timerMax:120,timerRunning:false,timerVisible:false,
+    winner:"",roundResults:[],judgeCardHistory:{},roundEnded:0,roundActive:false
+  });
+  set(ref(db,`sessions/${SES}/judgeCards`),null);
+  set(ref(db,`sessions/${SES}/tallies`),null);
+}
+
+function renderHost(s){
+  const style=s.style||"boxing",isTKD=style==="tkd";
+  if(el("h-style-sel").value!==style)el("h-style-sel").value=style;
+  T("h-subtitle",styleLabel(style)+" \u00b7 Host View");
+  T("h-rs",s.redScore??0);T("h-bs",s.blueScore??0);
+  T("h-round",s.round??1);
+  I("h-rn",s.redName||"FIGHTER 1");I("h-bn",s.blueName||"FIGHTER 2");
+  T("h-rpn",(s.redName||"FIGHTER 1").toUpperCase());
+  T("h-bpn",(s.blueName||"FIGHTER 2").toUpperCase());
+  T("h-r-lbl",isTKD?"SCORE":"10-PT TOTAL");
+  T("h-b-lbl",isTKD?"SCORE":"10-PT TOTAL");
+  el("h-tkd-panel").style.display=isTKD?"grid":"none";
+  el("h-pen-panel").style.display=isTKD?"none":"grid";
+  el("h-tally-panel").style.display=isTKD?"none":"flex";
+  if(isTKD){
+    T("h-rg",s.redGam??0);T("h-bg",s.blueGam??0);
+    T("h-rk",s.redKyong??0);T("h-bk",s.blueKyong??0);
+    el("h-rpen-status").textContent="";el("h-bpen-status").textContent="";
+    el("h-rpen2")&&(el("h-rpen2").textContent="");
+    el("h-bpen2")&&(el("h-bpen2").textContent="");
+  }else{
+    setPenStatus("h-rpen-status",s.redDeductions||0);
+    setPenStatus("h-bpen-status",s.blueDeductions||0);
+    setPenStatus("h-rpen2",s.redDeductions||0);
+    setPenStatus("h-bpen2",s.blueDeductions||0);
+  }
+  el("h-hybrid-bar").style.display=style==="hybrid"?"block":"none";
+  if(style==="hybrid"){
+    const r=s.round??1;
+    document.querySelectorAll("#h-hbar .hybrid-seg").forEach(seg=>{
+      const sr=parseInt(seg.dataset.r);
+      seg.className="hybrid-seg "+(sr<r?"done":sr===r?"active":"pending");
+    });
+    T("h-ruleset-lbl","R"+(s.round??1)+": "+hybridName(s.round??1));
+  }else T("h-ruleset-lbl","");
+  el("h-timer-block").style.display=s.timerVisible?"flex":"none";
+  T("h-timer",fmt(s.timerSeconds??120));
+  el("h-timer").classList.toggle("warning",(s.timerSeconds??120)<=30);
+  el("h-ss").textContent=s.timerRunning?"\u23f8 Pause":"\u25b6 Start";
+  // Dominant round toggle button
+  const roundActive=s.roundActive||false;
+  const roundNum=s.round??1;
+  const toggleBtn=el("h-round-toggle");
+  if(toggleBtn){
+    if(roundActive){
+      toggleBtn.innerHTML=`\u23f9 END ROUND <span style="opacity:.6">\u00b7 R${roundNum}</span>`;
+      toggleBtn.style.background="var(--red)";
+      toggleBtn.style.color="#fff";
+    } else {
+      toggleBtn.innerHTML=`\u25b6 START ROUND <span style="opacity:.6">\u00b7 R${roundNum}</span>`;
+      toggleBtn.style.background="var(--gold)";
+      toggleBtn.style.color="#1a1200";
+    }
+  }
+  el("h-pause-btn").style.display=roundActive?"inline-flex":"none";
+  el("h-undo-btn").style.display=roundActive?"inline-flex":"none";
+  renderRoundCards(s.roundResults||[],s.round??1,style);
+  if(s.winner){T("h-wt",s.winner);el("h-wo").classList.add("show");}
+}
+
+function setPenStatus(id,n){
+  const e=el(id);if(!e)return;
+  if(!n){e.textContent="";e.className="pen-status";}
+  else if(n===1){e.textContent="\u26a0 1 Point Deducted";e.className="pen-status deducted";}
+  else{e.textContent="\u26a0 DQ \u2014 2 Deductions";e.className="pen-status dq";}
+}
+
+function renderJudgePills(tallies){
+  const c=el("h-judge-pills");if(!c)return;
+  let html="";
+  for(let j=1;j<=JC;j++){
+    const t=tallies["judge"+j];
+    if(!t){
+      html+=`<div class="judge-pill waiting">J${j} \u2026</div>`;
+      continue;
+    }
+    const card=calcCard(t.red||0,t.blue||0);
+    const lean=card.winner==="red"?"\ud83d\udd34 Red":card.winner==="blue"?"\ud83d\udd35 Blue":"Even";
+    html+=`<div class="judge-pill submitted">J${j} \u2192 ${lean}</div>`;
+  }
+  c.innerHTML=html;
+}
+
+function renderHostTallies(tallies){
+  const keys=Object.keys(tallies);if(!keys.length){T("h-ht-r",0);T("h-ht-b",0);T("h-card-preview","Awaiting tally...");return;}
+  let rt=0,bt=0;
+  keys.forEach(k=>{rt+=tallies[k].red||0;bt+=tallies[k].blue||0;});
+  const avg=keys.length,ra=Math.round(rt/avg),ba=Math.round(bt/avg);
+  T("h-ht-r",rt);T("h-ht-b",bt);
+  const mx=Math.max(rt,bt,1);
+  const rb=el("h-bar-r"),bb=el("h-bar-b");
+  if(rb)rb.style.width=Math.min(50,(rt/mx)*50)+"%";
+  if(bb)bb.style.width=Math.min(50,(bt/mx)*50)+"%";
+  const card=calcCard(ra,ba);
+  T("h-card-preview","Projected: "+card.label);
+}
+
+function renderRoundCards(results,cur,style){
+  const c=el("h-round-cards");if(!c)return;
+  const mr=maxRounds(style);let html="";
+  for(let r=1;r<=mr;r++){
+    const res=results[r-1],active=r===cur;
+    const sub=style==="hybrid"?" \u00b7 "+hybridName(r):"";
+    html+=`<div class="round-card${active?" active":""}"><div class="rc-label">R${r}${sub}</div>`;
+    if(res){const col=res.winner==="red"?"var(--red)":res.winner==="blue"?"var(--blue)":"var(--gold)";html+=`<div class="rc-score" style="color:${col}">${res.red}\u2013${res.blue}</div>`;}
+    else html+=`<div class="rc-score" style="color:var(--muted)">\u2014</div>`;
+    html+="</div>";
+  }
+  c.innerHTML=html;
+}
+
+async function toggleRound(){
+  const stSnap=await get(ref(db,`sessions/${SES}/state`));if(!stSnap.exists())return;
+  const st=stSnap.val();
+  if(st.roundActive) await endRoundNow(st); else await startRoundNow(st);
+}
+
+async function startRoundNow(st){
+  // Clear tallies, mark active, start timer if visible
+  await set(ref(db,`sessions/${SES}/judgeCards`),null);
+  await set(ref(db,`sessions/${SES}/tallies`),null);
+  const updates={roundActive:true,roundEnded:0};
+  if(st.timerVisible){
+    updates.timerSeconds=st.timerMax||120;
+    updates.timerRunning=true;
+  }
+  await set(ref(db,`sessions/${SES}/state`),{...st,...updates});
+}
+
+async function endRoundNow(st){
+  const style=st.style||"boxing";
+  const round=st.round||1;
+  const mr=maxRounds(style);
+  const isTKD=style==="tkd";
+  const isLastRound=round>=mr;
+
+  // Stop timer immediately
+  await set(ref(db,`sessions/${SES}/state/timerRunning`),false);
+  await set(ref(db,`sessions/${SES}/state/roundActive`),false);
+
+  // ── Score calculation ──────────────────────────────────────
+  let rp=0,bp=0,winner="draw";
+  let roundJudgeCards=null; // per-judge card for THIS round (non-TKD only)
+
+  if(isTKD){
+    const rs=st.redScore||0,bs=st.blueScore||0;
+    winner=rs>bs?"red":bs>rs?"blue":"draw";
+    rp=rs;bp=bs;
+  } else {
+    const talliesSnap=await get(ref(db,`sessions/${SES}/tallies`));
+    const tallies=talliesSnap.val()||{};
+    const keys=Object.keys(tallies);
+
+    if(keys.length){
+      // Each judge scores independently — majority rules
+      let redWins=0,blueWins=0,draws=0;
+      let redPtsFromWinners=0,bluePtsFromWinners=0;
+      roundJudgeCards={};
+
+      keys.forEach(k=>{
+        const t=tallies[k];
+        const jcard=calcCard(t.red||0,t.blue||0);
+        // Record this judge's individual scorecard for this round
+        roundJudgeCards[k]={red:jcard.redPts,blue:jcard.bluePts,winner:jcard.winner};
+        if(jcard.winner==="red"){ redWins++; redPtsFromWinners+=jcard.redPts; bluePtsFromWinners+=jcard.bluePts; }
+        else if(jcard.winner==="blue"){ blueWins++; redPtsFromWinners+=jcard.redPts; bluePtsFromWinners+=jcard.bluePts; }
+        else { draws++; redPtsFromWinners+=10; bluePtsFromWinners+=10; }
+      });
+
+      if(redWins>blueWins){ winner="red"; }
+      else if(blueWins>redWins){ winner="blue"; }
+      else { winner="draw"; }
+
+      // Points on the scorecard come from average of all judges' cards for that round
+      rp=Math.round(redPtsFromWinners/keys.length);
+      bp=Math.round(bluePtsFromWinners/keys.length);
+
+      // Apply deductions to the loser's score
+      if(winner==="red") bp=Math.max(0,bp-(st.blueDeductions||0));
+      if(winner==="blue") rp=Math.max(0,rp-(st.redDeductions||0));
+    } else {
+      rp=10;bp=10;winner="draw";
+    }
+  }
+
+  // ── Commit round result ────────────────────────────────────
+  const results=[...(st.roundResults||[])];
+  results[round-1]={red:rp,blue:bp,winner};
+
+  // Commit per-judge scorecard history for this round (non-TKD only)
+  const judgeCardHistory={...(st.judgeCardHistory||{})};
+  if(!isTKD && roundJudgeCards) judgeCardHistory[round]=roundJudgeCards;
+
+  // ── Fight winner: majority of rounds won (not total points) ──
+  let redRounds=0,blueRounds=0;
+  results.forEach(r=>{if(r){if(r.winner==="red")redRounds++;else if(r.winner==="blue")blueRounds++;}});
+  // Running display scores = cumulative points across rounds
+  let rt=0,bt=0;results.forEach(r=>{if(r){rt+=r.red;bt+=r.blue;}});
+
+  // ── Build next state ───────────────────────────────────────
+  const next={
+    ...st,
+    roundActive:false,
+    roundEnded:Date.now(),
+    roundResults:results,
+    judgeCardHistory,
+    redScore:rt,
+    blueScore:bt,
+    redDeductions:0,
+    blueDeductions:0,
+    timerRunning:false,
+  };
+
+  if(isLastRound){
+    // Majority of rounds wins the fight. If tied on rounds, the fight
+    // goes to whoever won the final round rather than being called a draw.
+    let fightWinner=redRounds>blueRounds?"red":blueRounds>redRounds?"blue":"draw";
+    if(fightWinner==="draw"){
+      const lastRoundResult=results[mr-1];
+      if(lastRoundResult && lastRoundResult.winner!=="draw"){
+        fightWinner=lastRoundResult.winner;
+      }
+    }
+    next.winner=fightWinner==="red"?(st.redName||"RED").toUpperCase()+" WINS!":
+                fightWinner==="blue"?(st.blueName||"BLUE").toUpperCase()+" WINS!":
+                "IT'S A DRAW!";
+  } else {
+    next.round=round+1;
+    if(isTKD){
+      next.redScore=0;next.blueScore=0;
+      next.redGam=0;next.blueGam=0;
+      next.redKyong=0;next.blueKyong=0;
+      next.redTotalScore=rt;next.blueTotalScore=bt;
+    }
+    if(st.timerVisible) next.timerSeconds=st.timerMax||120;
+  }
+
+  await set(ref(db,`sessions/${SES}/state`),next);
+  await set(ref(db,`sessions/${SES}/judgeCards`),null);
+  await set(ref(db,`sessions/${SES}/tallies`),null);
+}
+
+async function pauseRound(){
+  const running=(await get(ref(db,`sessions/${SES}/state/timerRunning`))).val()||false;
+  await set(ref(db,`sessions/${SES}/state/timerRunning`),!running);
+}
+
+async function undoRound(){
+  if(!confirm("Undo — cancel this round and clear judge tallies?")) return;
+  await set(ref(db,`sessions/${SES}/state/roundActive`),false);
+  await set(ref(db,`sessions/${SES}/state/timerRunning`),false);
+  await set(ref(db,`sessions/${SES}/judgeCards`),null);
+  await set(ref(db,`sessions/${SES}/tallies`),null);
+  const mx=(await get(ref(db,`sessions/${SES}/state/timerMax`))).val()||120;
+  await set(ref(db,`sessions/${SES}/state/timerSeconds`),mx);
+}
+
+async function declareWinner(){
+  const stSnap=await get(ref(db,`sessions/${SES}/state`));if(!stSnap.exists())return;
+  const s=stSnap.val();
+  const results=s.roundResults||[];
+  let redRounds=0,blueRounds=0;
+  results.forEach(r=>{if(r){if(r.winner==="red")redRounds++;else if(r.winner==="blue")blueRounds++;}});
+  let w=redRounds>blueRounds?"red":blueRounds>redRounds?"blue":"draw";
+  if(w==="draw"&&results.length){
+    const last=results[results.length-1];
+    if(last && last.winner!=="draw") w=last.winner;
+  }
+  await set(ref(db,`sessions/${SES}/state/winner`),
+    w==="red"?(s.redName||"RED").toUpperCase()+" WINS!":
+    w==="blue"?(s.blueName||"BLUE").toUpperCase()+" WINS!":
+    "IT'S A DRAW!");
+}
+
+async function applyDeduct(side){
+  const r=ref(db,`sessions/${SES}/state/${side}Deductions`);
+  const cur=(await get(r)).val()||0;
+  if(cur>=1){applyDQ(side);return;}
+  await set(r,cur+1);
+}
+async function applyDQ(side){
+  const stSnap=await get(ref(db,`sessions/${SES}/state`));const s=stSnap.val();
+  const w=side==="red"?"blue":"red";
+  await set(ref(db,`sessions/${SES}/state/winner`),(w==="red"?s.redName||"RED":s.blueName||"BLUE").toUpperCase()+" WINS BY DQ!");
+}
+async function chScore(side,d){const r=ref(db,`sessions/${SES}/state/${side}Score`);await set(r,Math.max(0,((await get(r)).val()||0)+d));}
+async function addGam(side){const opp=side==="red"?"blue":"red";const r=ref(db,`sessions/${SES}/state/${side}Gam`);const n=((await get(r)).val()||0)+1;await set(r,n);await chScore(opp,1);}
+async function addKyong(side){const opp=side==="red"?"blue":"red";const r=ref(db,`sessions/${SES}/state/${side}Kyong`);const n=((await get(r)).val()||0)+1;await set(r,n);if(n%2===0)await chScore(opp,1);}
+async function undoPen(side){
+  const gr=ref(db,`sessions/${SES}/state/${side}Gam`),kr=ref(db,`sessions/${SES}/state/${side}Kyong`);
+  const gv=(await get(gr)).val()||0,kv=(await get(kr)).val()||0;
+  if(gv>0)await set(gr,gv-1);else if(kv>0)await set(kr,kv-1);
+}
+async function procTKDVotes(st,cards){
+  const now=Date.now(),byJ={};
+  Object.entries(cards).forEach(([k,v])=>{if(now-v.ts<3000){if(!byJ[v.jid]||v.ts>byJ[v.jid].ts)byJ[v.jid]=v;}});
+  const sides={red:[],blue:[]};Object.values(byJ).forEach(v=>{if(sides[v.side])sides[v.side].push(v);});
+  const need=JC===1?1:2;
+  for(const side of["red","blue"]){
+    if(sides[side].length>=need){
+      const pts=Math.round(sides[side].reduce((a,v)=>a+(v.pts||1),0)/sides[side].length);
+      await chScore(side,pts);await set(ref(db,`sessions/${SES}/judgeCards`),null);return;
+    }
+  }
+  const fr={};Object.entries(cards).forEach(([k,v])=>{if(now-v.ts<3000)fr[k]=v;});
+  if(Object.keys(fr).length!==Object.keys(cards).length)await set(ref(db,`sessions/${SES}/judgeCards`),Object.keys(fr).length?fr:null);
+}
+async function adjRound(d){const r=ref(db,`sessions/${SES}/state/round`);const cur=(await get(r)).val()||1;await set(r,Math.max(1,Math.min(9,cur+d)));}
+async function timerToggle(){const r=ref(db,`sessions/${SES}/state/timerRunning`);await set(r,!(await get(r)).val());}
+async function timerReset(){const mx=(await get(ref(db,`sessions/${SES}/state/timerMax`))).val()||120;await set(ref(db,`sessions/${SES}/state/timerSeconds`),mx);await set(ref(db,`sessions/${SES}/state/timerRunning`),false);}
+async function timerSet(){const m=parseInt(el("h-tm").value)||0,s=parseInt(el("h-ts").value)||0,t=m*60+s;await set(ref(db,`sessions/${SES}/state/timerMax`),t);await set(ref(db,`sessions/${SES}/state/timerSeconds`),t);await set(ref(db,`sessions/${SES}/state/timerRunning`),false);}
+async function toggleTimer(){const r=ref(db,`sessions/${SES}/state/timerVisible`);await set(r,!((await get(r)).val()||false));}
+
+function initJudge(){
+  const db2=getDatabase(fbApp("cgs-judge"+JID));
+  let flipped=false,curRound=1,curStyle="boxing",roundActive=false;
+  let tally={red:0,blue:0},rn="Fighter 1",bn="Fighter 2";
+  T("j-badge","JUDGE "+JID);
+  if(AGE==="u12")el("j-nohead-banner").style.display="block";
+  T("j-status",JC===1?"You are the sole judge.":JC===2?"Both judges score each round.":"Score each round \u2014 2 of 3 decide.");
+  onValue(ref(db2,`sessions/${SES}/state`),snap=>{
+    try{
+      if(!snap.exists())return;
+      const s=snap.val();
+      const newStyle=s.style||"boxing",isTKD=newStyle==="tkd";
+      const styleChanged=newStyle!==curStyle;
+      curStyle=newStyle;
+      roundActive=s.roundActive||false;
+      T("j-rs",s.redScore??0);T("j-bs",s.blueScore??0);
+      T("j-round",s.round??1);
+      rn=s.redName||"Fighter 1";bn=s.blueName||"Fighter 2";
+      T("j-rns",rn.toUpperCase());T("j-bns",bn.toUpperCase());
+      T("j-style-tag","\u00b7 "+styleLabel(curStyle));
+      if(s.timerVisible){el("j-timer").style.display="inline";T("j-timer",fmt(s.timerSeconds??120));el("j-timer").classList.toggle("warning",(s.timerSeconds??120)<=30);}
+      else el("j-timer").style.display="none";
+      el("j-tally-wrap").style.display=isTKD?"none":"flex";
+      el("j-undo-row").style.display=isTKD?"none":"flex";
+      el("j-tkd-area").style.display=isTKD?"grid":"none";
+      el("j-bonus-row").style.display=(isTKD&&JC===1)?"flex":"none";
+      // Round/style change — reset tally
+      if((s.round??1)!==curRound||styleChanged){
+        curRound=s.round??1;tally={red:0,blue:0};
+      }
+      // Round ended — clear tally display
+      if(!roundActive&&s.roundEnded&&(Date.now()-s.roundEnded)<10000){
+        tally={red:0,blue:0};
+      }
+      el("j-hybrid-bar").style.display=curStyle==="hybrid"?"block":"none";
+      if(curStyle==="hybrid"){
+        document.querySelectorAll("#j-hbar .hybrid-seg").forEach(seg=>{
+          const sr=parseInt(seg.dataset.r);
+          seg.className="hybrid-seg "+(sr<curRound?"done":sr===curRound?"active":"pending");
+        });
+      }
+      if(isTKD)buildTKD(db2,flipped);else buildTally(flipped);
+    }catch(err){console.error("judge state error",err);}
+  });
+  onValue(ref(db2,`sessions/${SES}/judgeCards`),snap=>{
+    if(curStyle!=="tkd")return;
+    const votes=snap.val()||{},now=Date.now();let rv=0,bv=0;
+    Object.values(votes).forEach(v=>{if(now-v.ts<3000){if(v.side==="red")rv++;else bv++;}});
+    const rvc=el("vc-red");if(rvc)rvc.textContent=rv?`${rv}/${JC} judges`:"";
+    const bvc=el("vc-blue");if(bvc)bvc.textContent=bv?`${bv}/${JC} judges`:"";
+  });
+  function buildTally(flip){
+    const ls=flip?"blue":"red",rs=flip?"red":"blue";
+    const ln=flip?bn:rn,rn2=flip?rn:bn;
+    const lc=ls==="red"?"r":"b",rc=rs==="red"?"r":"b";
+    const lCol=el("j-left-col"),rCol=el("j-right-col");
+    lCol.innerHTML="";rCol.innerHTML="";
+    const mkTag=(cls,name)=>{const d=document.createElement("div");d.className=`j-name-tag ${cls}`;d.textContent=name;return d;};
+    lCol.appendChild(mkTag(lc,ln));rCol.appendChild(mkTag(rc,rn2));
+    const mkCount=(cls,val)=>{const d=document.createElement("div");d.className=`j-tally-count ${cls}`;d.textContent=val;return d;};
+    lCol.appendChild(mkCount(lc,tally[ls]));rCol.appendChild(mkCount(rc,tally[rs]));
+    const acts=actionsFor(curStyle,curRound);
+    const lBtns=document.createElement("div");lBtns.className="j-action-btns";
+    const rBtns=document.createElement("div");rBtns.className="j-action-btns";
+    acts.forEach(act=>{lBtns.appendChild(mkActBtn(lc,act,ls));rBtns.appendChild(mkActBtn(rc,act,rs));});
+    lCol.appendChild(lBtns);rCol.appendChild(rBtns);
+    updateCard();
+  }
+  function mkActBtn(color,act,side){
+    const b=document.createElement("button");
+    b.className=`j-act-btn ${color}`;
+    b.innerHTML=`<div class="j-act-pts">+${act.pts}</div><div class="j-act-lbl">${act.label}</div>`;
+    b.onclick=()=>{
+      tally[side]+=act.pts;
+      b.classList.add("flash");setTimeout(()=>b.classList.remove("flash"),220);
+      buildTally(flipped);
+      set(ref(db2,`sessions/${SES}/tallies/judge${JID}`),{...tally,ts:Date.now()}).catch(()=>{});
+    };
+    return b;
+  }
+  function updateCard(){const card=calcCard(tally.red,tally.blue);T("j-card-score",card.label);}
+  el("j-undoL").onclick=()=>{
+    const side=flipped?"blue":"red";const acts=actionsFor(curStyle,curRound);
+    const min=Math.min(...acts.map(a=>a.pts));
+    if(tally[side]>=min)tally[side]-=min;
+    buildTally(flipped);
+    set(ref(db2,`sessions/${SES}/tallies/judge${JID}`),{...tally,ts:Date.now()}).catch(()=>{});
+  };
+  el("j-undoR").onclick=()=>{
+    const side=flipped?"red":"blue";const acts=actionsFor(curStyle,curRound);
+    const min=Math.min(...acts.map(a=>a.pts));
+    if(tally[side]>=min)tally[side]-=min;
+    buildTally(flipped);
+    set(ref(db2,`sessions/${SES}/tallies/judge${JID}`),{...tally,ts:Date.now()}).catch(()=>{});
+  };
+  function buildTKD(db2,flip){
+    const ls=flip?"blue":"red",rs=flip?"red":"blue";
+    const ln=flip?bn:rn,rn2=flip?rn:bn;
+    const lc=ls==="red"?"r":"b",rc=rs==="red"?"r":"b";
+    const lCol=el("j-tkd-left"),rCol=el("j-tkd-right");
+    lCol.innerHTML="";rCol.innerHTML="";
+    const mkTag=(cls,name)=>{const d=document.createElement("div");d.className=`j-name-tag ${cls}`;d.textContent=name;return d;};
+    lCol.appendChild(mkTag(lc,ln));rCol.appendChild(mkTag(rc,rn2));
+    [[1,"Punch\nBody"],[2,"Kick\nBody"],[3,"Kick\nHead"]].forEach(([pts,lbl])=>{
+      lCol.appendChild(mkTKDBtn(`${lc}${pts}`,pts,lbl,ls,db2));
+      rCol.appendChild(mkTKDBtn(`${rc}${pts}`,pts,lbl,rs,db2));
+    });
+    const mkVC=(side)=>{const d=document.createElement("div");d.id="vc-"+side;d.style.cssText="font-size:.7rem;color:rgba(255,255,255,.6);text-align:center;min-height:1em";return d;};
+    lCol.appendChild(mkVC(ls));rCol.appendChild(mkVC(rs));
+    if(JC===1){
+      el("j-bonusR").onclick=()=>set(ref(db2,`sessions/${SES}/judgeCards/judge${JID}`),{jid:JID,side:"red",pts:2,ts:Date.now()}).catch(()=>{});
+      el("j-bonusB").onclick=()=>set(ref(db2,`sessions/${SES}/judgeCards/judge${JID}`),{jid:JID,side:"blue",pts:2,ts:Date.now()}).catch(()=>{});
+    }
+  }
+  function mkTKDBtn(cls,pts,lbl,side,db2){
+    const b=document.createElement("button");b.className=`j-tkd-btn ${cls}`;
+    b.innerHTML=`<div class="pts">+${pts}</div><div class="lbl">${lbl.replace("\n","<br>")}</div>`;
+    b.onclick=()=>{set(ref(db2,`sessions/${SES}/judgeCards/judge${JID}`),{jid:JID,side,pts,ts:Date.now()}).catch(()=>{});b.classList.add("voted");setTimeout(()=>b.classList.remove("voted"),320);};
+    return b;
+  }
+  el("j-flip").onclick=()=>{flipped=!flipped;if(curStyle==="tkd")buildTKD(db2,flipped);else buildTally(flipped);};
+}
+
+function initPub(){
+  const db3=getDatabase(fbApp("cgs-pub"));
+  onValue(ref(db3,`sessions/${SES}/state`),snap=>{
+    try{
+      if(!snap.exists())return;
+      const s=snap.val(),style=s.style||"boxing",isTKD=style==="tkd";
+      const ageStr=AGE==="u12"?" \u00b7 U12":AGE==="u18"?" \u00b7 U18":"";
+      T("p-style-name",styleLabel(style)+ageStr);
+      T("p-rn",(s.redName||"FIGHTER 1").toUpperCase());T("p-bn",(s.blueName||"FIGHTER 2").toUpperCase());
+      T("p-round",s.round??1);
+      el("p-timer-wrap").style.display=s.timerVisible?"block":"none";
+      if(s.timerVisible){
+        T("p-timer",fmt(s.timerSeconds??120));
+        el("p-timer").classList.toggle("warning",(s.timerSeconds??120)<=30);
+      }
+      T("p-ruleset",style==="hybrid"?" \u00b7 "+hybridName(s.round??1):"");
+      // The big fighter number only means something for TKD (real points scored).
+      // For everything else it's a 10-point-must card total that just sits there
+      // looking impressive and confusing spectators — hide it, let the judge
+      // bars/table below carry that information instead.
+      el("p-rs").style.display=isTKD?"block":"none";
+      el("p-bs").style.display=isTKD?"block":"none";
+      if(isTKD){
+        const pr=el("p-rs").textContent,pb=el("p-bs").textContent;
+        T("p-rs",s.redScore??0);T("p-bs",s.blueScore??0);
+        if(String(s.redScore??0)!==pr){el("p-rs").classList.add("pop");setTimeout(()=>el("p-rs").classList.remove("pop"),250);}
+        if(String(s.blueScore??0)!==pb){el("p-bs").classList.add("pop");setTimeout(()=>el("p-bs").classList.remove("pop"),250);}
+      }
+      if(isTKD){
+        el("p-rdots").style.display="flex";el("p-bdots").style.display="flex";
+        el("p-rpen").style.display="none";el("p-bpen").style.display="none";
+        penDots("p-rdots",s.redGam||0,"r",s.redKyong||0);
+        penDots("p-bdots",s.blueGam||0,"b",s.blueKyong||0);
+      }else{
+        el("p-rdots").style.display="none";el("p-bdots").style.display="none";
+        el("p-rpen").style.display="block";el("p-bpen").style.display="block";
+        T("p-rpen",(s.redDeductions||0)>0?"\u26a0 Point Deducted":"");
+        T("p-bpen",(s.blueDeductions||0)>0?"\u26a0 Point Deducted":"");
+      }
+      // Footer: judge lean bars — non-TKD only, driven LIVE by the current-round
+      // hit tallies (grows as judges score), reset each time a new round starts.
+      const wrap=el("p-tally-wrap");
+      if(wrap) wrap.style.display=isTKD?"none":"flex";
+      renderScoreTable(s.roundResults||[], style, isTKD, s.judgeCardHistory||{}, maxRounds(style), JC);
+      if(s.winner){T("p-wt",s.winner);el("p-wo").classList.add("show");}else el("p-wo").classList.remove("show");
+    }catch(err){console.error("pub error",err);}
+  });
+  // Live per-judge tally bars — grows in real time as each judge taps during the round.
+  onValue(ref(db3,`sessions/${SES}/tallies`),snap=>{
+    try{
+      renderJudgeBars(snap.val()||{}, JC);
+    }catch(err){console.error("pub tally error",err);}
+  });
+}
+function penDots(cid,gam,side,kyong){
+  const c=el(cid);if(!c)return;c.innerHTML="";
+  for(let i=0;i<Math.min(gam,5);i++){const d=document.createElement("div");d.className=`pub-dot a${side}`;c.appendChild(d);}
+  for(let i=0;i<Math.min(kyong,5);i++){const d=document.createElement("div");d.className="pub-dot aw";c.appendChild(d);}
+}
+// Per-judge lean bars in the footer. Driven LIVE by each judge's current-round hit
+// tallies (sessions/{ses}/tallies/judge{n}) — the bar grows as a judge taps scoring
+// buttons during the round, and resets to empty (50/50) when the host starts a new
+// round and tallies are cleared. This is intentionally NOT the locked-in round
+// scorecard (that's shown separately, already tallied, in the score table above).
+function renderJudgeBars(tallies, judgeCount){
+  const c=el("p-judge-bars");if(!c)return;
+  let html="";
+  for(let j=1;j<=judgeCount;j++){
+    const t=tallies["judge"+j]||{red:0,blue:0};
+    const red=t.red||0,blue=t.blue||0,total=red+blue;
+    const rPct = total ? (red/total)*100 : 50;
+    const bPct = 100-rPct;
+    html += `<div class="pub-jbar-row">
+      <div class="pub-jbar-total r">${red}</div>
+      <div class="pub-jbar-label">J${j}</div>
+      <div class="pub-jbar-track">
+        <div class="pub-jbar-r" style="width:${rPct}%"></div>
+        <div class="pub-jbar-b" style="width:${bPct}%"></div>
+      </div>
+      <div class="pub-jbar-total b">${blue}</div>
+    </div>`;
+  }
+  c.innerHTML = html;
+}
+// The center-column score display. Replaces the old free-floating, unlabeled chip stack
+// with an actual table: rows = rounds, columns = judges (or a single SCORE column for TKD),
+// filling in as rounds complete, with a TOTAL block underneath the table. Sized to however
+// many rounds the style actually has (mr) — MMA (1 round) never shows a fake Round 2.
+function renderScoreTable(results,style,isTKD,judgeCardHistory,mr,judgeCount){
+  const c=el("p-score-table");if(!c)return;
+  const history=judgeCardHistory||{};
+  let html='<table class="score-table">';
+  let totalsHtml='<table class="score-table totals-table">';
+  if(isTKD){
+    html+='<tr><th>RD</th><th>SCORE</th></tr>';
+    let totalR=0,totalB=0;
+    for(let r=1;r<=mr;r++){
+      const res=results[r-1];
+      html+=`<tr><td>${r}</td><td>${res?res.red+"\u2013"+res.blue:"\u2014"}</td></tr>`;
+      if(res){totalR+=res.red;totalB+=res.blue;}
+    }
+    totalsHtml+=`<tr><td>TOTAL</td><td>${totalR}\u2013${totalB}</td></tr>`;
+  }else{
+    html+='<tr><th>RD</th>';
+    for(let j=1;j<=judgeCount;j++) html+=`<th>J${j}</th>`;
+    html+='</tr>';
+    const totals={};
+    for(let j=1;j<=judgeCount;j++) totals["judge"+j]={red:0,blue:0};
+    for(let r=1;r<=mr;r++){
+      const jc=history[r];
+      html+=`<tr><td>${r}</td>`;
+      for(let j=1;j<=judgeCount;j++){
+        const key="judge"+j;
+        const card=jc&&jc[key];
+        html+=`<td>${card?card.red+"\u2013"+card.blue:"\u2014"}</td>`;
+        if(card){totals[key].red+=card.red;totals[key].blue+=card.blue;}
+      }
+      html+='</tr>';
+    }
+    totalsHtml+='<tr><td>TOT</td>';
+    for(let j=1;j<=judgeCount;j++){
+      const t=totals["judge"+j];
+      totalsHtml+=`<td>${(t.red||t.blue)?t.red+"\u2013"+t.blue:"\u2014"}</td>`;
+    }
+    totalsHtml+='</tr>';
+  }
+  html+='</table>';
+  totalsHtml+='</table>';
+  c.innerHTML=html+totalsHtml;
+}
+
+try{
+  if      (MODE==="host")  {showPage("page-host");  initHost();}
+  else if (MODE==="judge") {showPage("page-judge"); initJudge();}
+  else if (MODE==="pub")   {showPage("page-pub");   initPub();}
+  else                     {showPage("page-setup"); initSetup();}
+}catch(err){
+  showPage("page-setup");
+  showErr("setup-err","Startup error: "+err.message+". Try refreshing.");
+  console.error(err);
+}
+</script>
+</body>
+</html>
