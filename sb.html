@@ -217,8 +217,9 @@ h1.brand{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.4rem,4vw,2.4rem);
 .pub-jbar-row{display:flex;align-items:center;gap:14px}
 .pub-jbar-label{flex-shrink:0;width:clamp(48px,7.5vh,90px);height:clamp(48px,7.5vh,90px);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:clamp(1.3rem,2.6vh,2.1rem);letter-spacing:.05em;color:var(--gold);background:rgba(245,197,24,.1);border:1px solid rgba(245,197,24,.35);box-shadow:0 0 12px rgba(245,197,24,.15)}
 .pub-jbar-track{flex:1;height:clamp(38px,9.5vh,90px);background:linear-gradient(180deg,#181822,#0f0f16);border-radius:18px;position:relative;overflow:hidden;box-shadow:inset 0 2px 6px rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.04)}
-.pub-jbar-r{position:absolute;right:50%;top:0;height:100%;background:linear-gradient(90deg,var(--red-dark),var(--red));border-radius:14px 0 0 14px;transition:width .45s cubic-bezier(.34,1.4,.64,1);width:0%;box-shadow:0 0 16px var(--red-glow)}
-.pub-jbar-b{position:absolute;left:50%;top:0;height:100%;background:linear-gradient(270deg,var(--blue-dark),var(--blue));border-radius:0 14px 14px 0;transition:width .45s cubic-bezier(.34,1.4,.64,1);width:0%;box-shadow:0 0 16px var(--blue-glow)}
+.pub-jbar-pill{position:absolute;top:0;height:100%;width:26%;transform:translateX(-50%);display:flex;border-radius:14px;overflow:hidden;box-shadow:0 0 20px rgba(0,0,0,.5);transition:left .35s cubic-bezier(.34,1.4,.64,1)}
+.pub-jbar-pill-r{flex:1;background:linear-gradient(90deg,var(--red-dark),var(--red));box-shadow:0 0 16px var(--red-glow)}
+.pub-jbar-pill-b{flex:1;background:linear-gradient(270deg,var(--blue-dark),var(--blue));box-shadow:0 0 16px var(--blue-glow)}
 .pub-judge-pills{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
 .pub-jpill{font-family:'Bebas Neue',sans-serif;font-size:.9rem;letter-spacing:.1em;padding:3px 14px;border-radius:16px;border:1px solid #2a2a3a;color:#444}
 .pub-jpill.red{background:rgba(224,32,32,.12);border-color:rgba(224,32,32,.4);color:var(--red)}
@@ -1253,24 +1254,29 @@ function penDots(cid,gam,side,kyong){
   for(let i=0;i<Math.min(gam,5);i++){const d=document.createElement("div");d.className=`pub-dot a${side}`;c.appendChild(d);}
   for(let i=0;i<Math.min(kyong,5);i++){const d=document.createElement("div");d.className="pub-dot aw";c.appendChild(d);}
 }
-// Per-judge lean bars in the footer. Fed live from the raw tallies each judge writes
-// to as they tap during an active round — so the bar actually moves in real time,
-// not just when the round ends. Percentage-based width (capped at half the track per
-// side) means the visual size never depends on how many rounds have happened — it's
-// the same scale in round 1 as round 3.
+// Per-judge lean indicator. One fixed-size pill that slides left or right along the
+// track based on who's leading THIS round only — never grows, never shrinks, never
+// accumulates across rounds. Position comes straight from calcCard() — the same
+// 10-9 / 10-8 margin rule already used everywhere else (gap under 10 = 10-9, gap of
+// 10 or more = 10-8) — so a strong lead sits near an edge, a close lead sits just off
+// center, and an even card sits dead center. Resets to center whenever tallies clear.
 function renderJudgeBars(tallies, judgeCount){
   const c=el("p-judge-bars");if(!c)return;
   let html="";
   for(let j=1;j<=judgeCount;j++){
     const t=(tallies||{})["judge"+j];
-    const r=t?.red||0, b=t?.blue||0, total=r+b;
-    const rPct = total ? (r/total)*50 : 0;
-    const bPct = total ? (b/total)*50 : 0;
+    const r=t?.red||0, b=t?.blue||0;
+    const card=calcCard(r,b);
+    let pos=50;
+    if(card.winner==="red")  pos = (card.bluePts===8) ? 15 : 32;
+    if(card.winner==="blue") pos = (card.redPts===8)  ? 85 : 68;
     html += `<div class="pub-jbar-row">
       <div class="pub-jbar-label">J${j}</div>
       <div class="pub-jbar-track">
-        <div class="pub-jbar-r" style="width:${rPct}%"></div>
-        <div class="pub-jbar-b" style="width:${bPct}%"></div>
+        <div class="pub-jbar-pill" style="left:${pos}%">
+          <div class="pub-jbar-pill-r"></div>
+          <div class="pub-jbar-pill-b"></div>
+        </div>
       </div>
     </div>`;
   }
@@ -1366,4 +1372,3 @@ try{
 </script>
 </body>
 </html>
-
