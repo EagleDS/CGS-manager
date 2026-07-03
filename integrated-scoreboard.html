@@ -217,8 +217,8 @@ h1.brand{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.4rem,4vw,2.4rem);
 .pub-jbar-row{display:flex;align-items:center;gap:14px}
 .pub-jbar-label{flex-shrink:0;width:clamp(48px,7.5vh,90px);height:clamp(48px,7.5vh,90px);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:clamp(1.3rem,2.6vh,2.1rem);letter-spacing:.05em;color:var(--gold);background:rgba(245,197,24,.1);border:1px solid rgba(245,197,24,.35);box-shadow:0 0 12px rgba(245,197,24,.15)}
 .pub-jbar-track{flex:1;height:clamp(38px,9.5vh,90px);background:linear-gradient(180deg,#181822,#0f0f16);border-radius:18px;position:relative;overflow:hidden;box-shadow:inset 0 2px 6px rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.04)}
-.pub-jbar-r{position:absolute;left:0;top:0;height:100%;background:linear-gradient(90deg,var(--red-dark),var(--red));transition:width .35s linear;width:0%;box-shadow:0 0 16px var(--red-glow)}
-.pub-jbar-b{position:absolute;right:0;top:0;height:100%;background:linear-gradient(270deg,var(--blue-dark),var(--blue));transition:width .35s linear;width:0%;box-shadow:0 0 16px var(--blue-glow)}
+.pub-jbar-r{position:absolute;right:50%;top:0;height:100%;background:linear-gradient(90deg,var(--red-dark),var(--red));border-radius:14px 0 0 14px;transition:width .45s cubic-bezier(.34,1.4,.64,1);width:0%;box-shadow:0 0 16px var(--red-glow)}
+.pub-jbar-b{position:absolute;left:50%;top:0;height:100%;background:linear-gradient(270deg,var(--blue-dark),var(--blue));border-radius:0 14px 14px 0;transition:width .45s cubic-bezier(.34,1.4,.64,1);width:0%;box-shadow:0 0 16px var(--blue-glow)}
 .pub-judge-pills{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
 .pub-jpill{font-family:'Bebas Neue',sans-serif;font-size:.9rem;letter-spacing:.1em;padding:3px 14px;border-radius:16px;border:1px solid #2a2a3a;color:#444}
 .pub-jpill.red{background:rgba(224,32,32,.12);border-color:rgba(224,32,32,.4);color:var(--red)}
@@ -240,6 +240,15 @@ h1.brand{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.4rem,4vw,2.4rem);
 .integrated-badge{background:rgba(29,185,84,.1);border:1px solid rgba(29,185,84,.3);border-radius:8px;padding:6px 16px;font-family:'Bebas Neue',sans-serif;font-size:.85rem;letter-spacing:.15em;color:var(--green);text-align:center;width:100%;max-width:600px}
 @media(max-width:600px){.scoreboard{grid-template-columns:1fr 1fr}.center-panel{display:none}.setup-form{grid-template-columns:1fr}.host-top{flex-direction:column}}
 @media print{body{background:#fff!important;padding:0}.page{display:none!important}#page-setup{display:flex!important}.card:not(#qrSection){display:none!important}#qrSection{display:block!important;border:none;background:#fff}#qrSection>p,#qrSection button{display:none}#qrGrid{grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:24px}.qr-card{border:1px solid #ddd;padding:20px}}
+/* ── HOST SIMPLIFICATION ADDITIONS ────────────────────────── */
+.h-essential{display:flex;flex-direction:column;align-items:center;gap:12px;width:100%}
+.h-stopwatch-block{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:10px 14px;display:flex;flex-direction:column;align-items:center;gap:6px}
+.h-stopwatch-display{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.4rem,7vw,3.8rem);line-height:1;color:#8ad0ff;text-shadow:0 0 25px rgba(80,160,255,.35)}
+.h-details-toggle{width:100%;max-width:560px;padding:10px;font-family:'Bebas Neue',sans-serif;letter-spacing:.15em;font-size:.85rem;border-radius:10px;border:1px solid var(--border);background:rgba(255,255,255,.03);color:var(--muted);cursor:pointer;touch-action:manipulation}
+#h-details-wrap{display:none;flex-direction:column;align-items:center;gap:12px;width:100%}
+.sub-picker{display:none;gap:10px;justify-content:center;flex-wrap:wrap;width:100%;background:rgba(240,112,32,.08);border:1px solid var(--orange);border-radius:12px;padding:12px}
+.sub-picker.show{display:flex}
+.btn-lg{padding:16px 28px;font-size:1.1rem;border-radius:12px}
 </style>
 </head>
 <body>
@@ -288,38 +297,21 @@ h1.brand{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.4rem,4vw,2.4rem);
 <div class="page" id="page-host">
   <h1 class="brand">&#9876; CGS Integrated Scoreboard</h1>
   <p class="brand-sub" id="h-subtitle">Host View</p>
-  <div class="integrated-badge">&#10003; CGS-Manager Database</div>
   <div class="err-banner" id="host-err"></div>
 
-  <!-- DOMINANT ROUND CONTROL -->
-  <div style="width:100%;display:flex;gap:8px;align-items:stretch">
-    <button id="h-round-toggle" onclick="CGS.toggleRound()"
-      style="flex:1;padding:18px 24px;font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:.15em;border:none;border-radius:14px;cursor:pointer;background:var(--gold);color:#1a1200;touch-action:manipulation;transition:background .2s,color .2s">
-      &#9654; START ROUND <span id="h-round-in-btn" style="opacity:.6">· R1</span>
-    </button>
-    <button id="h-pause-btn" onclick="CGS.pauseRound()" style="display:none;padding:18px 16px;font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:.1em;border:none;border-radius:14px;cursor:pointer;background:#1a1a2a;color:var(--gold);border:1px solid rgba(245,197,24,.3);touch-action:manipulation">&#9646;&#9646;<br>PAUSE</button>
-    <button id="h-undo-btn" onclick="CGS.undoRound()" style="display:none;padding:18px 16px;font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:.1em;border:none;border-radius:14px;cursor:pointer;background:#1a0808;color:#ff6060;border:1px solid #5a1515;touch-action:manipulation">&#8617;<br>UNDO</button>
-  </div>
-  <div class="host-top">
-    <div class="host-top-left">
-      <div class="style-sel">
-        <label>Combat Style</label>
-        <select id="h-style-sel" onchange="CGS.onStyleChange()">
-          <option value="boxing">Boxing Light</option><option value="k1">K1 Light</option>
-          <option value="mma">MMA</option><option value="hybrid">Hybrid Light</option>
-          <option value="tkd">Taekwondo</option>
-        </select>
-      </div>
-      <div id="h-hybrid-bar" style="display:none">
-        <div class="hybrid-bar" id="h-hbar">
-          <div class="hybrid-seg pending" data-r="1">R1 &middot; Boxing</div>
-          <div class="hybrid-seg pending" data-r="2">R2 &middot; Kickboxing</div>
-          <div class="hybrid-seg pending" data-r="3">R3 &middot; MMA</div>
-        </div>
-      </div>
-      <div id="h-nohead" class="nohead-warn" style="display:none">&#9888; UNDER-12 &middot; NO HEAD CONTACT</div>
+  <div class="h-essential">
+    <!-- DOMINANT ROUND CONTROL -->
+    <div style="width:100%;display:flex;gap:8px;align-items:stretch">
+      <button id="h-round-toggle" onclick="CGS.toggleRound()"
+        style="flex:1;padding:20px 24px;font-family:'Bebas Neue',sans-serif;font-size:1.9rem;letter-spacing:.15em;border:none;border-radius:14px;cursor:pointer;background:var(--gold);color:#1a1200;touch-action:manipulation;transition:background .2s,color .2s">
+        &#9654; START ROUND <span id="h-round-in-btn" style="opacity:.6">· R1</span>
+      </button>
+      <button id="h-pause-btn" onclick="CGS.pauseRound()" style="display:none;padding:20px 16px;font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:.1em;border:none;border-radius:14px;cursor:pointer;background:#1a1a2a;color:var(--gold);border:1px solid rgba(245,197,24,.3);touch-action:manipulation">&#9646;&#9646;<br>PAUSE</button>
+      <button id="h-undo-btn" onclick="CGS.undoRound()" style="display:none;padding:20px 16px;font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:.1em;border:none;border-radius:14px;cursor:pointer;background:#1a0808;color:#ff6060;border:1px solid #5a1515;touch-action:manipulation">&#8617;<br>UNDO</button>
     </div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-start">
+
+    <!-- Round number + round countdown timer + host stopwatch, always visible -->
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-start;justify-content:center;width:100%">
       <div class="round-block">
         <div class="round-lbl">Round</div>
         <div class="round-big" id="h-round">1</div>
@@ -331,101 +323,153 @@ h1.brand{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.4rem,4vw,2.4rem);
           <button class="btn btn-gold btn-sm" id="h-ss" onclick="CGS.timerToggle()">&#9654; Start</button>
           <button class="btn btn-ghost btn-sm" onclick="CGS.timerReset()">Reset</button>
         </div>
-        <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap;justify-content:center">
-          <input type="number" id="h-tm" min="0" max="9" value="2" class="tnum">
-          <span style="color:var(--muted);font-size:.8rem">m</span>
-          <input type="number" id="h-ts" min="0" max="59" value="0" class="tnum">
-          <span style="color:var(--muted);font-size:.8rem">s</span>
-          <button class="btn btn-ghost btn-sm" onclick="CGS.timerSet()">Set</button>
+      </div>
+      <!-- Round stopwatch — starts automatically the instant the round starts and
+           stops automatically when the round ends. No separate controls. Local to
+           this device only, never written to Firebase, so it can never appear on
+           the public scoreboard. -->
+      <div class="h-stopwatch-block">
+        <div style="font-size:.62rem;letter-spacing:.2em;color:var(--muted);text-transform:uppercase">Round Stopwatch</div>
+        <div class="h-stopwatch-display" id="h-stopwatch">0:00.0</div>
+      </div>
+    </div>
+
+    <!-- Big obvious score display -->
+    <div class="scoreboard">
+      <div class="fp rp">
+        <span class="ctag">&#128308; Red Corner</span>
+        <input class="ninput" id="h-rn" value="FIGHTER 1" oninput="CGS.setName('red',this.value)"/>
+        <div class="score-lbl" id="h-r-lbl">10-PT TOTAL</div>
+        <div class="score-big" id="h-rs">0</div>
+        <div class="pen-status" id="h-rpen-status"></div>
+      </div>
+      <div class="center-panel"><span class="vs-badge">VS</span></div>
+      <div class="fp bp">
+        <span class="ctag">&#128309; Blue Corner</span>
+        <input class="ninput" id="h-bn" value="FIGHTER 2" oninput="CGS.setName('blue',this.value)"/>
+        <div class="score-lbl" id="h-b-lbl">10-PT TOTAL</div>
+        <div class="score-big" id="h-bs">0</div>
+        <div class="pen-status" id="h-bpen-status"></div>
+      </div>
+    </div>
+
+    <div id="h-tkd-panel" class="tkd-panel" style="display:none">
+      <div class="tkd-col rtkd">
+        <div style="font-size:.65rem;letter-spacing:.2em;color:var(--muted);text-transform:uppercase">Red Penalties</div>
+        <div style="display:flex;gap:16px">
+          <div style="text-align:center"><div class="tkd-pen-num" id="h-rg">0</div><div class="tkd-pen-lbl">Gam-jeom</div></div>
+          <div style="text-align:center"><div class="tkd-pen-num" id="h-rk">0</div><div class="tkd-pen-lbl">Kyong-go</div></div>
+        </div>
+        <div style="display:flex;gap:5px;flex-wrap:wrap;justify-content:center">
+          <button class="btn btn-danger btn-sm" onclick="CGS.addGam('red')">+ Gam-jeom</button>
+          <button class="btn btn-orange btn-sm" onclick="CGS.addKyong('red')">+ Kyong-go</button>
+          <button class="btn btn-ghost btn-sm" onclick="CGS.undoPen('red')">&#8617; Undo</button>
+          <button class="btn btn-danger btn-sm" onclick="CGS.chScore('red',-1)">&#8722; Score</button>
         </div>
       </div>
-      <div class="judges-block">
-        <div class="judges-label">Judge Cards</div>
-        <div class="judge-pills" id="h-judge-pills"></div>
+      <div class="tkd-col btkd">
+        <div style="font-size:.65rem;letter-spacing:.2em;color:var(--muted);text-transform:uppercase">Blue Penalties</div>
+        <div style="display:flex;gap:16px">
+          <div style="text-align:center"><div class="tkd-pen-num" id="h-bg">0</div><div class="tkd-pen-lbl">Gam-jeom</div></div>
+          <div style="text-align:center"><div class="tkd-pen-num" id="h-bk">0</div><div class="tkd-pen-lbl">Kyong-go</div></div>
+        </div>
+        <div style="display:flex;gap:5px;flex-wrap:wrap;justify-content:center">
+          <button class="btn btn-danger btn-sm" onclick="CGS.addGam('blue')">+ Gam-jeom</button>
+          <button class="btn btn-orange btn-sm" onclick="CGS.addKyong('blue')">+ Kyong-go</button>
+          <button class="btn btn-ghost btn-sm" onclick="CGS.undoPen('blue')">&#8617; Undo</button>
+          <button class="btn btn-danger btn-sm" onclick="CGS.chScore('blue',-1)">&#8722; Score</button>
+        </div>
       </div>
+    </div>
+
+    <div id="h-pen-panel" class="pen-row">
+      <div class="pen-blk rpen">
+        <div class="pen-title">Red Discipline</div>
+        <div class="pen-name" id="h-rpn">FIGHTER 1</div>
+        <div class="pen-btns">
+          <button class="btn btn-danger btn-sm" onclick="CGS.applyDeduct('red')">Point Deduction</button>
+          <button class="btn btn-ghost btn-sm" style="color:#ff3030;border-color:#5a0000" onclick="CGS.applyDQ('red')">DQ Red</button>
+        </div>
+        <div class="pen-status" id="h-rpen2"></div>
+      </div>
+      <div class="pen-blk bpen">
+        <div class="pen-title">Blue Discipline</div>
+        <div class="pen-name" id="h-bpn">FIGHTER 2</div>
+        <div class="pen-btns">
+          <button class="btn btn-danger btn-sm" onclick="CGS.applyDeduct('blue')">Point Deduction</button>
+          <button class="btn btn-ghost btn-sm" style="color:#ff3030;border-color:#5a0000" onclick="CGS.applyDQ('blue')">DQ Blue</button>
+        </div>
+        <div class="pen-status" id="h-bpen2"></div>
+      </div>
+    </div>
+
+    <!-- NEW: Submission victory picker (MMA / Hybrid Light only) -->
+    <button class="btn btn-orange btn-lg" id="h-sub-btn" style="display:none;width:100%;max-width:560px" onclick="CGS.toggleSubPicker()">&#127940; Submission Victory</button>
+    <div class="sub-picker" id="h-sub-picker">
+      <button class="btn btn-red btn-lg" onclick="CGS.submissionWin('red')">RED wins by Submission</button>
+      <button class="btn btn-blue btn-lg" onclick="CGS.submissionWin('blue')">BLUE wins by Submission</button>
+      <button class="btn btn-ghost btn-sm" onclick="CGS.toggleSubPicker()">Cancel</button>
+    </div>
+
+    <div class="action-bar">
+      <button class="btn btn-ghost btn-sm" onclick="CGS.toggleTimer()">&#9201; Toggle Round Timer</button>
+      <button class="btn btn-ghost btn-sm" onclick="CGS.newBout()">&#8635; New Bout</button>
+      <button class="btn btn-green btn-sm" onclick="CGS.declareWinner()">&#127942; Declare Winner</button>
+    </div>
+
+    <!-- Everything below here is secondary — tucked away unless the host wants it -->
+    <button class="h-details-toggle" id="h-details-toggle" onclick="CGS.toggleDetails()">&#9776; Show Details</button>
+    <div id="h-details-wrap">
+      <div class="host-top">
+        <div class="host-top-left">
+          <div class="style-sel">
+            <label>Combat Style</label>
+            <select id="h-style-sel" onchange="CGS.onStyleChange()">
+              <option value="boxing">Boxing Light</option><option value="k1">K1 Light</option>
+              <option value="mma">MMA</option><option value="hybrid">Hybrid Light</option>
+              <option value="tkd">Taekwondo</option>
+            </select>
+          </div>
+          <div id="h-hybrid-bar" style="display:none">
+            <div class="hybrid-bar" id="h-hbar">
+              <div class="hybrid-seg pending" data-r="1">R1 &middot; Boxing</div>
+              <div class="hybrid-seg pending" data-r="2">R2 &middot; Kickboxing</div>
+              <div class="hybrid-seg pending" data-r="3">R3 &middot; MMA</div>
+            </div>
+          </div>
+          <div id="h-nohead" class="nohead-warn" style="display:none">&#9888; UNDER-12 &middot; NO HEAD CONTACT</div>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-start">
+          <div class="timer-block" id="h-timer-set-block">
+            <div style="font-size:.62rem;letter-spacing:.2em;color:var(--muted);text-transform:uppercase">Set Round Length</div>
+            <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap;justify-content:center">
+              <input type="number" id="h-tm" min="0" max="9" value="2" class="tnum">
+              <span style="color:var(--muted);font-size:.8rem">m</span>
+              <input type="number" id="h-ts" min="0" max="59" value="0" class="tnum">
+              <span style="color:var(--muted);font-size:.8rem">s</span>
+              <button class="btn btn-ghost btn-sm" onclick="CGS.timerSet()">Set</button>
+            </div>
+          </div>
+          <div class="judges-block">
+            <div class="judges-label">Judge Cards</div>
+            <div class="judge-pills" id="h-judge-pills"></div>
+          </div>
+        </div>
+      </div>
+      <div class="host-tally" id="h-tally-panel">
+        <div class="ht-counts">
+          <span style="color:#ff8080" id="h-ht-r">0</span>
+          <span style="color:var(--muted);font-size:.7rem;letter-spacing:.1em">ROUND TALLY</span>
+          <span style="color:#80b0ff" id="h-ht-b">0</span>
+        </div>
+        <div class="ht-row"><span class="ht-label" style="color:#ff8080">Red</span><div class="ht-bar-wrap"><div class="ht-bar-r" id="h-bar-r" style="width:0%"></div></div></div>
+        <div class="ht-row"><span class="ht-label" style="color:#80b0ff">Blue</span><div class="ht-bar-wrap"><div class="ht-bar-b" id="h-bar-b" style="width:0%"></div></div></div>
+        <div class="ht-card-preview" id="h-card-preview">Awaiting tally...</div>
+      </div>
+      <div class="round-cards" id="h-round-cards"></div>
     </div>
   </div>
-  <div class="host-tally" id="h-tally-panel">
-    <div class="ht-counts">
-      <span style="color:#ff8080" id="h-ht-r">0</span>
-      <span style="color:var(--muted);font-size:.7rem;letter-spacing:.1em">ROUND TALLY</span>
-      <span style="color:#80b0ff" id="h-ht-b">0</span>
-    </div>
-    <div class="ht-row"><span class="ht-label" style="color:#ff8080">Red</span><div class="ht-bar-wrap"><div class="ht-bar-r" id="h-bar-r" style="width:0%"></div></div></div>
-    <div class="ht-row"><span class="ht-label" style="color:#80b0ff">Blue</span><div class="ht-bar-wrap"><div class="ht-bar-b" id="h-bar-b" style="width:0%"></div></div></div>
-    <div class="ht-card-preview" id="h-card-preview">Awaiting tally...</div>
-  </div>
-  <div class="round-cards" id="h-round-cards"></div>
-  <div class="scoreboard">
-    <div class="fp rp">
-      <span class="ctag">&#128308; Red Corner</span>
-      <input class="ninput" id="h-rn" value="FIGHTER 1" oninput="CGS.setName('red',this.value)"/>
-      <div class="score-lbl" id="h-r-lbl">10-PT TOTAL</div>
-      <div class="score-big" id="h-rs">0</div>
-      <div class="pen-status" id="h-rpen-status"></div>
-    </div>
-    <div class="center-panel"><span class="vs-badge">VS</span></div>
-    <div class="fp bp">
-      <span class="ctag">&#128309; Blue Corner</span>
-      <input class="ninput" id="h-bn" value="FIGHTER 2" oninput="CGS.setName('blue',this.value)"/>
-      <div class="score-lbl" id="h-b-lbl">10-PT TOTAL</div>
-      <div class="score-big" id="h-bs">0</div>
-      <div class="pen-status" id="h-bpen-status"></div>
-    </div>
-  </div>
-  <div id="h-tkd-panel" class="tkd-panel" style="display:none">
-    <div class="tkd-col rtkd">
-      <div style="font-size:.65rem;letter-spacing:.2em;color:var(--muted);text-transform:uppercase">Red Penalties</div>
-      <div style="display:flex;gap:16px">
-        <div style="text-align:center"><div class="tkd-pen-num" id="h-rg">0</div><div class="tkd-pen-lbl">Gam-jeom</div></div>
-        <div style="text-align:center"><div class="tkd-pen-num" id="h-rk">0</div><div class="tkd-pen-lbl">Kyong-go</div></div>
-      </div>
-      <div style="display:flex;gap:5px;flex-wrap:wrap;justify-content:center">
-        <button class="btn btn-danger btn-sm" onclick="CGS.addGam('red')">+ Gam-jeom</button>
-        <button class="btn btn-orange btn-sm" onclick="CGS.addKyong('red')">+ Kyong-go</button>
-        <button class="btn btn-ghost btn-sm" onclick="CGS.undoPen('red')">&#8617; Undo</button>
-        <button class="btn btn-danger btn-sm" onclick="CGS.chScore('red',-1)">&#8722; Score</button>
-      </div>
-    </div>
-    <div class="tkd-col btkd">
-      <div style="font-size:.65rem;letter-spacing:.2em;color:var(--muted);text-transform:uppercase">Blue Penalties</div>
-      <div style="display:flex;gap:16px">
-        <div style="text-align:center"><div class="tkd-pen-num" id="h-bg">0</div><div class="tkd-pen-lbl">Gam-jeom</div></div>
-        <div style="text-align:center"><div class="tkd-pen-num" id="h-bk">0</div><div class="tkd-pen-lbl">Kyong-go</div></div>
-      </div>
-      <div style="display:flex;gap:5px;flex-wrap:wrap;justify-content:center">
-        <button class="btn btn-danger btn-sm" onclick="CGS.addGam('blue')">+ Gam-jeom</button>
-        <button class="btn btn-orange btn-sm" onclick="CGS.addKyong('blue')">+ Kyong-go</button>
-        <button class="btn btn-ghost btn-sm" onclick="CGS.undoPen('blue')">&#8617; Undo</button>
-        <button class="btn btn-danger btn-sm" onclick="CGS.chScore('blue',-1)">&#8722; Score</button>
-      </div>
-    </div>
-  </div>
-  <div id="h-pen-panel" class="pen-row">
-    <div class="pen-blk rpen">
-      <div class="pen-title">Red Discipline</div>
-      <div class="pen-name" id="h-rpn">FIGHTER 1</div>
-      <div class="pen-btns">
-        <button class="btn btn-danger btn-sm" onclick="CGS.applyDeduct('red')">Point Deduction</button>
-        <button class="btn btn-ghost btn-sm" style="color:#ff3030;border-color:#5a0000" onclick="CGS.applyDQ('red')">DQ Red</button>
-      </div>
-      <div class="pen-status" id="h-rpen2"></div>
-    </div>
-    <div class="pen-blk bpen">
-      <div class="pen-title">Blue Discipline</div>
-      <div class="pen-name" id="h-bpn">FIGHTER 2</div>
-      <div class="pen-btns">
-        <button class="btn btn-danger btn-sm" onclick="CGS.applyDeduct('blue')">Point Deduction</button>
-        <button class="btn btn-ghost btn-sm" style="color:#ff3030;border-color:#5a0000" onclick="CGS.applyDQ('blue')">DQ Blue</button>
-      </div>
-      <div class="pen-status" id="h-bpen2"></div>
-    </div>
-  </div>
-  <div class="action-bar">
-    <button class="btn btn-ghost btn-sm" onclick="CGS.toggleTimer()">&#9201; Toggle Timer</button>
-    <button class="btn btn-ghost btn-sm" onclick="CGS.newBout()">&#8635; New Bout</button>
-    <button class="btn btn-green btn-sm" onclick="CGS.declareWinner()">&#127942; Declare Winner</button>
-  </div>
+
   <div class="overlay" id="h-wo">
     <div class="ov-title">Match Winner</div>
     <div class="ov-winner" id="h-wt" style="color:var(--gold)"></div>
@@ -662,6 +706,52 @@ function initSetup(){
 const db = getDatabase(fbApp("cgs-host"));
 let timerRunning=false, timerInterval=null, lastTick=null, cachedSecs=120;
 
+// ── Round stopwatch — tenths-of-a-second precision, starts automatically the
+// instant the round starts and stops automatically when the round ends. Purely
+// local — never written to Firebase — so it can never appear on the public page. ──
+let swStartTs=null, swInterval=null;
+function fmtStopwatch(ms){
+  ms=Math.max(0,ms||0);
+  const mins=Math.floor(ms/60000);
+  const secs=Math.floor((ms%60000)/1000);
+  const tenths=Math.floor((ms%1000)/100);
+  return mins+":"+String(secs).padStart(2,"0")+"."+tenths;
+}
+function stopwatchStart(){
+  clearInterval(swInterval);
+  swStartTs=Date.now();
+  T("h-stopwatch","0:00.0");
+  swInterval=setInterval(()=>{T("h-stopwatch",fmtStopwatch(Date.now()-swStartTs));},100);
+}
+function stopwatchStop(){
+  clearInterval(swInterval);swInterval=null;
+}
+
+// ── NEW: collapsible "Details" section for less-essential host controls ──
+let detailsOpen=false;
+function toggleDetails(){
+  detailsOpen=!detailsOpen;
+  el("h-details-wrap").style.display=detailsOpen?"flex":"none";
+  el("h-details-toggle").textContent=detailsOpen?"\u2716 Hide Details":"\u2630 Show Details";
+}
+
+// ── NEW: submission victory picker ──
+let subPickerOpen=false;
+function toggleSubPicker(){
+  subPickerOpen=!subPickerOpen;
+  el("h-sub-picker").classList.toggle("show",subPickerOpen);
+}
+async function submissionWin(side){
+  const stSnap=await get(ref(db,`sessions/${SES}/state`));if(!stSnap.exists())return;
+  const s=stSnap.val();
+  const name=(side==="red"?(s.redName||"RED"):(s.blueName||"BLUE")).toUpperCase();
+  await set(ref(db,`sessions/${SES}/state/timerRunning`),false);
+  await set(ref(db,`sessions/${SES}/state/roundActive`),false);
+  await set(ref(db,`sessions/${SES}/state/winner`),name+" WINS BY SUBMISSION!");
+  subPickerOpen=false;
+  el("h-sub-picker").classList.remove("show");
+}
+
 function initHost(){
   if(AGE==="u12") el("h-nohead").style.display="block";
   get(ref(db,`sessions/${SES}/state`)).then(s=>{if(!s.exists())initState("boxing");}).catch(()=>{});
@@ -697,8 +787,8 @@ function initHost(){
     timerSet:()=>timerSet(),
     setName:(side,val)=>set(ref(db,`sessions/${SES}/state/${side}Name`),val),
     toggleTimer:()=>toggleTimer(),
-    newBout:()=>{if(confirm("Start new bout? Clears all scores."))initState(el("h-style-sel")?.value||"boxing");},
-    onStyleChange:()=>{const s=el("h-style-sel").value;if(confirm("Change to "+styleLabel(s)+"? Resets scores."))initState(s);},
+    newBout:()=>{if(confirm("Start new bout? Clears all scores.")){stopwatchStop();T("h-stopwatch","0:00.0");initState(el("h-style-sel")?.value||"boxing");}},
+    onStyleChange:()=>{const s=el("h-style-sel").value;if(confirm("Change to "+styleLabel(s)+"? Resets scores.")){stopwatchStop();T("h-stopwatch","0:00.0");initState(s);}},
     endRound:()=>endRoundNow(null),
     toggleRound:()=>toggleRound(),
     pauseRound:()=>pauseRound(),
@@ -711,6 +801,9 @@ function initHost(){
     chScore:(side,d)=>chScore(side,d),
     applyDeduct:side=>applyDeduct(side),
     applyDQ:side=>applyDQ(side),
+    toggleDetails:()=>toggleDetails(),
+    toggleSubPicker:()=>toggleSubPicker(),
+    submissionWin:side=>submissionWin(side),
   });
 }
 
@@ -738,9 +831,20 @@ function renderHost(s){
   T("h-bpn",(s.blueName||"FIGHTER 2").toUpperCase());
   T("h-r-lbl",isTKD?"SCORE":"10-PT TOTAL");
   T("h-b-lbl",isTKD?"SCORE":"10-PT TOTAL");
+  // Only TKD uses a live running score on the host panel — for every other style
+  // the number is just the 10-point-must card total, which isn't decided until the
+  // round ends, so showing it mid-round is noise. Hide it entirely otherwise.
+  el("h-rs").style.display=isTKD?"block":"none";
+  el("h-bs").style.display=isTKD?"block":"none";
+  el("h-r-lbl").style.display=isTKD?"block":"none";
+  el("h-b-lbl").style.display=isTKD?"block":"none";
   el("h-tkd-panel").style.display=isTKD?"grid":"none";
   el("h-pen-panel").style.display=isTKD?"none":"grid";
   el("h-tally-panel").style.display=isTKD?"none":"flex";
+  // NEW: submission button only makes sense for MMA / Hybrid Light
+  const canSubmit=(style==="mma"||style==="hybrid");
+  el("h-sub-btn").style.display=canSubmit?"block":"none";
+  if(!canSubmit){subPickerOpen=false;el("h-sub-picker").classList.remove("show");}
   if(isTKD){
     T("h-rg",s.redGam??0);T("h-bg",s.blueGam??0);
     T("h-rk",s.redKyong??0);T("h-bk",s.blueKyong??0);
@@ -845,6 +949,7 @@ async function toggleRound(){
 }
 
 async function startRoundNow(st){
+  stopwatchStart();
   // Clear tallies, mark active, start timer if visible
   await set(ref(db,`sessions/${SES}/judgeCards`),null);
   await set(ref(db,`sessions/${SES}/tallies`),null);
@@ -864,6 +969,7 @@ async function endRoundNow(st){
   const isLastRound=round>=mr;
 
   // Stop timer immediately
+  stopwatchStop();
   await set(ref(db,`sessions/${SES}/state/timerRunning`),false);
   await set(ref(db,`sessions/${SES}/state/roundActive`),false);
 
@@ -879,36 +985,43 @@ async function endRoundNow(st){
     const talliesSnap=await get(ref(db,`sessions/${SES}/tallies`));
     const tallies=talliesSnap.val()||{};
     const keys=Object.keys(tallies);
+    const redDed=st.redDeductions||0;
+    const blueDed=st.blueDeductions||0;
 
     if(keys.length){
-      // Each judge scores independently — majority rules
+      // Each judge scores independently. Point deductions are applied to EVERY
+      // judge's individual card for this round — a full point off the offending
+      // fighter's own score, exactly like a real ringside deduction — not as an
+      // after-the-fact tweak to an averaged aggregate that never reached the
+      // actual scorecards.
       let redWins=0,blueWins=0,draws=0;
-      let redPtsFromWinners=0,bluePtsFromWinners=0;
+      let redPtsSum=0,bluePtsSum=0;
       roundJudgeCards={};
 
       keys.forEach(k=>{
         const t=tallies[k];
         const jcard=calcCard(t.red||0,t.blue||0);
-        // Record this judge's individual scorecard for this round
-        roundJudgeCards[k]={red:jcard.redPts,blue:jcard.bluePts,winner:jcard.winner};
-        if(jcard.winner==="red"){ redWins++; redPtsFromWinners+=jcard.redPts; bluePtsFromWinners+=jcard.bluePts; }
-        else if(jcard.winner==="blue"){ blueWins++; redPtsFromWinners+=jcard.redPts; bluePtsFromWinners+=jcard.bluePts; }
-        else { draws++; redPtsFromWinners+=10; bluePtsFromWinners+=10; }
+        const rPts=Math.max(0,jcard.redPts-redDed);
+        const bPts=Math.max(0,jcard.bluePts-blueDed);
+        const jWinner=rPts>bPts?"red":bPts>rPts?"blue":"draw";
+        // Record this judge's individual scorecard for this round, deductions included
+        roundJudgeCards[k]={red:rPts,blue:bPts,winner:jWinner};
+        if(jWinner==="red")redWins++; else if(jWinner==="blue")blueWins++; else draws++;
+        redPtsSum+=rPts; bluePtsSum+=bPts;
       });
 
       if(redWins>blueWins){ winner="red"; }
       else if(blueWins>redWins){ winner="blue"; }
       else { winner="draw"; }
 
-      // Points on the scorecard come from average of all judges' cards for that round
-      rp=Math.round(redPtsFromWinners/keys.length);
-      bp=Math.round(bluePtsFromWinners/keys.length);
-
-      // Apply deductions to the loser's score
-      if(winner==="red") bp=Math.max(0,bp-(st.blueDeductions||0));
-      if(winner==="blue") rp=Math.max(0,rp-(st.redDeductions||0));
+      // Round total shown on the host/public board is the average of the
+      // already-deducted individual judge cards for that round.
+      rp=Math.round(redPtsSum/keys.length);
+      bp=Math.round(bluePtsSum/keys.length);
     } else {
-      rp=10;bp=10;winner="draw";
+      rp=Math.max(0,10-redDed);
+      bp=Math.max(0,10-blueDed);
+      winner=rp>bp?"red":bp>rp?"blue":"draw";
     }
   }
 
@@ -976,6 +1089,7 @@ async function pauseRound(){
 
 async function undoRound(){
   if(!confirm("Undo — cancel this round and clear judge tallies?")) return;
+  stopwatchStop();T("h-stopwatch","0:00.0");
   await set(ref(db,`sessions/${SES}/state/roundActive`),false);
   await set(ref(db,`sessions/${SES}/state/timerRunning`),false);
   await set(ref(db,`sessions/${SES}/judgeCards`),null);
@@ -1253,19 +1367,19 @@ function penDots(cid,gam,side,kyong){
   for(let i=0;i<Math.min(gam,5);i++){const d=document.createElement("div");d.className=`pub-dot a${side}`;c.appendChild(d);}
   for(let i=0;i<Math.min(kyong,5);i++){const d=document.createElement("div");d.className="pub-dot aw";c.appendChild(d);}
 }
-// Per-judge lean bar — full-width stacked split, no neutral space once there's any
-// data. One point for red only = 100% red. Tied = exactly 50/50, boundary dead center.
-// As the ratio shifts, the boundary between red and blue slides toward whichever side
-// is trailing. CSS transition on width makes that boundary glide smoothly rather than
-// jump. Resets to empty (both 0%) whenever tallies clear at the start of a round.
+// Per-judge lean bar. Red fills from center outward to the left, blue fills from
+// center outward to the right, proportional to that judge's live tally this round.
+// CSS transition on width gives smooth, continuous motion — no discrete stops, no
+// jumping. Percentage-based (capped at 50% per side) so the visual scale never
+// depends on round number or total hit volume. Resets to empty whenever tallies clear.
 function renderJudgeBars(tallies, judgeCount){
   const c=el("p-judge-bars");if(!c)return;
   let html="";
   for(let j=1;j<=judgeCount;j++){
     const t=(tallies||{})["judge"+j];
     const r=t?.red||0, b=t?.blue||0, total=r+b;
-    const rPct = total ? (r/total)*100 : 0;
-    const bPct = total ? (b/total)*100 : 0;
+    const rPct = total ? (r/total)*50 : 0;
+    const bPct = total ? (b/total)*50 : 0;
     html += `<div class="pub-jbar-row">
       <div class="pub-jbar-label">J${j}</div>
       <div class="pub-jbar-track">
