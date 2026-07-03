@@ -514,6 +514,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
 
   <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px">
     <div id="pools-stats" style="display:flex;gap:6px;flex-wrap:wrap;flex:1"></div>
+    <button class="btn btn-gold btn-sm" onclick="regsRunMatch()">⚡ MATCH THESE POOLS →</button>
     <button class="btn btn-ghost btn-sm" onclick="renderPools()">↺ REFRESH</button>
   </div>
 
@@ -1042,12 +1043,6 @@ window.resetActiveEvent = function() {
     toast('Event reset — all data wiped', 'red');
   });
 };
-
-// Ensure default event meta exists on first load
-
-// ══════════════════════════════════════════
-// DASHBOARD
-// ══════════════════════════════════════════
 
 // ══════════════════════════════════════════
 // POOLS VIEW
