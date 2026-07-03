@@ -190,7 +190,7 @@ try {
   const db = getDatabase(app);
   document.getElementById('sync-dot').classList.add('live');
 
-  onValue(ref(db, eventId+'/bouts'), snap => {
+  onValue(ref(db, `events/${eventId}/bouts`), snap => {
     bouts = (snap.exists() && Array.isArray(snap.val())) ? snap.val() : [];
     renderDraw();
   });
