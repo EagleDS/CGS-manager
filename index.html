@@ -18,7 +18,7 @@
   --mono:'IBM Plex Mono',monospace;
   --sans:'IBM Plex Sans',sans-serif;
 }
-body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13px;min-height:100vh;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13px;min-height:100vh;-webkit-tap-highlight-color:transparent;scroll-snap-type:y proximity;scroll-padding-top:86px}
 ::-webkit-scrollbar{width:2px;height:2px}::-webkit-scrollbar-thumb{background:#333}
 #topbar{background:#0a0a0d;border-bottom:1px solid var(--border);padding:0 12px;display:flex;align-items:center;gap:8px;height:48px;position:sticky;top:0;z-index:100}
 .logo{font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:3px;color:var(--gold);white-space:nowrap;flex-shrink:0}
@@ -244,7 +244,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
 .draw-mat-title{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;color:var(--gold)}
 .draw-mat-count{font-family:var(--mono);font-size:9px;color:var(--muted);margin-left:auto}
 .draw-mat-list{padding:5px}
-.draw-bout-row{background:#0d0d10;border:1px solid var(--border);border-radius:3px;margin-bottom:4px;overflow:hidden;transition:border-color .15s}
+.draw-bout-row{background:#0d0d10;border:1px solid var(--border);border-radius:3px;margin-bottom:4px;overflow:hidden;transition:border-color .15s;scroll-snap-align:start}
 .draw-bout-row.live{border-color:var(--red)}
 .draw-bout-row.done{opacity:.5;border-color:#0a2010}
 .draw-bout-row.flagged{border-color:var(--orange)}
@@ -523,6 +523,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
   <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px">
     <div id="pools-stats" style="display:flex;gap:6px;flex-wrap:wrap;flex:1"></div>
     <button class="btn btn-gold btn-sm" onclick="regsRunMatch()">⚡ MATCH THESE POOLS →</button>
+    <button class="btn btn-red btn-sm" onclick="rematchAll()">↺ REMATCH ALL</button>
     <button class="btn btn-ghost btn-sm" onclick="renderPools()">↺ REFRESH</button>
   </div>
 
@@ -2755,3 +2756,4 @@ window.goStep=function(n){_origGoStep(n);if(n===2)renderClubs();};
 </script>
 </body>
 </html>
+
