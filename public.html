@@ -13,7 +13,7 @@
   --gold:#f0b429;--red:#e03030;--green:#20b040;--blue:#2a7fd4;--orange:#f07020;
   --mono:'IBM Plex Mono',monospace;--sans:'IBM Plex Sans',sans-serif;
 }
-body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13px;min-height:100vh}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13px;min-height:100vh;scroll-snap-type:y proximity;scroll-padding-top:98px}
 ::-webkit-scrollbar{width:2px}::-webkit-scrollbar-thumb{background:#333}
 .hdr{background:#0a0a0d;border-bottom:2px solid var(--red);padding:10px 16px;position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:10px}
 .hdr-logo{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:4px;color:var(--gold)}
@@ -31,7 +31,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
 .mat-hdr{background:#0d0d10;border-bottom:2px solid var(--gold);padding:8px 14px;display:flex;align-items:center;gap:8px;position:sticky;top:56px;z-index:5}
 .mat-name{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:var(--gold)}
 .mat-count{font-family:var(--mono);font-size:9px;color:var(--muted);margin-left:auto}
-.bout-row{border-bottom:1px solid var(--border);padding:8px 12px;transition:background .15s}
+.bout-row{border-bottom:1px solid var(--border);padding:8px 12px;transition:background .15s;scroll-snap-align:start}
 .bout-row.b-live{background:#0e0404;border-left:3px solid var(--red)}
 .bout-row.b-hold{background:#050d1a;border-left:3px solid #2a5a8a}
 .bout-row.b-next{border-left:3px solid var(--green)}
@@ -202,4 +202,3 @@ try {
 </script>
 </body>
 </html>
-
