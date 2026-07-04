@@ -297,7 +297,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
   </div>
   <div class="sync-dot" id="sync-dot" title="Firebase sync"></div>
   <button class="btn btn-ghost btn-xs" style="color:var(--gold);border-color:#3a2800;flex-shrink:0" onclick="openPublic()">📺</button>
-  <button class="btn btn-ghost btn-xs" style="color:#5080c0;border-color:#1a2840;flex-shrink:0" onclick="openMarshal()">👷</button>
+  <button class="btn btn-ghost btn-xs" style="color:#5080c0;border-color:#1a2840;flex-shrink:0" onclick="openHeadOfTable()">🎙</button>
 </div>
 
 <!-- HOME DASHBOARD -->
@@ -730,21 +730,14 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
   <div id="pub-results" style="padding:0 12px 20px"></div>
 </div>
 
-<!-- MARSHAL VIEW -->
+<!-- HEAD OF TABLE VIEW -->
 <div id="marshal-view">
   <div class="marshal-hdr">
-    <div class="marshal-title">MARSHAL</div>
-    <select id="marshal-mat-sel" class="csel" style="width:90px" onchange="renderMarshal()">
-      <option value="">All Mats</option>
-      <option value="Mat 1">Mat 1</option>
-      <option value="Mat 2">Mat 2</option>
-      <option value="Mat 3">Mat 3</option>
-      <option value="Mat 4">Mat 4</option>
-    </select>
-    <div id="marshal-clash-count" style="font-family:var(--mono);font-size:9px;color:var(--orange);display:none"></div>
-    <button class="btn btn-ghost btn-xs" onclick="closeMarshal()">EXIT</button>
+    <div class="marshal-title">HEAD OF TABLE</div>
+    <div id="hot-live-status" style="font-family:var(--mono);font-size:9px;color:var(--muted)"></div>
+    <button class="btn btn-ghost btn-xs" onclick="closeHeadOfTable()">EXIT</button>
   </div>
-  <div id="marshal-queues" style="display:flex;gap:8px;overflow-x:auto;padding:8px;-webkit-overflow-scrolling:touch;min-height:calc(100vh - 52px)"></div>
+  <div id="hot-tables" style="display:flex;gap:8px;overflow-x:auto;padding:8px;-webkit-overflow-scrolling:touch;min-height:calc(100vh - 52px)"></div>
 </div>
 
 <script type="module">
@@ -787,6 +780,7 @@ function initFirebase(){
     updateSyncDot('live');
     listenFirebase();
     listenRegs();
+    listenSessionResults();
     ensureEventMeta();
     updateConfigStatus(true);
   }catch(e){updateSyncDot('err');console.warn('Firebase init failed:',e);}
@@ -2627,7 +2621,7 @@ window.printDraw=function(){
   if(!bouts.length){toast('No bouts to print','red');return;}
   const mats=[...new Set(bouts.map(b=>b.area))].sort();
   let html='<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Draw — '+escH(eventId)+'</title>'
-    +'<style>body{font-family:Arial,sans-serif;padding:24px;color:#111}h1{font-size:18px;margin-bottom:2px}h2{font-size:12px;color:#555;margin-bottom:16px;font-weight:normal}h3{font-size:14px;margin:20px 0 8px;border-bottom:2px solid #333;padding-bottom:4px}table{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:10px}th,td{padding:5px 8px;border-bottom:1px solid #ccc;text-align:left}th{background:#f0f0f0;font-size:10px;letter-spacing:1px;text-transform:uppercase}.flag{font-size:9px;font-weight:700;color:#c0392b}.done{color:#999;text-decoration:line-through}@media print{.no-print{display:none}}</style></head><body>'
+    +'<style>body{font-family:Arial,sans-serif;padding:24px;color:#111}h1{font-size:18px;margin-bottom:2px}h2{font-size:12px;color:#555;margin-bottom:16px;font-weight:normal}table{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:10px}th,td{padding:5px 8px;border-bottom:1px solid #ccc;text-align:left}th{background:#f0f0f0;font-size:10px;letter-spacing:1px;text-transform:uppercase}.flag{font-size:9px;font-weight:700;color:#c0392b}.done{color:#999;text-decoration:line-through}@media print{.no-print{display:none}}</style></head><body>'
     +'<button class="no-print" onclick="window.print()" style="margin-bottom:14px;padding:8px 16px;cursor:pointer">PRINT / SAVE PDF</button>'
     +'<h1>Eagle DS Combat Games Series — Running Order</h1>'
     +'<h2>'+escH(eventId)+' · Generated '+new Date().toLocaleString()+' · '+bouts.length+' bouts total</h2>';
@@ -2704,28 +2698,123 @@ function renderPublicContent(){
   const pubRes=document.getElementById('pub-results');if(pubRes)pubRes.innerHTML=done.length?done.map(b=>{const wname=b.winner==='draw'?'DRAW':b.winner==='red'?b.red.name:b.blue.name;return '<div class="pub-res-row"><div style="font-family:var(--mono);font-size:8px;color:var(--gold);min-width:65px">'+escH(b.disc)+'</div><div style="flex:1;font-size:11px"><span style="color:'+(b.winner==='red'?'var(--text)':'var(--muted)')+'">'+escH(b.red.name)+'</span> <span style="font-family:var(--mono);font-size:15px;color:var(--green)">'+b.score.red+'-'+b.score.blue+'</span> <span style="color:'+(b.winner==='blue'?'var(--text)':'var(--muted)')+'">'+escH(b.blue.name)+'</span></div><div style="font-family:var(--mono);font-size:9px;color:var(--green)">'+escH(wname)+'</div></div>';}).join(''):'<div style="font-family:var(--mono);font-size:10px;color:var(--muted);padding:12px">No results yet.</div>';
 }
 
-window.openMarshal=function(){document.getElementById('marshal-view').classList.add('show');renderMarshal();};
-window.closeMarshal=function(){document.getElementById('marshal-view').classList.remove('show');};
+window.openHeadOfTable=function(){document.getElementById('marshal-view').classList.add('show');renderHeadOfTable();};
+window.closeHeadOfTable=function(){document.getElementById('marshal-view').classList.remove('show');};
 
-window.renderMarshal=function(){
-  const matFilter=document.getElementById('marshal-mat-sel')?document.getElementById('marshal-mat-sel').value:'',clashes=detectClashes(),mats=matFilter?[matFilter]:getActiveMats();
-  if(!mats.length)mats=['Mat 1','Mat 2'];
-  const container=document.getElementById('marshal-queues');if(!container)return;
-  container.innerHTML=mats.map(mat=>renderMarshalQueue(mat,clashes)).join('');
+const HOT_MATS=[{label:'Mat 1',area:'Mat 1',session:'mat-1'},{label:'Mat 2',area:'Mat 2',session:'mat-2'}];
+const DISC_TO_STYLE={'Boxing Light':'boxing','K1 Light':'k1','MMA':'mma','Hybrid Light':'hybrid','Taekwondo':'tkd'};
+
+window.renderHeadOfTable=function(){
+  const clashes=detectClashes();
+  const container=document.getElementById('hot-tables');if(!container)return;
+  container.innerHTML=HOT_MATS.map(m=>renderHotTable(m,clashes)).join('');
+  const statusEl=document.getElementById('hot-live-status');
+  if(statusEl){const liveCount=bouts.filter(b=>b.status==='live').length;statusEl.textContent=liveCount?liveCount+' live now':'';}
 };
 
-function renderMarshalQueue(mat,clashes){
-  const matBouts=getBoutsForMat(mat),remaining=matBouts.filter(b=>b.status==='scheduled'||b.status==='live').length;
-  let html='<div class="queue-col"><div class="queue-col-hdr"><div class="queue-mat-name">'+mat+'</div><div class="queue-count">'+remaining+' remaining</div></div><div class="queue-list" id="qlist-'+mat.replace(' ','-')+'" data-mat="'+escA(mat)+'">';
-  matBouts.forEach((b,idx)=>{
-    const isLive=b.status==='live',isHold=b.status==='paused',isDone=b.status==='completed'||b.status==='cancelled',isNext=!isLive&&!isHold&&!isDone&&idx===0,hasClash=clashes[b.red.name]||clashes[b.blue.name],cls='queue-item'+(isLive?' live-item':isHold?' hold-item':isDone?' done-item':'')+(hasClash?' flagged':''),draggable=(!isDone&&!isLive)?'draggable="true"':'';
-    const statusBadge=isLive?'<span class="flag f-lv">&#9679; LIVE</span>':isHold?'<span style="font-family:var(--mono);font-size:8px;padding:2px 4px;border-radius:2px;background:#050d1a;border:1px solid #2a5a8a;color:#60a5fa">&#9208; HOLD</span>':isDone?'<span class="flag f-dn">&#10003;</span>':isNext?'<span style="font-family:var(--mono);font-size:8px;padding:2px 6px;border-radius:2px;background:#001a08;border:1px solid var(--green);color:var(--green)">UP NEXT</span>':'';
+function renderHotTable(matCfg,clashes){
+  const matBouts=getBoutsForMat(matCfg.area).filter(b=>b.status!=='cancelled'&&b.status!=='completed'),shown=matBouts.slice(0,5),liveOnMat=matBouts.filter(b=>b.status==='live');
+  let html='<div class="queue-col"><div class="queue-col-hdr"><div class="queue-mat-name">'+matCfg.label+'</div><div class="queue-count">'+shown.length+' upcoming</div></div><div class="queue-list" id="hot-list-'+matCfg.session+'">';
+  shown.forEach((b,idx)=>{
+    const isLive=b.status==='live',isNext=!isLive&&idx===(liveOnMat.length?1:0),hasClash=clashes[b.red.name]||clashes[b.blue.name],cls='queue-item'+(isLive?' live-item':'')+(hasClash?' flagged':'');
+    const statusBadge=isLive?'<span class="flag f-lv">&#9679; LIVE ON '+matCfg.label.toUpperCase()+'</span>':(isNext?'<span style="font-family:var(--mono);font-size:8px;padding:2px 6px;border-radius:2px;background:#001a08;border:1px solid var(--green);color:var(--green)">UP NEXT</span>':'');
     const clashBadge=hasClash?'<span style="font-family:var(--mono);font-size:8px;padding:2px 4px;border-radius:2px;background:#1a0a00;border:1px solid var(--orange);color:var(--orange)">&#9888; CLASH</span>':'';
-    html+='<div class="'+cls+'" id="qi-'+b.id+'" data-bid="'+b.id+'" '+draggable+'><div class="queue-item-top"><div class="queue-num">'+b.id+'</div><div class="queue-disc">'+escH(b.disc)+' · '+b.ageGrp+'</div>'+statusBadge+clashBadge+'</div><div class="queue-item-body"><div><div class="qi-name" style="color:var(--red)">'+escH(b.red.name)+'</div><div class="qi-club">'+escH(b.red.club||'')+'</div></div><div class="qi-vs">VS</div><div style="text-align:right"><div class="qi-name" style="color:var(--blue)">'+escH(b.blue.name)+'</div><div class="qi-club">'+escH(b.blue.club||'')+'</div></div></div>';
-    if(!isDone){html+='<div class="queue-item-actions">'+(isLive?'<button class="btn btn-red btn-xs" data-bid="'+b.id+'" onclick="openScore(this.dataset.bid)">SCORE</button>':'')+'<button class="btn btn-gold btn-xs" data-bid="'+b.id+'" onclick="startBout(this.dataset.bid)">&#9654; START</button><button class="btn btn-ghost btn-xs" data-bid="'+b.id+'" onclick="openDrawEdit(this.dataset.bid)">EDIT</button></div>';}
+    html+='<div class="'+cls+'" id="hqi-'+b.id+'"><div class="queue-item-top"><div class="queue-num">'+b.id+'</div><div class="queue-disc">'+escH(b.disc)+' · '+b.ageGrp+'</div>'+statusBadge+clashBadge+'</div><div class="queue-item-body"><div><div class="qi-name" style="color:var(--red)">'+escH(b.red.name)+'</div><div class="qi-club">'+escH(b.red.club||'')+'</div></div><div class="qi-vs">VS</div><div style="text-align:right"><div class="qi-name" style="color:var(--blue)">'+escH(b.blue.name)+'</div><div class="qi-club">'+escH(b.blue.club||'')+'</div></div></div>';
+    if(!isLive){const playLabel=liveOnMat.length?'&#8646; SWAP IN':'&#9654; PLAY TO '+matCfg.label.toUpperCase();html+='<div class="queue-item-actions"><button class="btn btn-gold btn-xs" data-bid="'+b.id+'" data-session="'+matCfg.session+'" onclick="hotPlay(this.dataset.bid,this.dataset.session)">'+playLabel+'</button><button class="btn btn-ghost btn-xs" data-bid="'+b.id+'" onclick="openDrawEdit(this.dataset.bid)">EDIT</button></div>';}
+    else{html+='<div class="queue-item-actions"><span style="font-family:var(--mono);font-size:9px;color:var(--muted)">Scoring live — result returns automatically</span><button class="btn btn-ghost btn-xs" data-bid="'+b.id+'" onclick="hotPull(this.dataset.bid)">PULL</button><button class="btn btn-ghost btn-xs" style="color:var(--orange);border-color:var(--orange)" data-bid="'+b.id+'" onclick="hotForceComplete(this.dataset.bid)">MANUAL RESULT</button></div>';}
     html+='</div>';
   });
+  if(!shown.length)html+='<div style="padding:20px 12px;font-family:var(--mono);font-size:10px;color:var(--muted);text-align:center">No upcoming fights on '+matCfg.label+'</div>';
   return html+'</div></div>';
+}
+
+window.hotPlay=function(boutId,sessionId){
+  const b=bouts.find(x=>x.id===boutId);if(!b)return;
+  const alreadyLive=bouts.find(x=>x.status==='live'&&x.area===b.area);
+  if(alreadyLive&&alreadyLive.id!==b.id){
+    if(!confirm(alreadyLive.id+' ('+alreadyLive.red.name+' vs '+alreadyLive.blue.name+') is currently live on '+b.area+'.\n\nPull it back to the queue (no result recorded) and start '+b.id+' ('+b.red.name+' vs '+b.blue.name+') instead?'))return;
+    alreadyLive.status='scheduled';
+  } else {
+    if(!confirm('Send '+b.red.name+' vs '+b.blue.name+' live to the '+b.area+' scoreboard?'))return;
+  }
+  b.status='live';saveBouts();renderHeadOfTable();renderDraw();renderLive();
+  if(!db){toast('No Firebase connection — scoreboard not updated','red');return;}
+  const style=DISC_TO_STYLE[b.disc]||'boxing';
+  set(ref(db,`sessions/${sessionId}/state`),{
+    redName:b.red.name,blueName:b.blue.name,
+    redScore:0,blueScore:0,redGam:0,blueGam:0,redKyong:0,blueKyong:0,
+    redDeductions:0,blueDeductions:0,
+    round:1,style:style,
+    timerSeconds:120,timerMax:120,timerRunning:false,timerVisible:false,
+    winner:'',roundResults:[],judgeCardHistory:{},roundEnded:0,roundActive:false,
+    boutId:b.id,eventId:eventId,matchComplete:false,matchWinnerSide:''
+  }).catch(()=>toast('Scoreboard push failed','red'));
+  set(ref(db,`sessions/${sessionId}/judgeCards`),null);
+  set(ref(db,`sessions/${sessionId}/tallies`),null);
+  toast(b.id+' live on '+b.area,alreadyLive?'orange':'gold');
+};
+
+window.hotPull=function(boutId){
+  const b=bouts.find(x=>x.id===boutId);if(!b)return;
+  if(!confirm('Pull '+b.id+' ('+b.red.name+' vs '+b.blue.name+') off '+b.area+' and send it back to the queue?\n\nNo result will be recorded.'))return;
+  b.status='scheduled';saveBouts();renderHeadOfTable();renderDraw();renderLive();
+  const matCfg=HOT_MATS.find(m=>m.area===b.area);
+  if(matCfg&&db){
+    set(ref(db,`sessions/${matCfg.session}/state`),{
+      redName:'',blueName:'',redScore:0,blueScore:0,redGam:0,blueGam:0,redKyong:0,blueKyong:0,
+      redDeductions:0,blueDeductions:0,round:1,style:'boxing',
+      timerSeconds:120,timerMax:120,timerRunning:false,timerVisible:false,
+      winner:'',roundResults:[],judgeCardHistory:{},roundEnded:0,roundActive:false,
+      boutId:'',eventId:eventId,matchComplete:false,matchWinnerSide:''
+    }).catch(()=>{});
+    set(ref(db,`sessions/${matCfg.session}/judgeCards`),null);
+    set(ref(db,`sessions/${matCfg.session}/tallies`),null);
+  }
+  toast(b.id+' pulled back to queue','orange');
+};
+
+window.hotForceComplete=function(boutId){
+  const b=bouts.find(x=>x.id===boutId);if(!b)return;
+  const input=prompt('Manual result for '+b.red.name+' (RED) vs '+b.blue.name+' (BLUE).\n\nEnter score as red-blue, e.g. 2-1. Type draw for a draw.');
+  if(input===null)return;
+  const val=input.trim().toLowerCase();
+  let rs=0,bs=0,side;
+  if(val==='draw'){side='draw';}
+  else{
+    const m=val.match(/^(\d+)\s*-\s*(\d+)$/);
+    if(!m){toast('Format not recognised — use e.g. 2-1 or draw','red');return;}
+    rs=parseInt(m[1]);bs=parseInt(m[2]);side=rs>bs?'red':bs>rs?'blue':'draw';
+  }
+  if(!confirm('Confirm '+b.id+': '+(side==='draw'?'DRAW':(side==='red'?b.red.name:b.blue.name)+' wins')+' '+rs+'-'+bs+'?'))return;
+  b.status='completed';b.score={red:rs,blue:bs};b.winner=side;
+  saveBouts();renderDraw();renderLive();renderResults();renderHeadOfTable();
+  toast(b.id+' result entered manually','orange');
+  const matCfg=HOT_MATS.find(m=>m.area===b.area);
+  if(matCfg&&db){
+    set(ref(db,`sessions/${matCfg.session}/state/boutId`),'');
+    set(ref(db,`sessions/${matCfg.session}/state/matchComplete`),false);
+  }
+};
+
+function listenSessionResults(){
+  if(!db)return;
+  HOT_MATS.forEach(m=>{
+    onValue(ref(db,`sessions/${m.session}/state`),snap=>{
+      if(!snap.exists())return;
+      const s=snap.val();
+      if(!s.matchComplete||!s.boutId)return;
+      if(s.eventId&&s.eventId!==eventId)return;
+      const b=bouts.find(x=>x.id===s.boutId);
+      if(!b||b.status==='completed')return;
+      b.status='completed';
+      b.score={red:s.redScore||0,blue:s.blueScore||0};
+      b.winner=s.matchWinnerSide||(s.redScore>s.blueScore?'red':s.blueScore>s.redScore?'blue':'draw');
+      saveBouts();renderDraw();renderLive();renderResults();renderHeadOfTable();
+      toast(b.id+' result received from '+m.label,'green');
+      set(ref(db,`sessions/${m.session}/state/boutId`),'');
+      set(ref(db,`sessions/${m.session}/state/matchComplete`),false);
+    });
+  });
 }
 
 window.loadDemo=function(){
