@@ -472,6 +472,14 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
       </div>
       <div id="regs-match-result" style="margin-top:10px"></div>
     </div>
+    <div class="panel" style="border-color:var(--red-dk)">
+      <div class="panel-title" style="color:var(--red)">REMATCH ALL</div>
+      <div class="panel-sub">Clears every <b>scheduled</b> (not yet started) bout and unmatches those athletes so you can run MATCH PENDING fresh. Live and completed bouts are never touched — any athlete already fighting in one stays locked out of rematching entirely, to protect real results. Use this for trial runs before the event, or to fully redo a bad matching pass.</div>
+      <div id="rematch-summary" style="font-family:var(--mono);font-size:10px;color:var(--muted);margin-bottom:10px"></div>
+      <div class="row-btns">
+        <button class="btn btn-red" onclick="rematchAll()">↺ CLEAR & REMATCH ALL</button>
+      </div>
+    </div>
   </div>
 
   <!-- ATHLETES PANEL -->
@@ -1784,7 +1792,56 @@ window.regsRunMatch = function() {
   toast((total-tbc)+' bouts matched — review below','green');
 };
 
-// ── MARK athletes as inDraw when sent to draw ──
+// ── REMATCH ALL — clear scheduled bouts, unmatch untouched athletes, leave live/completed alone ──
+window.rematchAll = function() {
+  const liveOrDone = bouts.filter(b=>b.status==='live'||b.status==='completed');
+  const scheduled = bouts.filter(b=>b.status!=='live'&&b.status!=='completed');
+  if(!scheduled.length){ toast('No scheduled bouts to clear','orange'); return; }
+
+  const warnMsg = liveOrDone.length
+    ? 'This clears '+scheduled.length+' scheduled bout(s) and unmatches those athletes.\n\n'+liveOrDone.length+' live/completed bout(s) will NOT be touched — any athlete already fighting in one of those (in ANY discipline) stays locked in and will be skipped by rematching, to protect real results.\n\nContinue?'
+    : 'This clears all '+scheduled.length+' scheduled bouts and unmatches every athlete so you can run MATCH PENDING fresh. Continue?';
+  if(!confirm(warnMsg)) return;
+
+  // Names currently locked into a live or completed bout — same name-matching pattern as markAthletesAsDrawn
+  const lockedKeys = new Set();
+  liveOrDone.forEach(b=>{
+    [b.red.name, b.blue.name].forEach(fullName=>{
+      if(!fullName||fullName==='TBC') return;
+      const parts=fullName.trim().split(' ');
+      const name=parts[0], sur=parts.slice(1).join(' ');
+      const key=Object.keys(storedRegs).find(k=>{
+        const a=storedRegs[k];
+        return ((a.name||'')+(a.sur||'')).toLowerCase().replace(/\s/g,'')===(name+sur).toLowerCase().replace(/\s/g,'');
+      });
+      if(key) lockedKeys.add(key);
+    });
+  });
+
+  // Keep only live/completed bouts — drop every scheduled/paused/cancelled bout
+  bouts = liveOrDone;
+
+  // Unmatch every athlete not locked in, so they're eligible for MATCH PENDING again
+  let unmatched=0;
+  Object.keys(storedRegs).forEach(key=>{
+    if(storedRegs[key].inDraw && !lockedKeys.has(key)){
+      storedRegs[key].inDraw = false;
+      unmatched++;
+    }
+  });
+
+  saveBouts();
+  saveRegsToFirebase();
+  updateRegsStatus();
+  updateRegsMatchSummary();
+  renderDraw();
+  document.getElementById('rematch-summary').innerHTML =
+    '<span style="color:var(--green)">Cleared '+scheduled.length+' bout(s) · '+unmatched+' athletes unmatched</span>'
+    +(lockedKeys.size?' · <span style="color:var(--orange)">'+lockedKeys.size+' locked (already fighting)</span>':'');
+  toast(unmatched+' athletes ready — go tap MATCH PENDING above','gold');
+};
+
+
 function markAthletesAsDrawn(newBouts) {
   newBouts.forEach(b=>{
     [b.red.name, b.blue.name].forEach(fullName=>{
@@ -2698,4 +2755,3 @@ window.goStep=function(n){_origGoStep(n);if(n===2)renderClubs();};
 </script>
 </body>
 </html>
-
