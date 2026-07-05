@@ -791,7 +791,7 @@ function initHost(){
     timerSet:()=>timerSet(),
     setName:(side,val)=>set(ref(db,`sessions/${SES}/state/${side}Name`),val),
     toggleTimer:()=>toggleTimer(),
-    newBout:()=>{if(confirm("Start new bout? Clears all scores.")){stopwatchStop();T("h-stopwatch","0:00.0");initState(el("h-style-sel")?.value||"boxing");}},
+    newBout:()=>{if(confirm("Start new bout? Clears all scores.")){stopwatchStop();T("h-stopwatch","0:00.0");initState(el("h-style-sel")?.value||"boxing",true);}},
     onStyleChange:()=>{const s=el("h-style-sel").value;if(confirm("Change to "+styleLabel(s)+"? Resets scores.")){stopwatchStop();T("h-stopwatch","0:00.0");initState(s);}},
     endRound:()=>endRoundNow(null),
     toggleRound:()=>toggleRound(),
@@ -811,14 +811,27 @@ function initHost(){
   });
 }
 
-function initState(style){
+async function initState(style,hardReset){
+  let boutId="",eventIdVal="",redNameVal="FIGHTER 1",blueNameVal="FIGHTER 2";
+  if(!hardReset){
+    try{
+      const cur=(await get(ref(db,`sessions/${SES}/state`))).val();
+      if(cur){
+        boutId=cur.boutId||"";
+        eventIdVal=cur.eventId||"";
+        redNameVal=cur.redName||"FIGHTER 1";
+        blueNameVal=cur.blueName||"FIGHTER 2";
+      }
+    }catch(e){}
+  }
   set(ref(db,`sessions/${SES}/state`),{
-    redName:"FIGHTER 1",blueName:"FIGHTER 2",
+    redName:redNameVal,blueName:blueNameVal,
     redScore:0,blueScore:0,redGam:0,blueGam:0,redKyong:0,blueKyong:0,
     redDeductions:0,blueDeductions:0,
     round:1,style:style||"boxing",
     timerSeconds:120,timerMax:120,timerRunning:false,timerVisible:false,
-    winner:"",roundResults:[],judgeCardHistory:{},roundEnded:0,roundActive:false
+    winner:"",roundResults:[],judgeCardHistory:{},roundEnded:0,roundActive:false,
+    boutId,eventId:eventIdVal,matchComplete:false,matchWinnerSide:""
   });
   set(ref(db,`sessions/${SES}/judgeCards`),null);
   set(ref(db,`sessions/${SES}/tallies`),null);
