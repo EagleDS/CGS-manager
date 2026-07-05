@@ -625,6 +625,13 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
         <button class="btn btn-gold" onclick="copyOutstandingList()">📋 COPY OUTSTANDING LIST</button>
       </div>
     </div>
+    <div class="panel" style="border-color:var(--green)">
+      <div class="panel-title" style="color:var(--green)">EXPORT ALL ENTRANTS TO CRM</div>
+      <div class="panel-sub">Copies Name / Email for every active (non-withdrawn) registration — the full entrant list, regardless of payment status. Paste into the CRM's Import tab and set Event Tag to this event's ID so you can broadcast to everyone who actually entered.</div>
+      <div class="row-btns">
+        <button class="btn btn-green" onclick="copyAllRegistrationsList()">📋 COPY ALL ENTRANTS</button>
+      </div>
+    </div>
     <div id="payments-log"></div>
   </div>
 </div>
@@ -2283,6 +2290,25 @@ window.copyOutstandingList=function(){
   const text=rows.join('\n');
   navigator.clipboard.writeText(text).then(()=>{
     toast('Copied '+list.length+' outstanding'+(missing?' · '+missing+' missing email':''),'gold');
+  }).catch(()=>{
+    toast('Copy failed — select and copy manually','red');
+  });
+};
+
+function getAllActiveRegistrationsList(){
+  return Object.values(storedRegs).filter(a=>!a.withdrawn).map(a=>{
+    return {name:((a.name||'')+' '+(a.sur||'')).trim(),email:a.email||''};
+  });
+}
+
+window.copyAllRegistrationsList=function(){
+  const list=getAllActiveRegistrationsList();
+  if(!list.length){toast('No registrations yet','red');return;}
+  const missing=list.filter(x=>!x.email).length;
+  const rows=['Name\tEmail'].concat(list.map(x=>x.name+'\t'+x.email));
+  const text=rows.join('\n');
+  navigator.clipboard.writeText(text).then(()=>{
+    toast('Copied '+list.length+' registrations'+(missing?' · '+missing+' missing email':''),'gold');
   }).catch(()=>{
     toast('Copy failed — select and copy manually','red');
   });
