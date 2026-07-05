@@ -2702,7 +2702,15 @@ window.openHeadOfTable=function(){document.getElementById('marshal-view').classL
 window.closeHeadOfTable=function(){document.getElementById('marshal-view').classList.remove('show');};
 
 const HOT_MATS=[{label:'Mat 1',area:'Mat 1',session:'mat-1'},{label:'Mat 2',area:'Mat 2',session:'mat-2'}];
-const DISC_TO_STYLE={'Boxing Light':'boxing','K1 Light':'k1','MMA':'mma','Hybrid Light':'hybrid','Taekwondo':'tkd'};
+function discToStyle(disc){
+  const d=(disc||'').toUpperCase();
+  if(d.includes('TAEKWONDO')||d==='TKD')return 'tkd';
+  if(d.includes('HYBRID'))return 'hybrid';
+  if(d.includes('MMA'))return 'mma';
+  if(d.includes('K1')||d.includes('KICKBOX'))return 'k1';
+  if(d.includes('BOXING'))return 'boxing';
+  return 'boxing';
+}
 
 window.renderHeadOfTable=function(){
   const clashes=detectClashes();
@@ -2739,7 +2747,7 @@ window.hotPlay=function(boutId,sessionId){
   }
   b.status='live';saveBouts();renderHeadOfTable();renderDraw();renderLive();
   if(!db){toast('No Firebase connection — scoreboard not updated','red');return;}
-  const style=DISC_TO_STYLE[b.disc]||'boxing';
+  const style=discToStyle(b.disc);
   set(ref(db,`sessions/${sessionId}/state`),{
     redName:b.red.name,blueName:b.blue.name,
     redScore:0,blueScore:0,redGam:0,blueGam:0,redKyong:0,blueKyong:0,
