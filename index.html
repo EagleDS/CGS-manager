@@ -511,8 +511,19 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
 
 <div id="view-results" class="view">
   <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;margin-bottom:12px">RESULTS</div>
-  <div id="results-body"></div>
-  <div id="results-empty" class="panel" style="text-align:center;color:var(--muted);font-family:var(--mono);font-size:10px;display:none">No completed bouts yet.</div>
+  <div style="display:flex;gap:2px;margin-bottom:12px;border-bottom:1px solid var(--border);padding-bottom:0">
+    <button id="results-tab-recent" class="nav-btn on" style="font-size:9px" onclick="goResultsTab('recent')">RECENT</button>
+    <button id="results-tab-standings" class="nav-btn" style="font-size:9px" onclick="goResultsTab('standings')">STANDINGS</button>
+  </div>
+  <div id="results-panel-recent">
+    <div id="results-body"></div>
+    <div id="results-empty" class="panel" style="text-align:center;color:var(--muted);font-family:var(--mono);font-size:10px;display:none">No completed bouts yet.</div>
+  </div>
+  <div id="results-panel-standings" style="display:none">
+    <div style="font-family:var(--mono);font-size:9px;color:var(--muted);margin-bottom:10px">Win 3pts · Loss 1pt · grouped by discipline / age group / division, same as POOLS</div>
+    <div id="standings-body"></div>
+    <div id="standings-empty" class="panel" style="text-align:center;color:var(--muted);font-family:var(--mono);font-size:10px;display:none">No completed bouts yet.</div>
+  </div>
 </div>
 
 <div id="view-setup" class="view">
@@ -1061,7 +1072,7 @@ window.goView=function(v){
   document.querySelectorAll('.nav-btn').forEach(e=>e.classList.remove('on'));
   const viewEl=document.getElementById('view-'+v);const navEl=document.querySelector('[data-view="'+v+'"]');
   if(viewEl)viewEl.classList.add('on');if(navEl)navEl.classList.add('on');
-  if(v==='draw')renderDraw();if(v==='live')renderLive();if(v==='results')renderResults();if(v==='home'){renderDashboard();}if(v==='pools'){renderPools();}if(v==='regs'){updateRegsStatus();updateRegsMatchSummary();renderAthleteList();}if(v==='setup'){loadEventList();updateBanner();}if(v==='weighin'){goWeighTab('checkin');}
+  if(v==='draw')renderDraw();if(v==='live')renderLive();if(v==='results')goResultsTab('recent');if(v==='home'){renderDashboard();}if(v==='pools'){renderPools();}if(v==='regs'){updateRegsStatus();updateRegsMatchSummary();renderAthleteList();}if(v==='setup'){loadEventList();updateBanner();}if(v==='weighin'){goWeighTab('checkin');}
 };
 
 window.goStep=function(n){
@@ -2113,7 +2124,81 @@ window.closeModal=function(){document.getElementById('overlay').classList.remove
 
 function renderLive(){const lv=bouts.filter(b=>b.status==='live'),grid=document.getElementById('live-grid'),empty=document.getElementById('live-empty');if(!lv.length){if(grid)grid.innerHTML='';if(empty)empty.style.display='block';return;}if(empty)empty.style.display='none';if(grid)grid.innerHTML=lv.map(b=>'<div class="bout-card live" style="cursor:pointer;padding:0" onclick="openScore(\''+b.id+'\')"><div class="bout-top"><div class="bout-num">'+b.id+'</div><span class="flag f-lv">● LIVE</span><div class="bout-mat">'+b.area+'</div></div><div class="bout-body"><div class="bf"><div class="bf-name" style="color:var(--red)">'+escH(b.red.name)+'</div><div class="bf-club">'+escH(b.red.club||'')+'</div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:40px;color:var(--red);line-height:1">'+b.score.red+'</div></div><div class="vs-col"><div class="vs-txt">VS</div></div><div class="bf right"><div class="bf-name" style="color:var(--blue)">'+escH(b.blue.name)+'</div><div class="bf-club">'+escH(b.blue.club||'')+'</div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:40px;color:var(--blue);line-height:1">'+b.score.blue+'</div></div></div></div>').join('');}
 
-function renderResults(){const dn=bouts.filter(b=>b.status==='completed').slice().reverse(),el=document.getElementById('results-body'),empty=document.getElementById('results-empty');if(!dn.length){if(el)el.innerHTML='';if(empty)empty.style.display='block';return;}if(empty)empty.style.display='none';if(el)el.innerHTML=dn.map(b=>{const wname=b.winner==='draw'?'DRAW':b.winner==='red'?b.red.name:b.blue.name;return '<div style="background:var(--surf);border:1px solid var(--border);border-left:3px solid var(--green);border-radius:3px;padding:8px 12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:5px"><div style="font-family:var(--mono);font-size:8px;color:var(--gold);min-width:70px">'+escH(b.disc)+'</div><div style="font-size:10px;color:var(--muted);min-width:60px">'+b.ageGrp+'</div><div style="flex:1;min-width:140px"><span style="font-weight:'+(b.winner==='red'?700:400)+';color:'+(b.winner==='red'?'var(--text)':'var(--muted)')+'">'+escH(b.red.name)+'</span><span style="font-family:\'Bebas Neue\',sans-serif;font-size:16px;color:var(--green);margin:0 6px">'+b.score.red+'–'+b.score.blue+'</span><span style="font-weight:'+(b.winner==='blue'?700:400)+';color:'+(b.winner==='blue'?'var(--text)':'var(--muted)')+'">'+escH(b.blue.name)+'</span></div><div style="font-family:var(--mono);font-size:9px;font-weight:700;color:var(--green)">'+escH(wname)+'</div></div>';}).join('');}
+function renderResults(){const dn=bouts.filter(b=>b.status==='completed').slice().reverse(),el=document.getElementById('results-body'),empty=document.getElementById('results-empty');if(!dn.length){if(el)el.innerHTML='';if(empty)empty.style.display='block';}else{if(empty)empty.style.display='none';if(el)el.innerHTML=dn.map(b=>{const wname=b.winner==='draw'?'DRAW':b.winner==='red'?b.red.name:b.blue.name;return '<div style="background:var(--surf);border:1px solid var(--border);border-left:3px solid var(--green);border-radius:3px;padding:8px 12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:5px"><div style="font-family:var(--mono);font-size:8px;color:var(--gold);min-width:70px">'+escH(b.disc)+'</div><div style="font-size:10px;color:var(--muted);min-width:60px">'+b.ageGrp+'</div><div style="flex:1;min-width:140px"><span style="font-weight:'+(b.winner==='red'?700:400)+';color:'+(b.winner==='red'?'var(--text)':'var(--muted)')+'">'+escH(b.red.name)+'</span><span style="font-family:\'Bebas Neue\',sans-serif;font-size:16px;color:var(--green);margin:0 6px">'+b.score.red+'–'+b.score.blue+'</span><span style="font-weight:'+(b.winner==='blue'?700:400)+';color:'+(b.winner==='blue'?'var(--text)':'var(--muted)')+'">'+escH(b.blue.name)+'</span></div><div style="font-family:var(--mono);font-size:9px;font-weight:700;color:var(--green)">'+escH(wname)+'</div></div>';}).join('');}renderStandings();}
+
+window.goResultsTab=function(tab){
+  ['recent','standings'].forEach(t=>{
+    const panel=document.getElementById('results-panel-'+t);
+    const btn=document.getElementById('results-tab-'+t);
+    if(panel)panel.style.display=t===tab?'':'none';
+    if(btn)btn.classList.toggle('on',t===tab);
+  });
+  renderResults();
+};
+
+function computeStandings(){
+  const completed=bouts.filter(b=>b.status==='completed');
+  const groups={};
+  completed.forEach(b=>{
+    const key=b.disc+'|'+b.ageGrp+'|'+b.div;
+    if(!groups[key])groups[key]={disc:b.disc,ageGrp:b.ageGrp,div:b.div,athletes:{}};
+    const g=groups[key];
+    const ensure=(name,club)=>{if(!g.athletes[name])g.athletes[name]={name,club,points:0,w:0,l:0,d:0};return g.athletes[name];};
+    const red=ensure(b.red.name,b.red.club);
+    const blue=ensure(b.blue.name,b.blue.club);
+    if(b.winner==='red'){red.points+=3;red.w++;blue.points+=1;blue.l++;}
+    else if(b.winner==='blue'){blue.points+=3;blue.w++;red.points+=1;red.l++;}
+    else{red.d++;blue.d++;}
+  });
+  return groups;
+}
+
+window.renderStandings=function(){
+  const groups=computeStandings();
+  const body=document.getElementById('standings-body');
+  const empty=document.getElementById('standings-empty');
+  if(!body)return;
+  const keys=Object.keys(groups);
+  if(!keys.length){body.innerHTML='';if(empty)empty.style.display='block';return;}
+  if(empty)empty.style.display='none';
+  const agO={'Under 12':0,'13-17':1,'Adult':2};
+  keys.sort((a,b)=>{
+    const ga=groups[a],gb=groups[b];
+    const di=STYLE_ORDER.indexOf(ga.disc)-STYLE_ORDER.indexOf(gb.disc);
+    if(di!==0)return di;
+    const ai=(agO[ga.ageGrp]??2)-(agO[gb.ageGrp]??2);
+    if(ai!==0)return ai;
+    return ga.div==='Female'?-1:1;
+  });
+  let html='',lastDisc='';
+  keys.forEach(key=>{
+    const g=groups[key];
+    if(g.disc!==lastDisc){html+='<div class="sec-hdr" style="margin-top:'+(lastDisc?'16px':'0')+'"><div class="sec-name">'+escH(g.disc)+'</div></div>';lastDisc=g.disc;}
+    const list=Object.values(g.athletes).sort((a,b)=>b.points-a.points||b.w-a.w);
+    html+='<div style="background:var(--surf);border:1px solid var(--border);border-radius:3px;margin-bottom:6px;overflow:hidden">'
+      +'<div style="background:#0d0d10;padding:7px 12px;display:flex;align-items:center;gap:8px">'
+      +'<div style="font-family:\'Bebas Neue\',sans-serif;font-size:15px;letter-spacing:1px;color:'+(g.div==='Female'?'#c060c0':'#4090d0')+'">'+escH(g.ageGrp)+' · '+escH(g.div)+'</div>'
+      +'</div>'
+      +'<table style="width:100%;border-collapse:collapse">'
+      +'<thead><tr style="background:#0a0a0d">'
+      +'<th style="font-family:var(--mono);font-size:8px;color:var(--muted);padding:4px 10px;text-align:left;border-bottom:1px solid var(--border)">NAME</th>'
+      +'<th style="font-family:var(--mono);font-size:8px;color:var(--muted);padding:4px 10px;text-align:left;border-bottom:1px solid var(--border)">CLUB</th>'
+      +'<th style="font-family:var(--mono);font-size:8px;color:var(--muted);padding:4px 10px;text-align:right;border-bottom:1px solid var(--border)">W-L</th>'
+      +'<th style="font-family:var(--mono);font-size:8px;color:var(--muted);padding:4px 10px;text-align:right;border-bottom:1px solid var(--border)">PTS</th>'
+      +'</tr></thead><tbody>';
+    list.forEach((a,idx)=>{
+      const isTop=idx===0&&a.points>0;
+      html+='<tr style="border-bottom:1px solid #111115'+(isTop?';background:var(--gold-bg)':'')+'">'
+        +'<td style="padding:5px 10px;font-weight:600;color:'+(isTop?'var(--gold)':'var(--text)')+'">'+(isTop?'★ ':'')+escH(a.name)+'</td>'
+        +'<td style="padding:5px 10px;font-size:10px;color:var(--muted)">'+escH(a.club||'')+'</td>'
+        +'<td style="padding:5px 10px;font-family:var(--mono);font-size:10px;text-align:right;color:var(--muted)">'+a.w+'-'+a.l+(a.d?'-'+a.d+'D':'')+'</td>'
+        +'<td style="padding:5px 10px;font-family:\'Bebas Neue\',sans-serif;font-size:16px;text-align:right;color:'+(isTop?'var(--gold)':'var(--text)')+'">'+a.points+'</td>'
+        +'</tr>';
+    });
+    html+='</tbody></table></div>';
+  });
+  body.innerHTML=html;
+};
 
 window.openPublic=function(){document.getElementById('pub-view').classList.add('show');renderPublicContent();pubTimer=setInterval(renderPublicContent,5000);};
 window.closePublic=function(){document.getElementById('pub-view').classList.remove('show');clearInterval(pubTimer);};
