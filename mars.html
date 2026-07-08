@@ -21,7 +21,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
 ::-webkit-scrollbar{width:2px;height:2px}::-webkit-scrollbar-thumb{background:#333}
 #toast{position:fixed;top:56px;right:10px;z-index:500;font-family:var(--mono);font-size:10px;padding:7px 12px;border-radius:2px;display:none;max-width:260px;line-height:1.5}
 #toast.show{display:block}
-.hdr{background:#0a0a0d;border-bottom:2px solid var(--gold);padding:12px 14px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:10}
+.hdr{background:#0a0a0d;border-bottom:2px solid var(--gold);padding:0 14px;height:48px;box-sizing:border-box;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:10}
 .hdr-title{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;color:var(--gold);flex:1}
 .sync-dot{width:7px;height:7px;border-radius:50%;background:var(--dim);flex-shrink:0;transition:background .3s}
 .sync-dot.live{background:var(--green);box-shadow:0 0 6px var(--green)}
@@ -38,7 +38,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
 .draw-mat-cols{display:flex;gap:8px;overflow-x:auto;padding:8px;padding-bottom:24px;-webkit-overflow-scrolling:touch;min-height:calc(100vh - 52px)}
 .draw-mat-col{flex:0 0 280px;background:var(--surf);border:1px solid var(--border);border-radius:3px;overflow:hidden}
 @media(min-width:800px){.draw-mat-col{flex:1;min-width:260px}}
-.draw-mat-hdr{background:#0d0d10;border-bottom:2px solid var(--gold);padding:8px 12px;display:flex;align-items:center;gap:8px;position:sticky;top:48px;z-index:5}
+.draw-mat-hdr{background:#0d0d10;border-bottom:2px solid var(--gold);padding:8px 12px;display:flex;align-items:center;gap:8px}
 .draw-mat-title{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;color:var(--gold)}
 .draw-mat-count{font-family:var(--mono);font-size:9px;color:var(--muted);margin-left:auto}
 .draw-mat-list{padding:5px;user-select:none;-webkit-user-select:none}
@@ -84,8 +84,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
   <div class="hdr-title">📋 MARSHAL</div>
   <button class="btn btn-gold btn-xs" onclick="openAddMatch()">+ ADD MATCH</button>
   <div class="sync-dot" id="sync-dot" title="Firebase sync"></div>
-  <a href="https://eagleds.github.io/CGS-manager/withdrawn.html" style="text-decoration:none"><button class="btn btn-ghost btn-xs" style="color:var(--red);border-color:var(--red-dk)">WITHDRAWN</button></a>
-  <a href="https://eagleds.github.io/CGS-manager/" style="text-decoration:none"><button class="btn btn-ghost btn-xs">FULL APP →</button></a>
+  <a href="https://eagleds.github.io/CGS-manager/wd.html" style="text-decoration:none"><button class="btn btn-ghost btn-xs" style="color:var(--red);border-color:var(--red-dk)">WITHDRAWN</button></a>
 </div>
 
 <div class="draw-mat-cols" id="draw-mat-cols"></div>
