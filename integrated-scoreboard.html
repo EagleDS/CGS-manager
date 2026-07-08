@@ -325,7 +325,7 @@ h1.brand{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.4rem,4vw,2.4rem);
         </div>
       </div>
       <!-- Round stopwatch — starts automatically the instant the round starts and
-           stops automatically when the round ends. No separate controls. Local to
+           stops automatically when the round ends. Local to
            this device only, never written to Firebase, so it can never appear on
            the public scoreboard. -->
       <div class="h-stopwatch-block">
@@ -637,9 +637,21 @@ function styleLabel(s){return STYLES[s]?.label||s;}
 function hybridName(r){return STYLES.hybrid.hybridNames[r-1]||"";}
 function maxRounds(s){return STYLES[s]?.rounds||3;}
 function actionsFor(style,round){return style==="hybrid"?(ACTIONS.hybrid[round]||ACTIONS.hybrid[1]):(ACTIONS[style]||ACTIONS.boxing);}
-function calcCard(r,b){
-  const gap=Math.abs(r-b),winner=r>b?"red":b>r?"blue":"draw",pts=gap>=10?8:9;
-  if(winner==="draw")return{winner:"draw",redPts:10,bluePts:10,label:"10\u201310 EVEN"};
+// ── NO-DRAW POLICY (round level) ──────────────────────────────────────────
+// A judge's card is never allowed to end level. If the raw tally is tied,
+// whoever landed the LAST scoring action on that judge's card takes the
+// round 10-9 (never 10-8 — a tie-break round is always the closest possible
+// margin). lastSide is the side that scored most recently on this specific
+// judge's tally. If the tally is 0-0 with no scoring action at all recorded
+// (i.e. lastSide is unset), there is nothing to base a decision on and the
+// card remains a true 10-10 — this should not occur in a real bout.
+function calcCard(r,b,lastSide){
+  if(r===b){
+    if(lastSide==="red")  return{winner:"red", redPts:10,bluePts:9, label:"Red 10\u20139 (last score)"};
+    if(lastSide==="blue") return{winner:"blue",redPts:9, bluePts:10,label:"Blue 10\u20139 (last score)"};
+    return{winner:"draw",redPts:10,bluePts:10,label:"10\u201310 EVEN"};
+  }
+  const gap=Math.abs(r-b),winner=r>b?"red":"blue",pts=gap>=10?8:9;
   return{winner,redPts:winner==="red"?10:pts,bluePts:winner==="blue"?10:pts,label:winner==="red"?`Red 10\u2013${pts}`:`Blue 10\u2013${pts}`};
 }
 function mkHash(c){return "#"+Object.entries(c).map(([k,v])=>`${k}=${encodeURIComponent(v)}`).join("&");}
@@ -831,6 +843,7 @@ async function initState(style,hardReset){
     round:1,style:style||"boxing",
     timerSeconds:120,timerMax:120,timerRunning:false,timerVisible:false,
     winner:"",roundResults:[],judgeCardHistory:{},roundEnded:0,roundActive:false,
+    lastScoringSide:null,
     boutId,eventId:eventIdVal,matchComplete:false,matchWinnerSide:""
   });
   set(ref(db,`sessions/${SES}/judgeCards`),null);
@@ -924,7 +937,7 @@ function renderJudgePills(tallies){
       html+=`<div class="judge-pill waiting">J${j} \u2026</div>`;
       continue;
     }
-    const card=calcCard(t.red||0,t.blue||0);
+    const card=calcCard(t.red||0,t.blue||0,t.lastSide);
     const lean=card.winner==="red"?"\ud83d\udd34 Red":card.winner==="blue"?"\ud83d\udd35 Blue":"Even";
     html+=`<div class="judge-pill submitted">J${j} \u2192 ${lean}</div>`;
   }
@@ -967,10 +980,10 @@ async function toggleRound(){
 
 async function startRoundNow(st){
   stopwatchStart();
-  // Clear tallies, mark active, start timer if visible
+  // Clear tallies, mark active, reset last-scorer tracking, start timer if visible
   await set(ref(db,`sessions/${SES}/judgeCards`),null);
   await set(ref(db,`sessions/${SES}/tallies`),null);
-  const updates={roundActive:true,roundEnded:0};
+  const updates={roundActive:true,roundEnded:0,lastScoringSide:null};
   if(st.timerVisible){
     updates.timerSeconds=st.timerMax||120;
     updates.timerRunning=true;
@@ -996,8 +1009,14 @@ async function endRoundNow(st){
 
   if(isTKD){
     const rs=st.redScore||0,bs=st.blueScore||0;
-    winner=rs>bs?"red":bs>rs?"blue":"draw";
     rp=rs;bp=bs;
+    // NO-DRAW POLICY: if the round's raw score is level, the round goes to
+    // whoever scored the LAST point (tracked via lastScoringSide, updated on
+    // every chScore(side,+d) call). Only stays a draw if literally nobody
+    // scored anything all round.
+    if(rs>bs) winner="red";
+    else if(bs>rs) winner="blue";
+    else winner=st.lastScoringSide==="red"?"red":st.lastScoringSide==="blue"?"blue":"draw";
   } else {
     const talliesSnap=await get(ref(db,`sessions/${SES}/tallies`));
     const tallies=talliesSnap.val()||{};
@@ -1017,10 +1036,19 @@ async function endRoundNow(st){
 
       keys.forEach(k=>{
         const t=tallies[k];
-        const jcard=calcCard(t.red||0,t.blue||0);
+        // NO-DRAW POLICY applied per judge card: a level tally on this judge's
+        // card goes 10-9 to whoever landed the last scoring action on it
+        // (t.lastSide), never a 10-10 draw.
+        const jcard=calcCard(t.red||0,t.blue||0,t.lastSide);
         const rPts=Math.max(0,jcard.redPts-redDed);
         const bPts=Math.max(0,jcard.bluePts-blueDed);
-        const jWinner=rPts>bPts?"red":bPts>rPts?"blue":"draw";
+        // Deductions are applied after the no-draw decision is made. If a
+        // deduction happens to bring the two point totals back level, the
+        // round does NOT revert to a draw — the winner already decided by
+        // calcCard's no-draw policy stands.
+        let jWinner;
+        if(rPts===bPts){ jWinner = jcard.winner==="draw" ? "draw" : jcard.winner; }
+        else jWinner = rPts>bPts?"red":"blue";
         // Record this judge's individual scorecard for this round, deductions included
         roundJudgeCards[k]={red:rPts,blue:bPts,winner:jWinner};
         if(jWinner==="red")redWins++; else if(jWinner==="blue")blueWins++; else draws++;
@@ -1029,7 +1057,8 @@ async function endRoundNow(st){
 
       if(redWins>blueWins){ winner="red"; }
       else if(blueWins>redWins){ winner="blue"; }
-      else { winner="draw"; }
+      else if(draws===keys.length){ winner="draw"; } // only if EVERY judge somehow drew
+      else { winner=redPtsSum>bluePtsSum?"red":bluePtsSum>redPtsSum?"blue":"draw"; }
 
       // Round total shown on the host/public board is the average of the
       // already-deducted individual judge cards for that round.
@@ -1050,9 +1079,6 @@ async function endRoundNow(st){
   const judgeCardHistory={...(st.judgeCardHistory||{})};
   if(!isTKD && roundJudgeCards) judgeCardHistory[round]=roundJudgeCards;
 
-  // ── Fight winner: majority of rounds won (not total points) ──
-  let redRounds=0,blueRounds=0;
-  results.forEach(r=>{if(r){if(r.winner==="red")redRounds++;else if(r.winner==="blue")blueRounds++;}});
   // Running display scores = cumulative points across rounds
   let rt=0,bt=0;results.forEach(r=>{if(r){rt+=r.red;bt+=r.blue;}});
 
@@ -1068,18 +1094,19 @@ async function endRoundNow(st){
     redDeductions:0,
     blueDeductions:0,
     timerRunning:false,
+    lastScoringSide:null,
   };
 
   if(isLastRound){
-    // Majority of rounds wins the fight. If tied on rounds, the fight
-    // goes to whoever won the final round rather than being called a draw.
-    let fightWinner=redRounds>blueRounds?"red":blueRounds>redRounds?"blue":"draw";
-    if(fightWinner==="draw"){
-      const lastRoundResult=results[mr-1];
-      if(lastRoundResult && lastRoundResult.winner!=="draw"){
-        fightWinner=lastRoundResult.winner;
-      }
-    }
+    // ── NO-DRAW / "FINISH STRONGEST" FIGHT POLICY ─────────────
+    // The fight winner is simply whoever won the LAST round completed.
+    // Not majority-of-rounds, not point margin — finishing the fight
+    // strongest wins it outright, even if that means overturning a
+    // 2-rounds-to-1 deficit. Round-level no-draw policy above guarantees
+    // every round (including this last one) has a real winner, so this
+    // is never actually a tie needing a fallback.
+    const lastRoundResult=results[mr-1];
+    const fightWinner=lastRoundResult?lastRoundResult.winner:"draw";
     next.winner=fightWinner==="red"?(st.redName||"RED").toUpperCase()+" WINS!":
                 fightWinner==="blue"?(st.blueName||"BLUE").toUpperCase()+" WINS!":
                 "IT'S A DRAW!";
@@ -1113,6 +1140,7 @@ async function undoRound(){
   stopwatchStop();T("h-stopwatch","0:00.0");
   await set(ref(db,`sessions/${SES}/state/roundActive`),false);
   await set(ref(db,`sessions/${SES}/state/timerRunning`),false);
+  await set(ref(db,`sessions/${SES}/state/lastScoringSide`),null);
   await set(ref(db,`sessions/${SES}/judgeCards`),null);
   await set(ref(db,`sessions/${SES}/tallies`),null);
   const mx=(await get(ref(db,`sessions/${SES}/state/timerMax`))).val()||120;
@@ -1123,13 +1151,10 @@ async function declareWinner(){
   const stSnap=await get(ref(db,`sessions/${SES}/state`));if(!stSnap.exists())return;
   const s=stSnap.val();
   const results=s.roundResults||[];
-  let redRounds=0,blueRounds=0;
-  results.forEach(r=>{if(r){if(r.winner==="red")redRounds++;else if(r.winner==="blue")blueRounds++;}});
-  let w=redRounds>blueRounds?"red":blueRounds>redRounds?"blue":"draw";
-  if(w==="draw"&&results.length){
-    const last=results[results.length-1];
-    if(last && last.winner!=="draw") w=last.winner;
-  }
+  // Matches the same "finish strongest wins" fight policy as endRoundNow:
+  // the fight winner is whoever won the most recently completed round.
+  const lastRoundResult=results.length?results[results.length-1]:null;
+  const w=lastRoundResult?lastRoundResult.winner:"draw";
   await set(ref(db,`sessions/${SES}/state/winner`),
     w==="red"?(s.redName||"RED").toUpperCase()+" WINS!":
     w==="blue"?(s.blueName||"BLUE").toUpperCase()+" WINS!":
@@ -1155,7 +1180,15 @@ async function applyDQ(side){
     await set(ref(db,`sessions/${SES}/state/matchComplete`),true);
   }
 }
-async function chScore(side,d){const r=ref(db,`sessions/${SES}/state/${side}Score`);await set(r,Math.max(0,((await get(r)).val()||0)+d));}
+async function chScore(side,d){
+  const r=ref(db,`sessions/${SES}/state/${side}Score`);
+  await set(r,Math.max(0,((await get(r)).val()||0)+d));
+  // Track last-to-score side for the round-level no-draw policy (TKD path).
+  // Only a positive scoring action counts as "landing the last point" — a
+  // manual minus-score correction by the host should not be able to hand a
+  // tie-break to a side that didn't actually score last.
+  if(d>0) await set(ref(db,`sessions/${SES}/state/lastScoringSide`),side);
+}
 async function addGam(side){const opp=side==="red"?"blue":"red";const r=ref(db,`sessions/${SES}/state/${side}Gam`);const n=((await get(r)).val()||0)+1;await set(r,n);await chScore(opp,1);}
 async function addKyong(side){const opp=side==="red"?"blue":"red";const r=ref(db,`sessions/${SES}/state/${side}Kyong`);const n=((await get(r)).val()||0)+1;await set(r,n);if(n%2===0)await chScore(opp,1);}
 async function undoPen(side){
@@ -1186,7 +1219,7 @@ async function toggleTimer(){const r=ref(db,`sessions/${SES}/state/timerVisible`
 function initJudge(){
   const db2=getDatabase(fbApp("cgs-judge"+JID));
   let flipped=false,curRound=1,curStyle="boxing",roundActive=false;
-  let tally={red:0,blue:0},rn="Fighter 1",bn="Fighter 2";
+  let tally={red:0,blue:0,lastSide:null},rn="Fighter 1",bn="Fighter 2";
   T("j-badge","JUDGE "+JID);
   if(AGE==="u12")el("j-nohead-banner").style.display="block";
   T("j-status",JC===1?"You are the sole judge.":JC===2?"Both judges score each round.":"Score each round \u2014 2 of 3 decide.");
@@ -1209,13 +1242,13 @@ function initJudge(){
       el("j-undo-row").style.display=isTKD?"none":"flex";
       el("j-tkd-area").style.display=isTKD?"grid":"none";
       el("j-bonus-row").style.display=(isTKD&&JC===1)?"flex":"none";
-      // Round/style change — reset tally
+      // Round/style change — reset tally (including last-scorer tracking)
       if((s.round??1)!==curRound||styleChanged){
-        curRound=s.round??1;tally={red:0,blue:0};
+        curRound=s.round??1;tally={red:0,blue:0,lastSide:null};
       }
       // Round ended — clear tally display
       if(!roundActive&&s.roundEnded&&(Date.now()-s.roundEnded)<10000){
-        tally={red:0,blue:0};
+        tally={red:0,blue:0,lastSide:null};
       }
       el("j-hybrid-bar").style.display=curStyle==="hybrid"?"block":"none";
       if(curStyle==="hybrid"){
@@ -1265,26 +1298,33 @@ function initJudge(){
     b.onclick=()=>{
       if(!roundActive)return;
       tally[side]+=act.pts;
+      tally.lastSide=side;
       b.classList.add("flash");setTimeout(()=>b.classList.remove("flash"),220);
       buildTally(flipped);
-      set(ref(db2,`sessions/${SES}/tallies/judge${JID}`),{...tally,ts:Date.now()}).catch(()=>{});
+      set(ref(db2,`sessions/${SES}/tallies/judge${JID}`),{red:tally.red,blue:tally.blue,lastSide:tally.lastSide,ts:Date.now()}).catch(()=>{});
     };
     return b;
   }
-  function updateCard(){const card=calcCard(tally.red,tally.blue);T("j-card-score",card.label);}
+  function updateCard(){const card=calcCard(tally.red,tally.blue,tally.lastSide);T("j-card-score",card.label);}
   el("j-undoL").onclick=()=>{
     const side=flipped?"blue":"red";const acts=actionsFor(curStyle,curRound);
     const min=Math.min(...acts.map(a=>a.pts));
-    if(tally[side]>=min)tally[side]-=min;
+    if(tally[side]>=min){
+      tally[side]-=min;
+      if(tally.lastSide===side) tally.lastSide=null; // undoing the last scored point clears the tiebreak claim
+    }
     buildTally(flipped);
-    set(ref(db2,`sessions/${SES}/tallies/judge${JID}`),{...tally,ts:Date.now()}).catch(()=>{});
+    set(ref(db2,`sessions/${SES}/tallies/judge${JID}`),{red:tally.red,blue:tally.blue,lastSide:tally.lastSide,ts:Date.now()}).catch(()=>{});
   };
   el("j-undoR").onclick=()=>{
     const side=flipped?"red":"blue";const acts=actionsFor(curStyle,curRound);
     const min=Math.min(...acts.map(a=>a.pts));
-    if(tally[side]>=min)tally[side]-=min;
+    if(tally[side]>=min){
+      tally[side]-=min;
+      if(tally.lastSide===side) tally.lastSide=null;
+    }
     buildTally(flipped);
-    set(ref(db2,`sessions/${SES}/tallies/judge${JID}`),{...tally,ts:Date.now()}).catch(()=>{});
+    set(ref(db2,`sessions/${SES}/tallies/judge${JID}`),{red:tally.red,blue:tally.blue,lastSide:tally.lastSide,ts:Date.now()}).catch(()=>{});
   };
   // BUG FIX: TKD scoring buttons previously had no roundActive gate at all — a judge
   // could tap Punch Body / Kick Body / Kick Head any time, including before the round
@@ -1509,4 +1549,3 @@ try{
 </script>
 </body>
 </html>
-
