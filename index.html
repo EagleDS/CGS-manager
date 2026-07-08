@@ -43,7 +43,6 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
 .btn-ghost{background:none;border:1px solid var(--border);color:var(--muted)}.btn-ghost:hover{border-color:#555;color:var(--text)}
 .btn-sm{padding:4px 9px;font-size:10px}
 .btn-xs{padding:3px 7px;font-size:9px}
-.btn-icon{padding:6px 8px;font-size:14px}
 .row-btns{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;align-items:center}
 .fld{margin-bottom:10px}
 .fld label{font-family:var(--mono);font-size:8px;letter-spacing:1.5px;color:var(--muted);display:block;margin-bottom:3px;text-transform:uppercase}
@@ -56,29 +55,6 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
 .stat{background:var(--surf);border:1px solid var(--border);border-radius:3px;padding:8px 12px;min-width:70px}
 .stat-v{font-family:'Bebas Neue',sans-serif;font-size:24px;line-height:1}
 .stat-l{font-family:var(--mono);font-size:8px;letter-spacing:1.5px;color:var(--muted);margin-top:1px}
-.bout-card{background:var(--surf);border:1px solid var(--border);border-radius:3px;margin-bottom:5px;overflow:hidden;transition:border-color .15s}
-.bout-card.live{border-color:var(--red);background:#0e0404}
-.bout-card.done{border-color:#0a2010;background:#030a05}
-.bout-card.cancelled{opacity:.4}
-.bout-card.flagged{border-color:var(--orange)}
-.bout-top{display:flex;align-items:center;gap:6px;padding:6px 10px;border-bottom:1px solid var(--border)}
-.bout-num{font-family:'Bebas Neue',sans-serif;font-size:15px;color:var(--dim);min-width:36px}
-.bout-flags{display:flex;gap:2px;flex-wrap:wrap;flex:1}
-.bout-mat{font-family:var(--mono);font-size:9px;color:var(--muted);margin-left:auto;white-space:nowrap}
-.bout-body{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:6px;padding:8px 10px}
-.bf{display:flex;flex-direction:column;gap:1px}
-.bf.right{text-align:right}
-.bf-name{font-weight:600;font-size:13px;line-height:1.2}
-.bf-club{font-size:10px;color:var(--muted)}
-.bf-meta{font-family:var(--mono);font-size:9px;color:var(--dim)}
-.vs-col{text-align:center}
-.vs-txt{font-family:'Bebas Neue',sans-serif;font-size:13px;color:var(--dim)}
-.score-disp{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:2px;line-height:1}
-.bout-foot{padding:5px 10px 8px;border-top:1px solid var(--border);display:flex;gap:5px;align-items:flex-start;flex-wrap:wrap}
-.bout-foot-actions{display:flex;gap:4px;flex-wrap:wrap;margin-left:auto}
-.bout-reassign{width:100%;margin-top:6px;display:flex;gap:6px;flex-wrap:wrap}
-.reassign-col{flex:1;min-width:140px}
-.reassign-label{font-family:var(--mono);font-size:8px;letter-spacing:1px;margin-bottom:3px}
 .flag{display:inline-flex;align-items:center;font-family:var(--mono);font-size:8px;font-weight:700;padding:2px 4px;border-radius:2px;letter-spacing:.5px;white-space:nowrap;margin:1px}
 .f-nh{background:#1a0e00;border:1px solid #6a3800;color:#e09020}
 .f-ex{background:#12061a;border:1px solid #4a2a6a;color:#9060d0}
@@ -89,11 +65,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
 .f-ni{background:#0a1020;border:1px solid #203060;color:#5080c0}
 .sec-hdr{background:#0d0d10;border-left:3px solid var(--gold);padding:8px 12px;margin-bottom:3px;display:flex;align-items:baseline;gap:10px}
 .sec-name{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:var(--gold)}
-.sec-sub{font-family:var(--mono);font-size:9px;color:var(--muted)}
 .div-hdr{background:var(--surf2);border-left:2px solid var(--dim);padding:3px 10px;font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:1px;margin-bottom:2px}
-.filter-bar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
-.filter-bar input,.filter-bar select{background:#0a0a0d;border:1px solid var(--border);color:var(--text);padding:5px 8px;border-radius:2px;font-family:var(--mono);font-size:10px;-webkit-appearance:none}
-.filter-bar input:focus,.filter-bar select:focus{outline:none;border-color:var(--gold)}
 #overlay{position:fixed;inset:0;background:rgba(0,0,0,.94);z-index:200;display:none;align-items:flex-end;justify-content:center}
 #overlay.show{display:flex}
 .modal{background:#0f0f12;border:1px solid var(--border);border-top:2px solid var(--gold);border-radius:4px 4px 0 0;width:100%;max-width:480px;max-height:88vh;overflow-y:auto;padding:18px;padding-bottom:32px}
@@ -127,47 +99,15 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
 .pub-pill{background:var(--red-bg);border:1px solid var(--red);color:var(--red);font-family:var(--mono);font-size:9px;padding:2px 7px;border-radius:2px;display:none}
 .pub-pill.show{display:inline-block;animation:blink 1.4s infinite}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
-.pub-body{padding:12px;display:grid;gap:12px;max-width:800px;margin:0 auto}
-@media(min-width:600px){.pub-body{grid-template-columns:1fr 1fr}}
-.pub-section-title{font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:3px;margin-bottom:8px}
-.pub-bout{background:#0e0e12;border:1px solid #1a1a20;border-top:2px solid var(--red);border-radius:3px;margin-bottom:8px;overflow:hidden}
-.pub-bout-hdr{padding:5px 12px;background:#120505;display:flex;justify-content:space-between;font-family:var(--mono);font-size:8px;letter-spacing:1px;color:var(--muted)}
-.pub-bout-body{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:10px 12px 14px;gap:8px}
-.pub-f{text-align:center}
-.pub-fn{font-weight:700;font-size:15px;line-height:1.2;margin-bottom:2px}
-.pub-fc{font-size:9px;color:var(--muted)}
-.pub-sc{font-family:'Bebas Neue',sans-serif;font-size:64px;line-height:1;margin-top:3px}
-.pub-vs{font-family:'Bebas Neue',sans-serif;font-size:16px;color:#1a1a20;text-align:center}
-.pub-res-row{background:#0a0a0e;border:1px solid #141418;border-radius:3px;padding:8px 12px;display:flex;align-items:center;gap:8px;margin-bottom:5px;flex-wrap:wrap}
-.pub-draw-bout{background:#0d0d10;border:1px solid var(--border);border-radius:3px;padding:8px 12px;margin-bottom:4px}
-.pub-draw-hdr{font-family:var(--mono);font-size:8px;color:var(--muted);margin-bottom:4px;display:flex;justify-content:space-between}
-.pub-draw-names{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:600}
-.pub-draw-vs{font-family:'Bebas Neue',sans-serif;font-size:12px;color:var(--dim)}
 #marshal-view{display:none;position:fixed;inset:0;background:#060608;z-index:290;overflow-y:auto}
 #marshal-view.show{display:block}
 .marshal-hdr{background:#0a0a0d;border-bottom:2px solid var(--gold);padding:10px 14px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:10}
 .marshal-title{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:3px;color:var(--gold);flex:1}
-.marshal-body{padding:10px}
-.marshal-bout{background:#0f0f12;border:1px solid var(--border);border-radius:4px;margin-bottom:8px;overflow:hidden}
-.marshal-bout.live{border-color:var(--red)}
-.marshal-bout.done{border-color:#0a2010;opacity:.6}
-.marshal-bout-hdr{padding:8px 12px;background:#111115;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border)}
-.marshal-num{font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--gold);min-width:42px}
-.marshal-bout-body{padding:10px 12px}
-.marshal-fighters{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;margin-bottom:10px}
-.mf-name{font-weight:600;font-size:15px}
-.mf-club{font-size:10px;color:var(--muted)}
-.mf-checkin{display:flex;gap:6px;margin-top:4px}
-.checkin-btn{padding:5px 10px;font-family:var(--mono);font-size:9px;border-radius:2px;border:1px solid var(--border);background:none;color:var(--muted);cursor:pointer;-webkit-tap-highlight-color:transparent}
-.checkin-btn.checked{background:var(--green-bg);border-color:var(--green);color:var(--green)}
-.checkin-btn.noshow{background:var(--red-bg);border-color:var(--red);color:var(--red)}
-.marshal-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
 .setup-card{background:var(--surf);border:1px solid var(--border);border-radius:3px;padding:16px;margin-bottom:12px;max-width:500px;margin-left:auto;margin-right:auto}
 .setup-card h2{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:var(--gold);margin-bottom:4px}
 .setup-card p{font-size:11px;color:var(--muted);line-height:1.6;margin-bottom:12px}
 .config-status{font-family:var(--mono);font-size:10px;padding:8px 12px;border-radius:2px;margin-bottom:10px}
 .config-status.ok{background:var(--green-bg);border:1px solid var(--green);color:var(--green)}
-.config-status.none{background:#1a1200;border:1px solid var(--dim);color:var(--muted)}
 .needs-match-panel{background:var(--surf);border:1px solid var(--orange);border-radius:3px;padding:12px;margin-bottom:12px}
 .nm-title{font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:2px;color:var(--orange);margin-bottom:8px}
 .nm-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border)}
@@ -195,33 +135,22 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
 .match-foot{padding:5px 10px 8px;border-top:1px solid #111115}
 .match-foot-btns{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:6px}
 .rdrop{width:100%;background:#0a0a0d;border:1px solid var(--border);color:var(--text);padding:5px 8px;border-radius:2px;font-family:var(--mono);font-size:10px;-webkit-appearance:none}
-.rdrop:focus{outline:none;border-color:var(--gold)}
-.rdrop-label{font-family:var(--mono);font-size:8px;letter-spacing:1px;color:var(--muted);margin-bottom:3px;text-transform:uppercase}
-@media(max-width:480px){.g2{grid-template-columns:1fr}.g3{grid-template-columns:1fr 1fr}.bout-body{grid-template-columns:1fr auto 1fr}.bf-name{font-size:12px}.win-btns{grid-template-columns:1fr 1fr 1fr}}
+@media(max-width:480px){.g2{grid-template-columns:1fr}.g3{grid-template-columns:1fr 1fr}}
 .queue-col{background:var(--surf);border:1px solid var(--border);border-radius:3px;flex:1;min-width:220px;max-width:400px}
 .queue-col-hdr{background:#0d0d10;border-bottom:1px solid var(--border);padding:8px 12px;display:flex;align-items:center;gap:8px;position:sticky;top:48px;z-index:10}
 .queue-mat-name{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;color:var(--gold)}
 .queue-count{font-family:var(--mono);font-size:9px;color:var(--muted);margin-left:auto}
 .queue-list{padding:6px}
 .queue-item{background:#13131a;border:1px solid var(--border);border-radius:3px;margin-bottom:4px;cursor:grab;user-select:none;transition:opacity .15s,border-color .15s;position:relative}
-.queue-item:active{cursor:grabbing}
-.queue-item.dragging{opacity:.35;border-color:var(--gold)}
-.queue-item.drag-over{border-color:var(--gold);border-style:dashed}
 .queue-item.live-item{border-color:var(--red);background:#0e0404}
-.queue-item.hold-item{border-color:#2a5a8a;background:#050d1a}
-.queue-item.done-item{opacity:.4}
 .queue-item-top{display:flex;align-items:center;gap:6px;padding:6px 8px 4px}
-.queue-drag-handle{color:var(--dim);font-size:14px;cursor:grab;padding:0 2px;flex-shrink:0;touch-action:none}
 .queue-num{font-family:'Bebas Neue',sans-serif;font-size:14px;color:var(--dim);min-width:30px}
 .queue-disc{font-family:var(--mono);font-size:8px;color:var(--muted);flex:1}
 .queue-item-body{padding:2px 8px 8px 8px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:4px}
 .qi-name{font-size:12px;font-weight:600;line-height:1.2}
 .qi-club{font-size:9px;color:var(--muted)}
 .qi-vs{font-family:'Bebas Neue',sans-serif;font-size:11px;color:var(--dim);text-align:center}
-.qi-score{font-family:'Bebas Neue',sans-serif;font-size:22px;line-height:1;text-align:center}
 .queue-item-actions{display:flex;gap:4px;padding:0 6px 6px;flex-wrap:wrap}
-.clash-badge{display:inline-flex;align-items:center;font-family:var(--mono);font-size:8px;font-weight:700;padding:2px 5px;border-radius:2px;background:#1a0a00;border:1px solid var(--orange);color:var(--orange);margin:1px}
-.up-next-badge{display:inline-flex;align-items:center;font-family:var(--mono);font-size:8px;font-weight:700;padding:2px 6px;border-radius:2px;background:#001a08;border:1px solid var(--green);color:var(--green)}
 .pub-queue-wrap{display:flex;gap:12px;overflow-x:auto;padding:12px;-webkit-overflow-scrolling:touch}
 @media(min-width:700px){.pub-queue-wrap{flex-wrap:nowrap;align-items:flex-start}}
 .pub-mat-col{flex:0 0 280px;background:#0d0d10;border-radius:3px;overflow:hidden}
@@ -248,8 +177,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
 .draw-bout-row.live{border-color:var(--red)}
 .draw-bout-row.done{opacity:.5;border-color:#0a2010}
 .draw-bout-row.flagged{border-color:var(--orange)}
-.draw-bout-row.dragging{opacity:.3}.draw-mat-list{user-select:none;-webkit-user-select:none}.draw-mat-list *{user-select:none;-webkit-user-select:none}.draw-inline-replace select,.draw-inline-replace button{user-select:auto;pointer-events:auto}.draw-bout-row.drag-over{border-color:var(--gold)!important;background:#1a1200!important}.disc-chip.selected{background:var(--gold-bg)!important;border-color:var(--gold)!important;color:var(--gold)!important}
-.draw-bout-row.drag-over{border-color:var(--gold)!important;background:#1a1200!important}
+.draw-bout-row.dragging{opacity:.3}.draw-mat-list{user-select:none}.draw-mat-list *{user-select:none}.draw-inline-replace select,.draw-inline-replace button{user-select:auto;pointer-events:auto}.draw-bout-row.drag-over{border-color:var(--gold)!important;background:#1a1200!important}
 .draw-bout-hdr{display:flex;align-items:center;gap:6px;padding:5px 8px;border-bottom:1px solid #111115}
 .draw-fight-num{font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--gold);min-width:32px;line-height:1}
 .draw-disc-tag{font-family:var(--mono);font-size:8px;color:var(--muted);flex:1}
@@ -257,23 +185,11 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
 .draw-name{font-weight:600;font-size:12px;line-height:1.2}
 .draw-club{font-size:9px;color:var(--muted)}
 .draw-vs{font-family:'Bebas Neue',sans-serif;font-size:11px;color:var(--dim);text-align:center}
-.draw-handle{color:var(--dim);font-size:13px;cursor:grab;padding:0 2px;touch-action:none;flex-shrink:0;user-select:none;-webkit-user-select:none}
-.draw-bout-row{user-select:none;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none}
-.draw-mat-list *{user-select:none;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none}
-.draw-inline-replace select,.draw-inline-replace button{user-select:auto;-webkit-user-select:auto}
+.draw-handle{color:var(--dim);font-size:13px;cursor:grab;padding:0 2px;touch-action:none;flex-shrink:0;user-select:none}
 .draw-inline-replace{padding:4px 6px 6px;border-top:1px solid #111115;display:flex;gap:4px;flex-wrap:wrap}
 .inline-sel{flex:1;min-width:120px;background:#080808;border:1px solid var(--border);color:var(--text);padding:3px 6px;border-radius:2px;font-family:var(--mono);font-size:9px;-webkit-appearance:none}
-.inline-sel:focus{outline:none;border-color:var(--gold)}
 .undo-btn{background:#1a1000;border:1px solid #4a3000;color:var(--gold);font-family:var(--mono);font-size:9px;padding:3px 8px;border-radius:2px;cursor:pointer;white-space:nowrap;flex-shrink:0}
 .undo-btn:hover{background:#2a1800}
-.disc-pool{background:#0a0a0d;border:1px solid var(--border);border-radius:3px;padding:8px;min-width:120px;margin-bottom:8px}
-.disc-pool-title{font-family:var(--mono);font-size:8px;letter-spacing:1px;color:var(--muted);margin-bottom:6px;text-transform:uppercase}
-.disc-chip{background:var(--surf2);border:1px solid var(--border);border-radius:2px;padding:5px 10px;font-family:var(--mono);font-size:10px;color:var(--text);cursor:grab;user-select:none;margin-bottom:4px;display:flex;align-items:center;gap:6px}
-.disc-chip:hover{border-color:var(--gold);color:var(--gold)}
-.disc-chip.assigned{opacity:.5}
-.mat-drop-zone{background:#0a0a0d;border:2px dashed var(--border);border-radius:3px;padding:8px;min-height:80px;min-width:140px;flex:1;transition:border-color .15s}
-.mat-drop-zone.drag-active{border-color:var(--gold);background:var(--gold-bg)}
-.mat-drop-zone-title{font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:2px;color:var(--gold);margin-bottom:6px}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
 </head>
@@ -300,58 +216,36 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
   <button class="btn btn-ghost btn-xs" style="color:#5080c0;border-color:#1a2840;flex-shrink:0" onclick="openHeadOfTable()">🎙</button>
 </div>
 
-<!-- HOME DASHBOARD -->
 <div id="view-home" class="view on">
-
-  <!-- Event header -->
   <div style="background:var(--gold-bg);border:1px solid var(--gold-dk);border-radius:3px;padding:14px 16px;margin-bottom:14px">
     <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:3px;color:var(--gold)" id="dash-event-name">Combat Games Series — Event Three</div>
     <div style="font-family:var(--mono);font-size:9px;color:var(--muted);margin-top:2px" id="dash-event-meta">Saturday July 11 2026 · 17 Nandina Drive, East Tāmaki</div>
   </div>
-
-  <!-- Stats row -->
   <div id="dash-stats" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px"></div>
-
-  <!-- Two column grid -->
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
-
-    <!-- REGISTRATIONS folder -->
     <div class="panel" style="cursor:pointer;border-top:2px solid var(--gold)" onclick="goView('regs')">
       <div class="panel-title" style="font-size:13px">REGISTRATIONS</div>
       <div id="dash-regs-summary" style="font-family:var(--mono);font-size:9px;color:var(--muted);line-height:2">Loading…</div>
     </div>
-
-    <!-- DRAW folder -->
     <div class="panel" style="cursor:pointer;border-top:2px solid var(--red)" onclick="goView('draw')">
       <div class="panel-title" style="font-size:13px;color:var(--red)">DRAW</div>
       <div id="dash-draw-summary" style="font-family:var(--mono);font-size:9px;color:var(--muted);line-height:2">Loading…</div>
     </div>
-
-    <!-- POOLS folder -->
     <div class="panel" style="cursor:pointer;border-top:2px solid var(--orange)" onclick="goView('pools')">
       <div class="panel-title" style="font-size:13px;color:var(--orange)">POOLS</div>
       <div id="dash-pools-summary" style="font-family:var(--mono);font-size:9px;color:var(--muted);line-height:2">Loading…</div>
     </div>
-
-    <!-- CLUBS folder -->
     <div class="panel" style="cursor:pointer;border-top:2px solid var(--blue)" onclick="goView('regs');setTimeout(()=>goRegsTab('clubs'),100)">
       <div class="panel-title" style="font-size:13px;color:var(--blue)">CLUBS</div>
       <div id="dash-clubs-summary" style="font-family:var(--mono);font-size:9px;color:var(--muted);line-height:2">Loading…</div>
     </div>
-
-    <!-- PAYMENT folder -->
     <div class="panel" style="cursor:pointer;border-top:2px solid var(--green)" onclick="goView('weighin');setTimeout(()=>goWeighTab('payments'),100)">
       <div class="panel-title" style="font-size:13px;color:var(--green)">PAYMENT</div>
       <div id="dash-payment-summary" style="font-family:var(--mono);font-size:9px;color:var(--muted);line-height:2">Loading…</div>
       <button class="btn btn-ghost btn-xs" style="margin-top:6px" onclick="event.stopPropagation();printPaymentReport()">🖨 PRINT REPORT</button>
     </div>
-
   </div>
-
-  <!-- ALERTS -->
   <div id="dash-alerts" style="margin-bottom:14px"></div>
-
-  <!-- QUICK LAUNCH -->
   <div class="panel" style="border-top:2px solid var(--dim)">
     <div class="panel-title" style="font-size:13px;color:var(--muted)">QUICK LAUNCH</div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px">
@@ -360,6 +254,12 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
       </a>
       <a href="https://eagleds.github.io/CGS-manager/integrated-scoreboard.html" target="_blank" style="text-decoration:none">
         <button class="btn btn-ghost" style="width:100%;text-align:left;color:var(--gold);border-color:var(--gold-dk)">⚔ SCOREBOARD</button>
+      </a>
+      <a href="https://eagleds.github.io/CGS-manager/mars.html" target="_blank" style="text-decoration:none">
+        <button class="btn btn-ghost" style="width:100%;text-align:left;color:#5080c0;border-color:#1a2840">📋 MARSHAL</button>
+      </a>
+      <a href="https://eagleds.github.io/CGS-manager/wd.html" target="_blank" style="text-decoration:none">
+        <button class="btn btn-ghost" style="width:100%;text-align:left;color:var(--red);border-color:var(--red-dk)">✕ WITHDRAWN FIGHTS</button>
       </a>
       <a href="https://eagleds.github.io/CRM/eagle-os.html" target="_blank" style="text-decoration:none">
         <button class="btn btn-ghost" style="width:100%;text-align:left">🦅 EAGLE OS</button>
@@ -375,11 +275,8 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
       </a>
     </div>
   </div>
-
 </div>
 
-
-<!-- PROCESS VIEW -->
 <div id="view-process" class="view">
   <div style="display:flex;gap:3px;margin-bottom:12px">
     <div id="step-pill-1" style="flex:1;text-align:center;font-family:var(--mono);font-size:9px;padding:5px;border-radius:2px;background:var(--gold-bg);border:1px solid var(--gold-dk);color:var(--gold)">1 IMPORT</div>
@@ -439,17 +336,12 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
   </div>
 </div>
 
-<!-- REGS VIEW -->
 <div id="view-regs" class="view">
-
-  <!-- Sub-tab nav -->
   <div style="display:flex;gap:2px;margin-bottom:12px;border-bottom:1px solid var(--border);padding-bottom:0">
     <button id="regs-tab-import" class="nav-btn on" style="font-size:9px" onclick="goRegsTab('import')">IMPORT</button>
     <button id="regs-tab-athletes" class="nav-btn" style="font-size:9px" onclick="goRegsTab('athletes')">ATHLETES</button>
     <button id="regs-tab-clubs" class="nav-btn" style="font-size:9px" onclick="goRegsTab('clubs')">CLUBS</button>
   </div>
-
-  <!-- IMPORT PANEL -->
   <div id="regs-panel-import">
     <div class="panel">
       <div class="panel-title">REGISTRATION DATA</div>
@@ -481,8 +373,6 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
       </div>
     </div>
   </div>
-
-  <!-- ATHLETES PANEL -->
   <div id="regs-panel-athletes" style="display:none">
     <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;align-items:center">
       <input id="regs-athlete-search" class="fld" style="margin:0;flex:1;background:#0a0a0d;border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:2px;font-family:var(--mono);font-size:10px" placeholder="Search name or club…" oninput="renderAthleteList()"/>
@@ -500,8 +390,6 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
     <div id="regs-stats-row" style="margin-bottom:10px"></div>
     <div id="regs-athlete-list"></div>
   </div>
-
-  <!-- CLUBS PANEL -->
   <div id="regs-panel-clubs" style="display:none">
     <div class="panel">
       <div class="panel-title">CLUB NORMALISATION</div>
@@ -512,22 +400,15 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
       </div>
     </div>
   </div>
-
 </div>
 
-
-
-<!-- POOLS VIEW -->
 <div id="view-pools" class="view">
-
   <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px">
     <div id="pools-stats" style="display:flex;gap:6px;flex-wrap:wrap;flex:1"></div>
     <button class="btn btn-gold btn-sm" onclick="regsRunMatch()">⚡ MATCH THESE POOLS →</button>
     <button class="btn btn-red btn-sm" onclick="rematchAll()">↺ REMATCH ALL</button>
     <button class="btn btn-ghost btn-sm" onclick="renderPools()">↺ REFRESH</button>
   </div>
-
-  <!-- Filter bar -->
   <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px">
     <select id="pools-filter-disc" class="csel" onchange="renderPools()" style="font-size:10px">
       <option value="">All Disciplines</option>
@@ -549,21 +430,17 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
       <option value="Adult">Adult</option>
     </select>
   </div>
-
   <div id="pools-body"></div>
-
   <div id="pools-empty" class="panel" style="text-align:center;color:var(--muted);font-family:var(--mono);font-size:10px;display:none">
     No athletes in registrations yet. Import data in the REGS tab first.
   </div>
-
 </div>
 
-
-<!-- DRAW VIEW -->
 <div id="view-draw" class="view">
   <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px">
     <div class="stats" id="draw-stats" style="margin-bottom:0;flex:1"></div>
     <button class="btn btn-ghost btn-sm" id="setup-toggle-btn" onclick="toggleSetup()" style="flex-shrink:0">⚙ MAT SETUP</button>
+    <button class="btn btn-gold btn-sm" onclick="openAddMatch()" style="flex-shrink:0">+ ADD MATCH</button>
     <button class="btn btn-gold btn-sm" onclick="publishDraw()" style="flex-shrink:0">📤 PUBLISH</button>
     <button class="btn btn-ghost btn-sm" onclick="printDraw()" style="flex-shrink:0">🖨 PRINT DRAW</button>
   </div>
@@ -585,27 +462,23 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
   <div id="draw-mat-cols" style="display:flex;gap:8px;overflow-x:auto;padding-bottom:20px;-webkit-overflow-scrolling:touch;min-height:200px"></div>
 </div>
 
-<!-- LIVE VIEW -->
 <div id="view-live" class="view">
   <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;margin-bottom:12px">LIVE BOUTS</div>
   <div id="live-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px"></div>
   <div id="live-empty" class="panel" style="text-align:center;color:var(--muted);font-family:var(--mono);font-size:10px;display:none">No live bouts.</div>
 </div>
 
-<!-- WEIGH-IN VIEW -->
 <div id="view-weighin" class="view">
   <div style="display:flex;gap:2px;margin-bottom:12px;border-bottom:1px solid var(--border);padding-bottom:0">
     <button id="weigh-tab-checkin" class="nav-btn on" style="font-size:9px" onclick="goWeighTab('checkin')">CHECK-IN</button>
     <button id="weigh-tab-payments" class="nav-btn" style="font-size:9px" onclick="goWeighTab('payments')">PAYMENTS</button>
   </div>
-
   <div id="weigh-panel-checkin">
     <input id="checkin-search" class="fld" style="margin:0 0 10px 0;background:#0a0a0d;border:1px solid var(--border);color:var(--text);padding:7px 10px;border-radius:2px;font-family:var(--mono);font-size:11px;width:100%" placeholder="Search name or club…" oninput="renderCheckin()"/>
     <div class="stats" id="checkin-stats" style="margin-bottom:10px"></div>
     <div id="checkin-body"></div>
     <div id="checkin-empty" class="panel" style="text-align:center;color:var(--muted);font-family:var(--mono);font-size:10px;display:none">No registrations yet.</div>
   </div>
-
   <div id="weigh-panel-payments" style="display:none">
     <div class="panel">
       <div class="panel-title">PASTE BANK STATEMENT</div>
@@ -636,17 +509,13 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
   </div>
 </div>
 
-<!-- RESULTS VIEW -->
 <div id="view-results" class="view">
   <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;margin-bottom:12px">RESULTS</div>
   <div id="results-body"></div>
   <div id="results-empty" class="panel" style="text-align:center;color:var(--muted);font-family:var(--mono);font-size:10px;display:none">No completed bouts yet.</div>
 </div>
 
-<!-- SETUP VIEW -->
 <div id="view-setup" class="view">
-
-  <!-- Active event banner -->
   <div id="active-event-banner" style="background:var(--gold-bg);border:1px solid var(--gold-dk);border-radius:3px;padding:10px 14px;margin-bottom:12px;display:flex;align-items:center;gap:10px">
     <div style="flex:1">
       <div style="font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;color:var(--gold)" id="banner-event-name">—</div>
@@ -654,8 +523,6 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
     </div>
     <div id="config-status" class="config-status ok" style="margin:0;padding:4px 10px;font-size:9px">✓ Firebase</div>
   </div>
-
-  <!-- Event list -->
   <div class="setup-card">
     <h2>EVENTS</h2>
     <p>All events stored in Firebase. Tap an event to make it active.</p>
@@ -666,8 +533,6 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
       <button class="btn btn-gold" onclick="showNewEventForm()">+ NEW EVENT</button>
     </div>
   </div>
-
-  <!-- New event form (hidden by default) -->
   <div class="setup-card" id="new-event-form" style="display:none">
     <h2>NEW EVENT</h2>
     <div class="fld"><label>Display Name</label><input id="new-event-name" placeholder="Combat Games Series — Event Three"/></div>
@@ -679,8 +544,6 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
       <button class="btn btn-ghost btn-sm" onclick="hideNewEventForm()">CANCEL</button>
     </div>
   </div>
-
-  <!-- Reset event -->
   <div class="setup-card" id="reset-event-card">
     <h2>RESET EVENT</h2>
     <p>Wipes all registrations, bouts, and results for the active event. Use for trial runs. Type the event ID to confirm.</p>
@@ -689,15 +552,11 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
       <button class="btn btn-red" onclick="resetActiveEvent()">WIPE & RESET</button>
     </div>
   </div>
-
-  <!-- Marshal PIN -->
   <div class="setup-card">
     <h2>MARSHAL PIN</h2>
     <div class="fld"><label>PIN (4 digits)</label><input id="cfg-pin" type="number" placeholder="1234" maxlength="4"/></div>
     <div class="row-btns"><button class="btn btn-gold" onclick="savePin()">SAVE PIN</button></div>
   </div>
-
-  <!-- Database Browser -->
   <div class="setup-card">
     <h2>DATABASE BROWSER</h2>
     <p>Debug tool — check club name mappings, event meta, and raw Firebase structure when something looks wrong.</p>
@@ -715,15 +574,12 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
       <button class="btn btn-ghost btn-xs" onclick="document.getElementById('db-browser-output').innerHTML='<span style='color:var(--muted)'>Cleared.</span>'">CLEAR</button>
     </div>
   </div>
-
 </div>
 
-<!-- SCORE MODAL -->
 <div id="overlay" onclick="closeModal()">
   <div class="modal" onclick="event.stopPropagation()" id="modal-box"></div>
 </div>
 
-<!-- PUBLIC VIEW -->
 <div id="pub-view">
   <div class="pub-hdr">
     <div class="pub-logo">⚔ COMBAT GAMES</div>
@@ -737,7 +593,6 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
   <div id="pub-results" style="padding:0 12px 20px"></div>
 </div>
 
-<!-- HEAD OF TABLE VIEW -->
 <div id="marshal-view">
   <div class="marshal-hdr">
     <div class="marshal-title">HEAD OF TABLE</div>
@@ -769,7 +624,6 @@ function loadLocal(){
 
 function saveBouts(){localStorage.setItem('cgs-bouts',JSON.stringify(bouts));if(db)syncToFirebase();renderPublicContent();if(document.getElementById('view-home')?.classList.contains('on'))renderDashboard();}
 
-// ══ FIREBASE — baked-in config ══
 function initFirebase(){
   const cfg={
     apiKey:"AIzaSyDKqodxFjM0EG_qu4zkCAQ37udwYTdSSQY",
@@ -806,175 +660,128 @@ function syncToFirebase(){if(!db)return;set(ref(db,`events/${eventId}/bouts`),bo
 function updateConfigStatus(ok){const el=document.getElementById('config-status');if(!el)return;el.className='config-status '+(ok?'ok':'none');el.textContent=ok?'✓ Connected — CGS-Manager database':'No config — check setup.';}
 function updateSyncDot(state){const d=document.getElementById('sync-dot');if(d)d.className='sync-dot '+state;}
 
+const DEFAULT_EVENT={id:'cgs-july-11-2026',name:'Combat Games Series — Event Three',date:'Saturday July 11 2026',location:'17 Nandina Drive, East Tāmaki, Auckland'};
 
-// ══════════════════════════════════════════
-// EVENT MANAGER
-// ══════════════════════════════════════════
-const DEFAULT_EVENT = {
-  id: 'cgs-july-11-2026',
-  name: 'Combat Games Series — Event Three',
-  date: 'Saturday July 11 2026',
-  location: '17 Nandina Drive, East Tāmaki, Auckland'
+function updateBanner(){
+  if(!db)return;
+  get(ref(db,'events/'+eventId+'/meta')).then(snap=>{
+    const meta=snap.exists()?snap.val():{name:eventId,date:'',location:''};
+    const nameEl=document.getElementById('banner-event-name');
+    const metaEl=document.getElementById('banner-event-meta');
+    if(nameEl)nameEl.textContent=meta.name||eventId;
+    if(metaEl)metaEl.textContent=(meta.date||'')+(meta.location?' · '+meta.location:'');
+    const topEid=document.getElementById('topbar-event');
+    if(topEid)topEid.textContent=meta.name||eventId;
+  });
+}
+
+function loadEventList(){
+  if(!db)return;
+  get(ref(db,'events')).then(snap=>{
+    const el=document.getElementById('event-list');
+    if(!el)return;
+    if(!snap.exists()){el.innerHTML='<div style="font-family:var(--mono);font-size:10px;color:var(--muted)">No events yet — create one below.</div>';return;}
+    const events=snap.val();
+    let html='';
+    Object.entries(events).forEach(([id,data])=>{
+      if(!data||!data.meta)return;
+      const meta=data.meta;
+      const isActive=id===eventId;
+      const regCount=data.registrations?Object.keys(data.registrations).length:0;
+      const boutCount=data.bouts?(Array.isArray(data.bouts)?data.bouts.length:0):0;
+      html+='<div style="background:'+(isActive?'var(--gold-bg)':'var(--surf2)')+';border:1px solid '+(isActive?'var(--gold-dk)':'var(--border)')+';border-radius:3px;padding:10px 12px;margin-bottom:6px;display:flex;align-items:center;gap:10px">'
+        +'<div style="flex:1">'
+        +'<div style="font-family:\'Bebas Neue\',sans-serif;font-size:14px;letter-spacing:1px;color:'+(isActive?'var(--gold)':'var(--text)')+'">'+escH(meta.name||id)+'</div>'
+        +'<div style="font-family:var(--mono);font-size:9px;color:var(--muted);margin-top:2px">'+escH(meta.date||'')+(regCount?' · '+regCount+' athletes':'')+(boutCount?' · '+boutCount+' bouts':'')+'</div>'
+        +'</div>'
+        +(isActive?'<span style="font-family:var(--mono);font-size:8px;color:var(--gold);letter-spacing:1px">ACTIVE</span>':'<button class="btn btn-ghost btn-xs" data-eid="'+escA(id)+'" onclick="switchEvent(this.dataset.eid)">SWITCH</button>')
+        +'</div>';
+    });
+    el.innerHTML=html||'<div style="font-family:var(--mono);font-size:10px;color:var(--muted)">No events found.</div>';
+  });
+}
+
+window.switchEvent=function(id){
+  if(!id||id===eventId)return;
+  eventId=id;localStorage.setItem('cgs-eventId',id);
+  bouts=[];storedRegs={};storedClubMap={};
+  listenFirebase();listenRegs();updateBanner();loadEventList();renderAll();
+  toast('Switched to: '+id,'gold');
 };
 
-function eventPath(sub) {
-  return 'events/'+eventId+(sub?'/'+sub:'');
-}
-
-function updateBanner() {
-  if(!db) return;
-  get(ref(db, eventPath('meta'))).then(snap => {
-      const meta = snap.exists() ? snap.val() : {name: eventId, date:'', location:''};
-      const nameEl = document.getElementById('banner-event-name');
-      const metaEl = document.getElementById('banner-event-meta');
-      if(nameEl) nameEl.textContent = meta.name || eventId;
-      if(metaEl) metaEl.textContent = (meta.date||'') + (meta.location?' · '+meta.location:'');
-      // Also update topbar
-      const topEid = document.getElementById('topbar-event');
-      if(topEid) topEid.textContent = meta.name || eventId;
-    });
-}
-
-function loadEventList() {
-  if(!db) return;
-  get(ref(db, 'events')).then(snap => {
-      const el = document.getElementById('event-list');
-      if(!el) return;
-      if(!snap.exists()) {
-        el.innerHTML = '<div style="font-family:var(--mono);font-size:10px;color:var(--muted)">No events yet — create one below.</div>';
-        return;
-      }
-      const events = snap.val();
-      let html = '';
-      Object.entries(events).forEach(([id, data]) => {
-        if(!data || !data.meta) return;
-        const meta = data.meta;
-        const isActive = id === eventId;
-        const regCount = data.registrations ? Object.keys(data.registrations).length : 0;
-        const boutCount = data.bouts ? (Array.isArray(data.bouts) ? data.bouts.length : 0) : 0;
-        html += '<div style="background:'+(isActive?'var(--gold-bg)':'var(--surf2)')+';border:1px solid '+(isActive?'var(--gold-dk)':'var(--border)')+';border-radius:3px;padding:10px 12px;margin-bottom:6px;display:flex;align-items:center;gap:10px">'
-          +'<div style="flex:1">'
-          +'<div style="font-family:\'Bebas Neue\',sans-serif;font-size:14px;letter-spacing:1px;color:'+(isActive?'var(--gold)':'var(--text)')+'">'+escH(meta.name||id)+'</div>'
-          +'<div style="font-family:var(--mono);font-size:9px;color:var(--muted);margin-top:2px">'+escH(meta.date||'')+(regCount?' · '+regCount+' athletes':'')+(boutCount?' · '+boutCount+' bouts':'')+'</div>'
-          +'</div>'
-          +(isActive
-            ? '<span style="font-family:var(--mono);font-size:8px;color:var(--gold);letter-spacing:1px">ACTIVE</span>'
-            : '<button class="btn btn-ghost btn-xs" data-eid="'+escA(id)+'" onclick="switchEvent(this.dataset.eid)">SWITCH</button>'
-          )
-          +'</div>';
-      });
-      el.innerHTML = html || '<div style="font-family:var(--mono);font-size:10px;color:var(--muted)">No events found.</div>';
-    });
-}
-
-window.switchEvent = function(id) {
-  if(!id || id === eventId) return;
-  eventId = id;
-  localStorage.setItem('cgs-eventId', id);
-  bouts = []; storedRegs = {}; storedClubMap = {};
-  listenFirebase();
-  listenRegs();
-  updateBanner();
-  loadEventList();
-  renderAll();
-  toast('Switched to: '+id, 'gold');
-};
-
-window.showNewEventForm = function() {
-  document.getElementById('new-event-form').style.display = '';
-  // Auto-generate ID from name as user types
-  const nameInput = document.getElementById('new-event-name');
-  const idInput = document.getElementById('new-event-id');
-  nameInput.oninput = function() {
-    const slug = nameInput.value.toLowerCase()
-      .replace(/[^a-z0-9\s]/g,'')
-      .trim().replace(/\s+/g,'-')
-      .substring(0,40);
-    idInput.value = slug;
+window.showNewEventForm=function(){
+  document.getElementById('new-event-form').style.display='';
+  const nameInput=document.getElementById('new-event-name');
+  const idInput=document.getElementById('new-event-id');
+  nameInput.oninput=function(){
+    const slug=nameInput.value.toLowerCase().replace(/[^a-z0-9\s]/g,'').trim().replace(/\s+/g,'-').substring(0,40);
+    idInput.value=slug;
   };
 };
+window.hideNewEventForm=function(){document.getElementById('new-event-form').style.display='none';};
 
-window.hideNewEventForm = function() {
-  document.getElementById('new-event-form').style.display = 'none';
+window.createNewEvent=function(){
+  const name=document.getElementById('new-event-name').value.trim();
+  const date=document.getElementById('new-event-date').value.trim();
+  const location=document.getElementById('new-event-location').value.trim();
+  const id=document.getElementById('new-event-id').value.trim();
+  if(!name||!id){toast('Name and ID required','red');return;}
+  set(ref(db,'events/'+id+'/meta'),{name,date,location,createdAt:new Date().toISOString(),status:'active'}).then(()=>{
+    eventId=id;localStorage.setItem('cgs-eventId',id);
+    bouts=[];storedRegs={};storedClubMap={};
+    listenFirebase();listenRegs();updateBanner();loadEventList();hideNewEventForm();renderAll();
+    toast('Event created: '+name,'green');
+  });
 };
 
-window.createNewEvent = function() {
-  const name = document.getElementById('new-event-name').value.trim();
-  const date = document.getElementById('new-event-date').value.trim();
-  const location = document.getElementById('new-event-location').value.trim();
-  const id = document.getElementById('new-event-id').value.trim();
-  if(!name||!id) { toast('Name and ID required','red'); return; }
-
-  set(ref(db, 'events/'+id+'/meta'), {
-      name, date, location,
-      createdAt: new Date().toISOString(),
-      status: 'active'
-    }).then(() => {
-      eventId = id;
-      localStorage.setItem('cgs-eventId', id);
-      bouts = []; storedRegs = {}; storedClubMap = {};
-      listenFirebase();
-      listenRegs();
-      updateBanner();
-      loadEventList();
-      hideNewEventForm();
-      renderAll();
-      toast('Event created: '+name, 'green');
-    });
+window.dbBrowse=function(sub){
+  const path=sub?'events/'+eventId+'/'+sub:'events/'+eventId;
+  const pathEl=document.getElementById('db-browser-path');
+  const outEl=document.getElementById('db-browser-output');
+  if(pathEl)pathEl.textContent='📁 '+path;
+  if(outEl)outEl.innerHTML='<span style="color:var(--muted)">Loading…</span>';
+  if(!db){if(outEl)outEl.innerHTML='<span style="color:var(--red)">Firebase not connected.</span>';return;}
+  get(ref(db,path)).then(snap=>{
+    if(!snap.exists()){if(outEl)outEl.innerHTML='<span style="color:var(--muted)">Empty — no data at this path.</span>';return;}
+    const data=snap.val();
+    if(outEl)outEl.innerHTML=dbRenderValue(data,0,sub||'root');
+  }).catch(e=>{if(outEl)outEl.innerHTML='<span style="color:var(--red)">Error: '+escH(e.message)+'</span>';});
 };
 
-
-// ══════════════════════════════════════════
-// DATABASE BROWSER
-// ══════════════════════════════════════════
-window.dbBrowse = function(sub) {
-  const path = sub ? 'events/'+eventId+'/'+sub : 'events/'+eventId;
-  const pathEl = document.getElementById('db-browser-path');
-  const outEl = document.getElementById('db-browser-output');
-  if(pathEl) pathEl.textContent = '📁 '+path;
-  if(outEl) outEl.innerHTML = '<span style="color:var(--muted)">Loading…</span>';
-  if(!db) { if(outEl) outEl.innerHTML = '<span style="color:var(--red)">Firebase not connected.</span>'; return; }
-  get(ref(db, path)).then(snap => {
-    if(!snap.exists()) { if(outEl) outEl.innerHTML = '<span style="color:var(--muted)">Empty — no data at this path.</span>'; return; }
-    const data = snap.val();
-    if(outEl) outEl.innerHTML = dbRenderValue(data, 0, sub||'root');
-  }).catch(e => { if(outEl) outEl.innerHTML = '<span style="color:var(--red)">Error: '+escH(e.message)+'</span>'; });
-};
-
-function dbRenderValue(val, depth, key) {
-  const indent = '  '.repeat(depth);
-  if(val === null || val === undefined) return '<span style="color:var(--muted)">null</span>';
-  if(typeof val === 'boolean') return '<span style="color:var(--red)">'+val+'</span>';
-  if(typeof val === 'number') return '<span style="color:#2a7fd4">'+val+'</span>';
-  if(typeof val === 'string') { const d=val.length>80?val.substring(0,80)+'…':val; return '<span style="color:var(--green)">"'+escH(d)+'"</span>'; }
-  if(Array.isArray(val)) {
-    if(!val.length) return '<span style="color:var(--muted)">[empty]</span>';
-    if(depth===0 && val[0] && val[0].disc) return dbRenderBoutsArray(val);
+function dbRenderValue(val,depth,key){
+  const indent='  '.repeat(depth);
+  if(val===null||val===undefined)return '<span style="color:var(--muted)">null</span>';
+  if(typeof val==='boolean')return '<span style="color:var(--red)">'+val+'</span>';
+  if(typeof val==='number')return '<span style="color:#2a7fd4">'+val+'</span>';
+  if(typeof val==='string'){const d=val.length>80?val.substring(0,80)+'…':val;return '<span style="color:var(--green)">"'+escH(d)+'"</span>';}
+  if(Array.isArray(val)){
+    if(!val.length)return '<span style="color:var(--muted)">[empty]</span>';
+    if(depth===0&&val[0]&&val[0].disc)return dbRenderBoutsArray(val);
     let html='<span style="color:var(--muted)">['+val.length+']</span>\n';
-    val.slice(0,20).forEach((item,i)=>{ html+=indent+'  <span style="color:var(--gold)">['+i+']</span>: '+dbRenderValue(item,depth+1,i)+'\n'; });
-    if(val.length>20) html+=indent+'  <span style="color:var(--muted)">…+'+(val.length-20)+' more</span>\n';
+    val.slice(0,20).forEach((item,i)=>{html+=indent+'  <span style="color:var(--gold)">['+i+']</span>: '+dbRenderValue(item,depth+1,i)+'\n';});
+    if(val.length>20)html+=indent+'  <span style="color:var(--muted)">…+'+(val.length-20)+' more</span>\n';
     return html;
   }
-  if(typeof val === 'object') {
+  if(typeof val==='object'){
     const keys=Object.keys(val);
-    if(!keys.length) return '<span style="color:var(--muted)">{empty}</span>';
-    if(depth===0 && key==='registrations') return dbRenderRegistrations(val);
-    if(depth===0 && key==='clubMap') return dbRenderClubMap(val);
-    if(depth===0 && key==='meta') return dbRenderMeta(val);
+    if(!keys.length)return '<span style="color:var(--muted)">{empty}</span>';
+    if(depth===0&&key==='registrations')return dbRenderRegistrations(val);
+    if(depth===0&&key==='clubMap')return dbRenderClubMap(val);
+    if(depth===0&&key==='meta')return dbRenderMeta(val);
     let html='\n';
-    keys.slice(0,50).forEach(k=>{ html+=indent+'  <span style="color:var(--gold)">'+escH(String(k))+'</span>: '+dbRenderValue(val[k],depth+1,k)+'\n'; });
-    if(keys.length>50) html+=indent+'  <span style="color:var(--muted)">…+'+(keys.length-50)+' more</span>\n';
+    keys.slice(0,50).forEach(k=>{html+=indent+'  <span style="color:var(--gold)">'+escH(String(k))+'</span>: '+dbRenderValue(val[k],depth+1,k)+'\n';});
+    if(keys.length>50)html+=indent+'  <span style="color:var(--muted)">…+'+(keys.length-50)+' more</span>\n';
     return html;
   }
   return escH(String(val));
 }
 
-function dbRenderRegistrations(regs) {
+function dbRenderRegistrations(regs){
   const athletes=Object.values(regs);
-  const total=athletes.length, withdrawn=athletes.filter(a=>a.withdrawn).length, drawn=athletes.filter(a=>a.inDraw).length, pending=total-withdrawn-drawn;
+  const total=athletes.length,withdrawn=athletes.filter(a=>a.withdrawn).length,drawn=athletes.filter(a=>a.inDraw).length,pending=total-withdrawn-drawn;
   let html='<span style="color:var(--gold)">'+total+' athletes</span> · <span style="color:var(--green)">'+drawn+' in draw</span> · <span style="color:var(--gold)">'+pending+' pending</span>'+(withdrawn?' · <span style="color:var(--red)">'+withdrawn+' withdrawn</span>':'')+'\n\n';
   const clubs={};
-  athletes.forEach(a=>{ const c=a.club||a.clubRaw||'Unknown'; if(!clubs[c])clubs[c]=[]; clubs[c].push(a); });
+  athletes.forEach(a=>{const c=a.club||a.clubRaw||'Unknown';if(!clubs[c])clubs[c]=[];clubs[c].push(a);});
   Object.entries(clubs).sort((a,b)=>a[0].localeCompare(b[0])).forEach(([club,members])=>{
     html+='<span style="color:var(--gold);font-weight:600">'+escH(club)+'</span> ('+members.length+')\n';
     members.sort((a,b)=>(a.name||'').localeCompare(b.name||'')).forEach(a=>{
@@ -989,8 +796,8 @@ function dbRenderRegistrations(regs) {
   return html;
 }
 
-function dbRenderBoutsArray(bouts) {
-  const total=bouts.length, live=bouts.filter(b=>b.status==='live').length, done=bouts.filter(b=>b.status==='completed').length, sched=bouts.filter(b=>b.status==='scheduled').length;
+function dbRenderBoutsArray(bouts){
+  const total=bouts.length,live=bouts.filter(b=>b.status==='live').length,done=bouts.filter(b=>b.status==='completed').length,sched=bouts.filter(b=>b.status==='scheduled').length;
   let html='<span style="color:var(--gold)">'+total+' bouts</span> · <span style="color:var(--green)">'+done+' done</span> · <span style="color:var(--red)">'+live+' live</span> · <span style="color:#5090d0">'+sched+' scheduled</span>\n\n';
   const mats=[...new Set(bouts.map(b=>b.area))].sort();
   mats.forEach(mat=>{
@@ -1000,7 +807,7 @@ function dbRenderBoutsArray(bouts) {
       const sc=b.status==='completed'?'var(--green)':b.status==='live'?'var(--red)':'var(--muted)';
       html+='  <span style="color:'+sc+'">'+(b.matFightNum?'F'+b.matFightNum:b.id)+'</span> '+escH(b.disc)+' · '+escH(b.ageGrp)+' '+escH(b.div)+'\n';
       html+='    <span style="color:var(--red)">'+escH(b.red&&b.red.name||'?')+'</span> vs <span style="color:#2a7fd4">'+escH(b.blue&&b.blue.name||'?')+'</span>';
-      if(b.status==='completed') html+=' → <span style="color:var(--green)">'+escH(b.winner||'draw')+'</span> '+(b.score?b.score.red+'-'+b.score.blue:'');
+      if(b.status==='completed')html+=' → <span style="color:var(--green)">'+escH(b.winner||'draw')+'</span> '+(b.score?b.score.red+'-'+b.score.blue:'');
       html+='\n';
     });
     html+='\n';
@@ -1008,389 +815,242 @@ function dbRenderBoutsArray(bouts) {
   return html;
 }
 
-function dbRenderClubMap(map) {
+function dbRenderClubMap(map){
   const entries=Object.entries(map).sort((a,b)=>a[1].localeCompare(b[1]));
   let html='<span style="color:var(--gold)">'+entries.length+' club mappings</span>\n\n';
   entries.forEach(([raw,canon])=>{
-    if(raw===canon) html+='  <span style="color:var(--muted)">'+escH(raw)+'</span>\n';
+    if(raw===canon)html+='  <span style="color:var(--muted)">'+escH(raw)+'</span>\n';
     else html+='  <span style="color:var(--red)">'+escH(raw)+'</span> → <span style="color:var(--green)">'+escH(canon)+'</span>\n';
   });
   return html;
 }
 
-function dbRenderMeta(meta) {
+function dbRenderMeta(meta){
   let html='';
-  ['name','date','location','status','createdAt'].forEach(f=>{ if(meta[f]) html+='  <span style="color:var(--gold)">'+f+'</span>: <span style="color:var(--green)">'+escH(String(meta[f]))+'</span>\n'; });
+  ['name','date','location','status','createdAt'].forEach(f=>{if(meta[f])html+='  <span style="color:var(--gold)">'+f+'</span>: <span style="color:var(--green)">'+escH(String(meta[f]))+'</span>\n';});
   return html;
 }
 
-window.dbCopyOutput = function() {
+window.dbCopyOutput=function(){
   const el=document.getElementById('db-browser-output');
-  if(!el) return;
+  if(!el)return;
   navigator.clipboard.writeText(el.innerText||el.textContent||'').then(()=>toast('Copied','gold'));
 };
 
-window.resetActiveEvent = function() {
-  const input = document.getElementById('reset-confirm-input').value.trim();
-  if(input !== eventId) {
-    toast('Type the event ID exactly to confirm', 'red');
-    return;
-  }
-  if(!confirm('This will wipe ALL registrations, bouts and results for '+eventId+'. This cannot be undone. Continue?')) return;
-
-  const promises = [
-    set(ref(db, 'events/'+eventId+'/registrations'), null),
-    set(ref(db, 'events/'+eventId+'/bouts'), null),
-    set(ref(db, 'events/'+eventId+'/results'), null),
-    set(ref(db, 'events/'+eventId+'/clubMap'), null),
+window.resetActiveEvent=function(){
+  const input=document.getElementById('reset-confirm-input').value.trim();
+  if(input!==eventId){toast('Type the event ID exactly to confirm','red');return;}
+  if(!confirm('This will wipe ALL registrations, bouts and results for '+eventId+'. This cannot be undone. Continue?'))return;
+  const promises=[
+    set(ref(db,'events/'+eventId+'/registrations'),null),
+    set(ref(db,'events/'+eventId+'/bouts'),null),
+    set(ref(db,'events/'+eventId+'/results'),null),
+    set(ref(db,'events/'+eventId+'/clubMap'),null),
   ];
-  Promise.all(promises).then(() => {
-    bouts = []; storedRegs = {}; storedClubMap = {}; clubMap = {};
-    matches = []; needsMatch = []; athletes = []; rawAthletes = [];
+  Promise.all(promises).then(()=>{
+    bouts=[];storedRegs={};storedClubMap={};clubMap={};
+    matches=[];needsMatch=[];athletes=[];rawAthletes=[];
     localStorage.removeItem('cgs-bouts');
-    document.getElementById('reset-confirm-input').value = '';
+    document.getElementById('reset-confirm-input').value='';
     renderAll();
-    updateRegsStatus && updateRegsStatus();
-    toast('Event reset — all data wiped', 'red');
+    updateRegsStatus&&updateRegsStatus();
+    toast('Event reset — all data wiped','red');
   });
 };
 
-// ══════════════════════════════════════════
-// POOLS VIEW
-// ══════════════════════════════════════════
-window.renderPools = function() {
-  const athletes = Object.values(storedRegs).filter(a => !a.withdrawn);
-  const empty = document.getElementById('pools-empty');
-  const body = document.getElementById('pools-body');
-  const statsEl = document.getElementById('pools-stats');
-
-  if(!athletes.length) {
-    if(body) body.innerHTML = '';
-    if(empty) empty.style.display = 'block';
-    return;
-  }
-  if(empty) empty.style.display = 'none';
-
-  const filterDisc = document.getElementById('pools-filter-disc')?.value || '';
-  const filterGender = document.getElementById('pools-filter-gender')?.value || '';
-  const filterAge = document.getElementById('pools-filter-age')?.value || '';
-
-  // Build pools: discipline → age group → gender → athletes sorted by weight
-  const pools = {};
-  athletes.forEach(a => {
-    (a.styles || []).forEach(rawStyle => {
-      const disc = normStyle(rawStyle);
-      if(!disc) return;
-      if(filterDisc && disc !== filterDisc) return;
-      const ag = ageGroup(a.age || 0);
-      if(filterAge && ag !== filterAge) return;
-      if(filterGender && a.gender !== filterGender) return;
-      const key = disc + '|' + ag + '|' + a.gender;
-      if(!pools[key]) pools[key] = { disc, ag, gender: a.gender, athletes: [] };
+window.renderPools=function(){
+  const athletes=Object.values(storedRegs).filter(a=>!a.withdrawn);
+  const empty=document.getElementById('pools-empty');
+  const body=document.getElementById('pools-body');
+  const statsEl=document.getElementById('pools-stats');
+  if(!athletes.length){if(body)body.innerHTML='';if(empty)empty.style.display='block';return;}
+  if(empty)empty.style.display='none';
+  const filterDisc=document.getElementById('pools-filter-disc')?.value||'';
+  const filterGender=document.getElementById('pools-filter-gender')?.value||'';
+  const filterAge=document.getElementById('pools-filter-age')?.value||'';
+  const pools={};
+  athletes.forEach(a=>{
+    (a.styles||[]).forEach(rawStyle=>{
+      const disc=normStyle(rawStyle);
+      if(!disc)return;
+      if(filterDisc&&disc!==filterDisc)return;
+      const ag=ageGroup(a.age||0);
+      if(filterAge&&ag!==filterAge)return;
+      if(filterGender&&a.gender!==filterGender)return;
+      const key=disc+'|'+ag+'|'+a.gender;
+      if(!pools[key])pools[key]={disc,ag,gender:a.gender,athletes:[]};
       pools[key].athletes.push(a);
     });
   });
-
-  // Sort athletes within each pool by weight
-  Object.values(pools).forEach(p => {
-    p.athletes.sort((a, b) => (a.weight || 0) - (b.weight || 0));
+  Object.values(pools).forEach(p=>{p.athletes.sort((a,b)=>(a.weight||0)-(b.weight||0));});
+  const agO={'Under 12':0,'13-17':1,'Adult':2};
+  const discO=STYLE_ORDER.concat(Object.values(pools).map(p=>p.disc).filter(d=>!STYLE_ORDER.includes(d)));
+  const sortedKeys=Object.keys(pools).sort((a,b)=>{
+    const pa=pools[a],pb=pools[b];
+    const di=discO.indexOf(pa.disc)-discO.indexOf(pb.disc);
+    if(di!==0)return di;
+    const ai=(agO[pa.ag]??2)-(agO[pb.ag]??2);
+    if(ai!==0)return ai;
+    return pa.gender==='Female'?-1:1;
   });
-
-  // Sort pool keys: disc order → age → gender
-  const agO = { 'Under 12': 0, '13-17': 1, 'Adult': 2 };
-  const discO = STYLE_ORDER.concat(
-    Object.values(pools).map(p=>p.disc).filter(d=>!STYLE_ORDER.includes(d))
-  );
-  const sortedKeys = Object.keys(pools).sort((a, b) => {
-    const pa = pools[a], pb = pools[b];
-    const di = discO.indexOf(pa.disc) - discO.indexOf(pb.disc);
-    if(di !== 0) return di;
-    const ai = (agO[pa.ag] ?? 2) - (agO[pb.ag] ?? 2);
-    if(ai !== 0) return ai;
-    return pa.gender === 'Female' ? -1 : 1;
-  });
-
-  // Stats
-  const totalPools = sortedKeys.length;
-  const totalInPools = [...new Set(sortedKeys.flatMap(k => pools[k].athletes.map(a => a.name + a.sur)))].length;
-  const oddPools = sortedKeys.filter(k => pools[k].athletes.length % 2 !== 0).length;
-  const smallPools = sortedKeys.filter(k => pools[k].athletes.length === 1).length;
-
-  if(statsEl) statsEl.innerHTML =
-    '<div class="stat" style="border-top:2px solid var(--gold)"><div class="stat-v" style="color:var(--gold)">'+totalPools+'</div><div class="stat-l">POOLS</div></div>' +
-    '<div class="stat" style="border-top:2px solid var(--text)"><div class="stat-v">'+totalInPools+'</div><div class="stat-l">ATHLETES</div></div>' +
-    (oddPools ? '<div class="stat" style="border-top:2px solid var(--orange)"><div class="stat-v" style="color:var(--orange)">'+oddPools+'</div><div class="stat-l">ODD #</div></div>' : '') +
-    (smallPools ? '<div class="stat" style="border-top:2px solid var(--red)"><div class="stat-v" style="color:var(--red)">'+smallPools+'</div><div class="stat-l">NO MATCH</div></div>' : '');
-
-  // Render pools
-  let html = '';
-  let lastDisc = '';
-
-  sortedKeys.forEach(key => {
-    const pool = pools[key];
-    const count = pool.athletes.length;
-    const isOdd = count % 2 !== 0;
-    const isSingle = count === 1;
-    const hasClubClash = checkSameClub(pool.athletes);
-    const hasAgeConcern = checkAgeConcern(pool.athletes);
-    const hasWeightOutlier = checkWeightOutlier(pool.athletes);
-
-    // Discipline header
-    if(pool.disc !== lastDisc) {
-      html += '<div class="sec-hdr" style="margin-top:' + (lastDisc ? '16px' : '0') + '">'
-        + '<div class="sec-name">' + escH(pool.disc) + '</div>'
-        + '</div>';
-      lastDisc = pool.disc;
+  const totalPools=sortedKeys.length;
+  const totalInPools=[...new Set(sortedKeys.flatMap(k=>pools[k].athletes.map(a=>a.name+a.sur)))].length;
+  const oddPools=sortedKeys.filter(k=>pools[k].athletes.length%2!==0).length;
+  const smallPools=sortedKeys.filter(k=>pools[k].athletes.length===1).length;
+  if(statsEl)statsEl.innerHTML=
+    '<div class="stat" style="border-top:2px solid var(--gold)"><div class="stat-v" style="color:var(--gold)">'+totalPools+'</div><div class="stat-l">POOLS</div></div>'+
+    '<div class="stat" style="border-top:2px solid var(--text)"><div class="stat-v">'+totalInPools+'</div><div class="stat-l">ATHLETES</div></div>'+
+    (oddPools?'<div class="stat" style="border-top:2px solid var(--orange)"><div class="stat-v" style="color:var(--orange)">'+oddPools+'</div><div class="stat-l">ODD #</div></div>':'')+
+    (smallPools?'<div class="stat" style="border-top:2px solid var(--red)"><div class="stat-v" style="color:var(--red)">'+smallPools+'</div><div class="stat-l">NO MATCH</div></div>':'');
+  let html='';let lastDisc='';
+  sortedKeys.forEach(key=>{
+    const pool=pools[key];
+    const count=pool.athletes.length;
+    const isOdd=count%2!==0;
+    const isSingle=count===1;
+    const hasClubClash=checkSameClub(pool.athletes);
+    const hasAgeConcern=checkAgeConcern(pool.athletes);
+    const hasWeightOutlier=checkWeightOutlier(pool.athletes);
+    if(pool.disc!==lastDisc){
+      html+='<div class="sec-hdr" style="margin-top:'+(lastDisc?'16px':'0')+'"><div class="sec-name">'+escH(pool.disc)+'</div></div>';
+      lastDisc=pool.disc;
     }
-
-    // Pool card
-    const borderColor = isSingle ? 'var(--red)' : isOdd ? 'var(--orange)' : 'var(--border)';
-    const flags = [];
-    if(isSingle) flags.push('<span class="flag f-ni">NO MATCH</span>');
-    else if(isOdd) flags.push('<span class="flag f-wt">ODD #</span>');
-    if(hasClubClash) flags.push('<span class="flag f-ex">CLUB CLASH</span>');
-    if(hasAgeConcern) flags.push('<span class="flag f-ag">AGE GAP</span>');
-    if(hasWeightOutlier) flags.push('<span class="flag f-wt">WT OUTLIER</span>');
-
-    html += '<div style="background:var(--surf);border:1px solid ' + borderColor + ';border-radius:3px;margin-bottom:6px;overflow:hidden">'
-      // Pool header
-      + '<div style="background:#0d0d10;padding:7px 12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">'
-      + '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:15px;letter-spacing:1px;color:' + (pool.gender === 'Female' ? '#c060c0' : '#4090d0') + '">'
-      + pool.ag + ' · ' + pool.gender
-      + '</div>'
-      + '<div style="font-family:var(--mono);font-size:9px;color:var(--muted)">'+count+' athlete'+(count!==1?'s':'')+'</div>'
-      + flags.join('')
-      + '</div>'
-      // Athlete table
-      + '<table style="width:100%;border-collapse:collapse">'
-      + '<thead><tr style="background:#0a0a0d">'
-      + '<th style="font-family:var(--mono);font-size:8px;color:var(--muted);padding:4px 10px;text-align:left;border-bottom:1px solid var(--border);letter-spacing:1px">NAME</th>'
-      + '<th style="font-family:var(--mono);font-size:8px;color:var(--muted);padding:4px 10px;text-align:left;border-bottom:1px solid var(--border);letter-spacing:1px">CLUB</th>'
-      + '<th style="font-family:var(--mono);font-size:8px;color:var(--muted);padding:4px 10px;text-align:right;border-bottom:1px solid var(--border);letter-spacing:1px">AGE</th>'
-      + '<th style="font-family:var(--mono);font-size:8px;color:var(--muted);padding:4px 10px;text-align:right;border-bottom:1px solid var(--border);letter-spacing:1px">WEIGHT</th>'
-      + '<th style="font-family:var(--mono);font-size:8px;color:var(--muted);padding:4px 10px;border-bottom:1px solid var(--border)"></th>'
-      + '</tr></thead><tbody>';
-
-    pool.athletes.forEach((a, idx) => {
-      const fullName = ((a.name || '') + ' ' + (a.sur || '')).trim();
-      const wtDiff = idx > 0 ? Math.abs((a.weight || 0) - (pool.athletes[idx-1].weight || 0)) : 0;
-      const isOutlier = idx > 0 && wtDiff > 15;
-      const isDrawn = a.inDraw;
-      html += '<tr style="border-bottom:1px solid #111115' + (isOutlier ? ';border-top:1px dashed var(--orange)' : '') + '">'
-        + '<td style="padding:5px 10px;font-weight:600;color:' + (isDrawn ? 'var(--green)' : 'var(--text)') + '">'
-        + escH(fullName)
-        + (isDrawn ? ' <span style="font-family:var(--mono);font-size:7px;color:var(--green)">IN DRAW</span>' : '')
-        + '</td>'
-        + '<td style="padding:5px 10px;font-size:10px;color:var(--muted)">' + escH(a.club || a.clubRaw || '') + '</td>'
-        + '<td style="padding:5px 10px;font-family:var(--mono);font-size:10px;text-align:right;color:var(--muted)">' + (a.age || '?') + '</td>'
-        + '<td style="padding:5px 10px;font-family:var(--mono);font-size:11px;text-align:right;color:' + (isOutlier ? 'var(--orange)' : 'var(--text)') + '">'
-        + (a.weight || '?') + 'kg'
-        + (isOutlier ? ' <span style="font-size:8px">+' + wtDiff + '</span>' : '')
-        + '</td>'
-        + '<td style="padding:5px 10px"></td>'
-        + '</tr>';
+    const borderColor=isSingle?'var(--red)':isOdd?'var(--orange)':'var(--border)';
+    const flags=[];
+    if(isSingle)flags.push('<span class="flag f-ni">NO MATCH</span>');
+    else if(isOdd)flags.push('<span class="flag f-wt">ODD #</span>');
+    if(hasClubClash)flags.push('<span class="flag f-ex">CLUB CLASH</span>');
+    if(hasAgeConcern)flags.push('<span class="flag f-ag">AGE GAP</span>');
+    if(hasWeightOutlier)flags.push('<span class="flag f-wt">WT OUTLIER</span>');
+    html+='<div style="background:var(--surf);border:1px solid '+borderColor+';border-radius:3px;margin-bottom:6px;overflow:hidden">'
+      +'<div style="background:#0d0d10;padding:7px 12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">'
+      +'<div style="font-family:\'Bebas Neue\',sans-serif;font-size:15px;letter-spacing:1px;color:'+(pool.gender==='Female'?'#c060c0':'#4090d0')+'">'+pool.ag+' · '+pool.gender+'</div>'
+      +'<div style="font-family:var(--mono);font-size:9px;color:var(--muted)">'+count+' athlete'+(count!==1?'s':'')+'</div>'
+      +flags.join('')+'</div>'
+      +'<table style="width:100%;border-collapse:collapse">'
+      +'<thead><tr style="background:#0a0a0d">'
+      +'<th style="font-family:var(--mono);font-size:8px;color:var(--muted);padding:4px 10px;text-align:left;border-bottom:1px solid var(--border);letter-spacing:1px">NAME</th>'
+      +'<th style="font-family:var(--mono);font-size:8px;color:var(--muted);padding:4px 10px;text-align:left;border-bottom:1px solid var(--border);letter-spacing:1px">CLUB</th>'
+      +'<th style="font-family:var(--mono);font-size:8px;color:var(--muted);padding:4px 10px;text-align:right;border-bottom:1px solid var(--border);letter-spacing:1px">AGE</th>'
+      +'<th style="font-family:var(--mono);font-size:8px;color:var(--muted);padding:4px 10px;text-align:right;border-bottom:1px solid var(--border);letter-spacing:1px">WEIGHT</th>'
+      +'<th style="font-family:var(--mono);font-size:8px;color:var(--muted);padding:4px 10px;border-bottom:1px solid var(--border)"></th>'
+      +'</tr></thead><tbody>';
+    pool.athletes.forEach((a,idx)=>{
+      const fullName=((a.name||'')+' '+(a.sur||'')).trim();
+      const wtDiff=idx>0?Math.abs((a.weight||0)-(pool.athletes[idx-1].weight||0)):0;
+      const isOutlier=idx>0&&wtDiff>15;
+      const isDrawn=a.inDraw;
+      html+='<tr style="border-bottom:1px solid #111115'+(isOutlier?';border-top:1px dashed var(--orange)':'')+'">'
+        +'<td style="padding:5px 10px;font-weight:600;color:'+(isDrawn?'var(--green)':'var(--text)')+'">'+escH(fullName)+(isDrawn?' <span style="font-family:var(--mono);font-size:7px;color:var(--green)">IN DRAW</span>':'')+'</td>'
+        +'<td style="padding:5px 10px;font-size:10px;color:var(--muted)">'+escH(a.club||a.clubRaw||'')+'</td>'
+        +'<td style="padding:5px 10px;font-family:var(--mono);font-size:10px;text-align:right;color:var(--muted)">'+(a.age||'?')+'</td>'
+        +'<td style="padding:5px 10px;font-family:var(--mono);font-size:11px;text-align:right;color:'+(isOutlier?'var(--orange)':'var(--text)')+'">'+(a.weight||'?')+'kg'+(isOutlier?' <span style="font-size:8px">+'+wtDiff+'</span>':'')+'</td>'
+        +'<td style="padding:5px 10px"></td></tr>';
     });
-
-    html += '</tbody></table></div>';
+    html+='</tbody></table></div>';
   });
-
-  if(body) body.innerHTML = html || '<div class="panel" style="text-align:center;color:var(--muted);font-family:var(--mono);font-size:10px">No pools match filters.</div>';
+  if(body)body.innerHTML=html||'<div class="panel" style="text-align:center;color:var(--muted);font-family:var(--mono);font-size:10px">No pools match filters.</div>';
 };
 
-// Pool analysis helpers
-function checkSameClub(athletes) {
-  const clubs = athletes.map(a => a.club || a.clubRaw || '');
-  return clubs.some((c, i) => clubs.indexOf(c) !== i && c !== 'Eagle DS' && c !== '');
-}
-function checkAgeConcern(athletes) {
-  const ages = athletes.map(a => a.age || 0).filter(a => a > 0);
-  if(ages.length < 2) return false;
-  const min = Math.min(...ages), max = Math.max(...ages);
-  if(min <= 12 && max >= 13) return true;
-  if(min >= 13 && max <= 17 && max - min > 4) return true;
-  return false;
-}
-function checkWeightOutlier(athletes) {
-  if(athletes.length < 2) return false;
-  const weights = athletes.map(a => a.weight || 0).filter(w => w > 0).sort((a,b)=>a-b);
-  for(let i = 1; i < weights.length; i++) {
-    if(weights[i] - weights[i-1] > 15) return true;
-  }
-  return false;
-}
+function checkSameClub(athletes){const clubs=athletes.map(a=>a.club||a.clubRaw||'');return clubs.some((c,i)=>clubs.indexOf(c)!==i&&c!=='Eagle DS'&&c!=='');}
+function checkAgeConcern(athletes){const ages=athletes.map(a=>a.age||0).filter(a=>a>0);if(ages.length<2)return false;const min=Math.min(...ages),max=Math.max(...ages);if(min<=12&&max>=13)return true;if(min>=13&&max<=17&&max-min>4)return true;return false;}
+function checkWeightOutlier(athletes){if(athletes.length<2)return false;const weights=athletes.map(a=>a.weight||0).filter(w=>w>0).sort((a,b)=>a-b);for(let i=1;i<weights.length;i++){if(weights[i]-weights[i-1]>15)return true;}return false;}
 
-function renderDashboard() {
-  // Event meta
-  if(db) {
-    get(ref(db, 'events/'+eventId+'/meta')).then(snap => {
-      const meta = snap.exists() ? snap.val() : {};
-      const nameEl = document.getElementById('dash-event-name');
-      const metaEl = document.getElementById('dash-event-meta');
-      if(nameEl && meta.name) nameEl.textContent = meta.name;
-      if(metaEl) metaEl.textContent = (meta.date||'') + (meta.location?' · '+meta.location:'');
+function renderDashboard(){
+  if(db){
+    get(ref(db,'events/'+eventId+'/meta')).then(snap=>{
+      const meta=snap.exists()?snap.val():{};
+      const nameEl=document.getElementById('dash-event-name');
+      const metaEl=document.getElementById('dash-event-meta');
+      if(nameEl&&meta.name)nameEl.textContent=meta.name;
+      if(metaEl)metaEl.textContent=(meta.date||'')+(meta.location?' · '+meta.location:'');
     });
   }
-
-  // Stats
-  const total = Object.keys(storedRegs).length;
-  const withdrawn = Object.values(storedRegs).filter(a=>a.withdrawn).length;
-  const drawn = Object.values(storedRegs).filter(a=>a.inDraw).length;
-  const pending = total - withdrawn - drawn;
-  const totalBouts = bouts.length;
-  const completed = bouts.filter(b=>b.status==='completed').length;
-  const live = bouts.filter(b=>b.status==='live').length;
-  const scheduled = bouts.filter(b=>b.status==='scheduled').length;
-
-  const statsEl = document.getElementById('dash-stats');
-  if(statsEl) statsEl.innerHTML =
-    dashStat(total, 'ATHLETES', 'var(--gold)') +
-    dashStat(pending, 'PENDING', 'var(--orange)') +
-    dashStat(totalBouts, 'BOUTS', 'var(--text)') +
-    dashStat(completed, 'DONE', 'var(--green)') +
-    (live ? dashStat(live, 'LIVE', 'var(--red)') : '');
-
-  // Regs summary
-  const regsEl = document.getElementById('dash-regs-summary');
-  if(regsEl) {
-    if(!total) {
-      regsEl.innerHTML = '<span style="color:var(--muted)">No athletes yet — paste form data</span>';
-    } else {
-      // Club count
-      const clubs = new Set(Object.values(storedRegs).map(a=>a.club||a.clubRaw||'Unknown'));
-      const unresolved = Object.values(storedRegs).filter(a=>!a.club||a.club===a.clubRaw).length;
-      regsEl.innerHTML =
-        '<span style="color:var(--gold)">'+total+' athletes</span> · '+clubs.size+' clubs\n' +
-        '<span style="color:var(--green)">'+drawn+' in draw</span> · <span style="color:var(--gold)">'+pending+' pending</span>' +
-        (withdrawn ? ' · <span style="color:var(--red)">'+withdrawn+' withdrawn</span>' : '') +
-        (unresolved ? '\n<span style="color:var(--orange)">⚠ '+unresolved+' unresolved club names</span>' : '');
+  const total=Object.keys(storedRegs).length;
+  const withdrawn=Object.values(storedRegs).filter(a=>a.withdrawn).length;
+  const drawn=Object.values(storedRegs).filter(a=>a.inDraw).length;
+  const pending=total-withdrawn-drawn;
+  const totalBouts=bouts.length;
+  const completed=bouts.filter(b=>b.status==='completed').length;
+  const live=bouts.filter(b=>b.status==='live').length;
+  const scheduled=bouts.filter(b=>b.status==='scheduled').length;
+  const statsEl=document.getElementById('dash-stats');
+  if(statsEl)statsEl.innerHTML=dashStat(total,'ATHLETES','var(--gold)')+dashStat(pending,'PENDING','var(--orange)')+dashStat(totalBouts,'BOUTS','var(--text)')+dashStat(completed,'DONE','var(--green)')+(live?dashStat(live,'LIVE','var(--red)'):'');
+  const regsEl=document.getElementById('dash-regs-summary');
+  if(regsEl){
+    if(!total){regsEl.innerHTML='<span style="color:var(--muted)">No athletes yet — paste form data</span>';}
+    else{
+      const clubs=new Set(Object.values(storedRegs).map(a=>a.club||a.clubRaw||'Unknown'));
+      const unresolved=Object.values(storedRegs).filter(a=>!a.club||a.club===a.clubRaw).length;
+      regsEl.innerHTML='<span style="color:var(--gold)">'+total+' athletes</span> · '+clubs.size+' clubs\n'+'<span style="color:var(--green)">'+drawn+' in draw</span> · <span style="color:var(--gold)">'+pending+' pending</span>'+(withdrawn?' · <span style="color:var(--red)">'+withdrawn+' withdrawn</span>':'')+(unresolved?'\n<span style="color:var(--orange)">⚠ '+unresolved+' unresolved club names</span>':'');
     }
   }
-
-  // Draw summary
-  const drawEl = document.getElementById('dash-draw-summary');
-  if(drawEl) {
-    if(!totalBouts) {
-      drawEl.innerHTML = '<span style="color:var(--muted)">No bouts yet</span>';
-    } else {
-      const mats = [...new Set(bouts.map(b=>b.area))].sort();
-      drawEl.innerHTML =
-        '<span style="color:var(--text)">'+totalBouts+' bouts · '+mats.length+' mat'+(mats.length!==1?'s':'')+'</span>\n' +
-        '<span style="color:var(--green)">'+completed+' completed</span>' +
-        (live ? ' · <span style="color:var(--red)">'+live+' live</span>' : '') +
-        ' · <span style="color:#5090d0">'+scheduled+' scheduled</span>';
+  const drawEl=document.getElementById('dash-draw-summary');
+  if(drawEl){
+    if(!totalBouts){drawEl.innerHTML='<span style="color:var(--muted)">No bouts yet</span>';}
+    else{
+      const mats=[...new Set(bouts.map(b=>b.area))].sort();
+      drawEl.innerHTML='<span style="color:var(--text)">'+totalBouts+' bouts · '+mats.length+' mat'+(mats.length!==1?'s':'')+'</span>\n'+'<span style="color:var(--green)">'+completed+' completed</span>'+(live?' · <span style="color:var(--red)">'+live+' live</span>':'')+' · <span style="color:#5090d0">'+scheduled+' scheduled</span>';
     }
   }
-
-  // Pools summary
-  const poolsEl = document.getElementById('dash-pools-summary');
-  if(poolsEl) {
-    const poolAthletes = Object.values(storedRegs).filter(a=>!a.withdrawn);
-    const poolMap = {};
-    poolAthletes.forEach(a => {
-      (a.styles||[]).forEach(rawStyle => {
-        const disc = normStyle(rawStyle);
-        if(!disc) return;
-        const key = disc+'|'+ageGroup(a.age||0)+'|'+a.gender;
-        if(!poolMap[key]) poolMap[key] = 0;
-        poolMap[key]++;
-      });
-    });
-    const poolCount = Object.keys(poolMap).length;
-    const oddCount = Object.values(poolMap).filter(n=>n%2!==0).length;
-    const singleCount = Object.values(poolMap).filter(n=>n===1).length;
-    if(!poolCount) {
-      poolsEl.innerHTML = '<span style="color:var(--muted)">No pools yet</span>';
-    } else {
-      const poolLines = ['<span style="color:var(--orange)">'+poolCount+' pool'+(poolCount!==1?'s':'')+'</span>'];
-      if(oddCount) poolLines.push('<span style="color:var(--orange)">&#9888; '+oddCount+' odd-numbered</span>');
-      if(singleCount) poolLines.push('<span style="color:var(--red)">&#9888; '+singleCount+' solo athlete'+(singleCount!==1?'s':'')+'</span>');
-      if(!oddCount&&!singleCount) poolLines.push('<span style="color:var(--green)">All pools even</span>');
-      poolsEl.innerHTML = poolLines.join('<br>');
+  const poolsEl=document.getElementById('dash-pools-summary');
+  if(poolsEl){
+    const poolAthletes=Object.values(storedRegs).filter(a=>!a.withdrawn);
+    const poolMap={};
+    poolAthletes.forEach(a=>{(a.styles||[]).forEach(rawStyle=>{const disc=normStyle(rawStyle);if(!disc)return;const key=disc+'|'+ageGroup(a.age||0)+'|'+a.gender;if(!poolMap[key])poolMap[key]=0;poolMap[key]++;});});
+    const poolCount=Object.keys(poolMap).length;
+    const oddCount=Object.values(poolMap).filter(n=>n%2!==0).length;
+    const singleCount=Object.values(poolMap).filter(n=>n===1).length;
+    if(!poolCount){poolsEl.innerHTML='<span style="color:var(--muted)">No pools yet</span>';}
+    else{
+      const poolLines=['<span style="color:var(--orange)">'+poolCount+' pool'+(poolCount!==1?'s':'')+'</span>'];
+      if(oddCount)poolLines.push('<span style="color:var(--orange)">&#9888; '+oddCount+' odd-numbered</span>');
+      if(singleCount)poolLines.push('<span style="color:var(--red)">&#9888; '+singleCount+' solo athlete'+(singleCount!==1?'s':'')+'</span>');
+      if(!oddCount&&!singleCount)poolLines.push('<span style="color:var(--green)">All pools even</span>');
+      poolsEl.innerHTML=poolLines.join('<br>');
     }
   }
-
-  // Clubs summary
-  const clubsEl = document.getElementById('dash-clubs-summary');
-  if(clubsEl) {
-    const clubs = {};
-    Object.values(storedRegs).filter(a=>!a.withdrawn).forEach(a => {
-      const c = a.club || a.clubRaw || 'Unknown';
-      if(!clubs[c]) clubs[c] = 0;
-      clubs[c]++;
-    });
-    const clubList = Object.entries(clubs).sort((a,b)=>b[1]-a[1]).slice(0,4);
-    if(!clubList.length) {
-      clubsEl.innerHTML = '<span style="color:var(--muted)">No clubs yet</span>';
-    } else {
-      clubsEl.innerHTML = clubList.map(([name,count])=>
-        '<span style="color:var(--text)">'+escH(name)+'</span> <span style="color:var(--muted)">'+count+'</span>'
-      ).join('\n') + (Object.keys(clubs).length > 4 ? '\n<span style="color:var(--muted)">+'+(Object.keys(clubs).length-4)+' more</span>' : '');
-    }
+  const clubsEl=document.getElementById('dash-clubs-summary');
+  if(clubsEl){
+    const clubs={};
+    Object.values(storedRegs).filter(a=>!a.withdrawn).forEach(a=>{const c=a.club||a.clubRaw||'Unknown';if(!clubs[c])clubs[c]=0;clubs[c]++;});
+    const clubList=Object.entries(clubs).sort((a,b)=>b[1]-a[1]).slice(0,4);
+    if(!clubList.length){clubsEl.innerHTML='<span style="color:var(--muted)">No clubs yet</span>';}
+    else{clubsEl.innerHTML=clubList.map(([name,count])=>'<span style="color:var(--text)">'+escH(name)+'</span> <span style="color:var(--muted)">'+count+'</span>').join('\n')+(Object.keys(clubs).length>4?'\n<span style="color:var(--muted)">+'+(Object.keys(clubs).length-4)+' more</span>':'');}
   }
-
-  // Payment summary
-  const paymentEl = document.getElementById('dash-payment-summary');
-  if(paymentEl) {
-    const activeRegs = Object.values(storedRegs).filter(a=>!a.withdrawn);
+  const paymentEl=document.getElementById('dash-payment-summary');
+  if(paymentEl){
+    const activeRegs=Object.values(storedRegs).filter(a=>!a.withdrawn);
     let totalOwed=0,totalPaid=0,totalSpect=0;
-    activeRegs.forEach(a=>{
-      totalOwed+=calcOwed(a);
-      totalPaid+=(a.checkin&&a.checkin.paidAmount)||0;
-      totalSpect+=(a.checkin&&a.checkin.spectatorFees&&a.checkin.spectatorFees.totalAmount)||0;
-    });
+    activeRegs.forEach(a=>{totalOwed+=calcOwed(a);totalPaid+=(a.checkin&&a.checkin.paidAmount)||0;totalSpect+=(a.checkin&&a.checkin.spectatorFees&&a.checkin.spectatorFees.totalAmount)||0;});
     const outstanding=Math.max(0,totalOwed-totalPaid);
     const unassignedTotal=getUnassignedList().reduce((s,x)=>s+(parseFloat(x.amount)||0)+(x.spectAdults||0)*SPECT_ADULT+(x.spectKids||0)*SPECT_KID,0);
-    if(!activeRegs.length){
-      paymentEl.innerHTML='<span style="color:var(--muted)">No registrations yet</span>';
-    } else {
-      paymentEl.innerHTML =
-        '<span style="color:var(--green)">$'+totalPaid+' collected</span> / <span style="color:var(--text)">$'+totalOwed+' owed</span>\n'+
-        (outstanding?'<span style="color:var(--orange)">$'+outstanding+' outstanding</span>':'<span style="color:var(--green)">✓ fully collected</span>')+
-        (totalSpect?' · <span style="color:var(--gold)">+$'+totalSpect+' spectator</span>':'')+
-        (unassignedTotal?'\n<span style="color:var(--orange)">⚠ $'+unassignedTotal+' unassigned</span>':'');
+    if(!activeRegs.length){paymentEl.innerHTML='<span style="color:var(--muted)">No registrations yet</span>';}
+    else{
+      paymentEl.innerHTML='<span style="color:var(--green)">$'+totalPaid+' collected</span> / <span style="color:var(--text)">$'+totalOwed+' owed</span>\n'+(outstanding?'<span style="color:var(--orange)">$'+outstanding+' outstanding</span>':'<span style="color:var(--green)">✓ fully collected</span>')+(totalSpect?' · <span style="color:var(--gold)">+$'+totalSpect+' spectator</span>':'')+(unassignedTotal?'\n<span style="color:var(--orange)">⚠ $'+unassignedTotal+' unassigned</span>':'');
     }
   }
-
-  // Alerts
-  const alertsEl = document.getElementById('dash-alerts');
-  if(alertsEl) {
-    const alerts = [];
-    const unresolved = Object.values(storedRegs).filter(a=>a.clubRaw&&(!a.club||a.club===a.clubRaw));
-    if(unresolved.length) alerts.push({color:'var(--orange)', text:'⚠ '+unresolved.length+' athlete'+(unresolved.length!==1?'s':'')+' have unresolved club names — fix in REGS → CLUBS', tab:'clubs'});
-    if(pending>0&&totalBouts===0) alerts.push({color:'var(--gold)', text:''+pending+' athletes ready to match — go to PROCESS', tab:'process'});
-    const noHead = bouts.filter(b=>b.noHead&&b.status==='scheduled').length;
-    if(noHead) alerts.push({color:'var(--orange)', text:'⚠ '+noHead+' under-12 bouts scheduled — no head contact rule applies', tab:'draw'});
-
-    if(!alerts.length) { alertsEl.innerHTML = ''; return; }
-    alertsEl.innerHTML = alerts.map(a =>
-      '<div style="background:var(--surf);border:1px solid var(--border);border-left:3px solid '+a.color+';border-radius:3px;padding:8px 12px;margin-bottom:6px;font-family:var(--mono);font-size:10px;color:'+a.color+';cursor:pointer" onclick="goView(\''+a.tab+'\')">'
-      +a.text+'</div>'
-    ).join('');
+  const alertsEl=document.getElementById('dash-alerts');
+  if(alertsEl){
+    const alerts=[];
+    const unresolved=Object.values(storedRegs).filter(a=>a.clubRaw&&(!a.club||a.club===a.clubRaw));
+    if(unresolved.length)alerts.push({color:'var(--orange)',text:'⚠ '+unresolved.length+' athlete'+(unresolved.length!==1?'s':'')+' have unresolved club names — fix in REGS → CLUBS',tab:'clubs'});
+    if(pending>0&&totalBouts===0)alerts.push({color:'var(--gold)',text:''+pending+' athletes ready to match — go to PROCESS',tab:'process'});
+    const noHead=bouts.filter(b=>b.noHead&&b.status==='scheduled').length;
+    if(noHead)alerts.push({color:'var(--orange)',text:'⚠ '+noHead+' under-12 bouts scheduled — no head contact rule applies',tab:'draw'});
+    if(!alerts.length){alertsEl.innerHTML='';return;}
+    alertsEl.innerHTML=alerts.map(a=>'<div style="background:var(--surf);border:1px solid var(--border);border-left:3px solid '+a.color+';border-radius:3px;padding:8px 12px;margin-bottom:6px;font-family:var(--mono);font-size:10px;color:'+a.color+';cursor:pointer" onclick="goView(\''+a.tab+'\')">'+a.text+'</div>').join('');
   }
 }
 
-function dashStat(val, label, color) {
-  return '<div class="stat" style="border-top:2px solid '+color+'">'
-    +'<div class="stat-v" style="color:'+color+'">'+val+'</div>'
-    +'<div class="stat-l">'+label+'</div>'
-    +'</div>';
-}
+function dashStat(val,label,color){return '<div class="stat" style="border-top:2px solid '+color+'"><div class="stat-v" style="color:'+color+'">'+val+'</div><div class="stat-l">'+label+'</div></div>';}
 
-function ensureEventMeta() {
-  if(!db) return;
-  get(ref(db, 'events/'+eventId+'/meta')).then(snap => {
-    if(!snap.exists()) {
-      set(ref(db, 'events/'+eventId+'/meta'), {
-          name: DEFAULT_EVENT.name,
-          date: DEFAULT_EVENT.date,
-          location: DEFAULT_EVENT.location,
-          createdAt: new Date().toISOString(),
-          status: 'active'
-        });
-      }
-      updateBanner();
-      loadEventList();
-    });
+function ensureEventMeta(){
+  if(!db)return;
+  get(ref(db,'events/'+eventId+'/meta')).then(snap=>{
+    if(!snap.exists()){set(ref(db,'events/'+eventId+'/meta'),{name:DEFAULT_EVENT.name,date:DEFAULT_EVENT.date,location:DEFAULT_EVENT.location,createdAt:new Date().toISOString(),status:'active'});}
+    updateBanner();loadEventList();
+  });
 }
 
 window.saveEventId=function(){const v=document.getElementById('cfg-eventId').value.trim();if(!v)return;eventId=v;localStorage.setItem('cgs-eventId',v);toast('Event ID saved: '+v,'gold');if(db)listenFirebase();};
@@ -1435,212 +1095,111 @@ function parseCSV(raw){const lines=raw.replace(/\r\n/g,'\n').replace(/\r/g,'\n')
 function colIdx(headers,terms){for(const t of terms){const i=headers.findIndex(h=>h.toLowerCase().includes(t.toLowerCase()));if(i>-1)return i;}return -1;}
 function calcAge(dob){if(!dob)return 0;let d;if(typeof dob==='string'){const p=dob.split('/');if(p.length===3){const yr=parseInt(p[2]);if(yr<100)return 0;d=new Date(yr,parseInt(p[1])-1,parseInt(p[0]));}else d=new Date(dob);}else d=new Date(dob);if(isNaN(d.getTime()))return 0;const now=new Date();let age=now.getFullYear()-d.getFullYear();if(now.getMonth()<d.getMonth()||(now.getMonth()===d.getMonth()&&now.getDate()<d.getDate()))age--;return age<0||age>100?0:age;}
 
+let storedRegs={};
+let storedClubMap={};
+let appliedPayments={};
 
-// ══════════════════════════════════════════
-// REGISTRATIONS — persistent athlete store
-// ══════════════════════════════════════════
-let storedRegs = {};    // keyed by dedupe key
-let storedClubMap = {}; // raw → canonical, persisted
-let appliedPayments = {}; // keyed by transaction key, persisted — prevents double-counting on re-paste
-
-// ── Sub-tab navigation ──
-window.goRegsTab = function(tab) {
-  ['import','athletes','clubs'].forEach(t => {
-    const panel = document.getElementById('regs-panel-'+t);
-    const btn = document.getElementById('regs-tab-'+t);
-    if(panel) panel.style.display = t===tab ? '' : 'none';
-    if(btn) btn.classList.toggle('on', t===tab);
+window.goRegsTab=function(tab){
+  ['import','athletes','clubs'].forEach(t=>{
+    const panel=document.getElementById('regs-panel-'+t);
+    const btn=document.getElementById('regs-tab-'+t);
+    if(panel)panel.style.display=t===tab?'':'none';
+    if(btn)btn.classList.toggle('on',t===tab);
   });
-  if(tab==='athletes') renderAthleteList();
-  if(tab==='clubs') renderRegsClubs();
+  if(tab==='athletes')renderAthleteList();
+  if(tab==='clubs')renderRegsClubs();
 };
 
-// ── Load regs from Firebase ──
-function loadRegsFromFirebase() {
-  if(!db) return;
-  const { ref: fbRef, onValue } = window._fbFns;
-  fbRef(db, 'events/'+eventId+'/registrations').then ? null : null; // dummy
-  // Use onValue already imported in module scope — called via listenRegs()
-}
-
-function listenRegs() {
-  if(!db) return;
-  onValue(ref(db, 'events/'+eventId+'/registrations'), snap => {
-    storedRegs = snap.exists() ? (snap.val() || {}) : {};
-    updateRegsStatus();
-    updateRegsMatchSummary();
-    if(document.getElementById('view-home')?.classList.contains('on')) renderDashboard();
-    if(document.getElementById('view-pools')?.classList.contains('on')) renderPools();
+function listenRegs(){
+  if(!db)return;
+  onValue(ref(db,'events/'+eventId+'/registrations'),snap=>{
+    storedRegs=snap.exists()?(snap.val()||{}):{};
+    updateRegsStatus();updateRegsMatchSummary();
+    if(document.getElementById('view-home')?.classList.contains('on'))renderDashboard();
+    if(document.getElementById('view-pools')?.classList.contains('on'))renderPools();
   });
-  onValue(ref(db, 'events/'+eventId+'/clubMap'), snap => {
-    if(snap.exists()) {
-      storedClubMap = snap.val() || {};
-      Object.assign(clubMap, storedClubMap);
-    }
-  });
-  onValue(ref(db, 'events/'+eventId+'/payments'), snap => {
-    appliedPayments = snap.exists() ? (snap.val() || {}) : {};
-  });
+  onValue(ref(db,'events/'+eventId+'/clubMap'),snap=>{if(snap.exists()){storedClubMap=snap.val()||{};Object.assign(clubMap,storedClubMap);}});
+  onValue(ref(db,'events/'+eventId+'/payments'),snap=>{appliedPayments=snap.exists()?(snap.val()||{}):{};});
 }
 
-function saveRegsToFirebase() {
-  if(!db) return;
-  set(ref(db, 'events/'+eventId+'/registrations'), storedRegs).catch(e => console.warn('Regs save failed:', e));
+function saveRegsToFirebase(){if(!db)return;set(ref(db,'events/'+eventId+'/registrations'),storedRegs).catch(e=>console.warn('Regs save failed:',e));}
+function saveClubMapToFirebase(){if(!db)return;set(ref(db,'events/'+eventId+'/clubMap'),storedClubMap).catch(e=>console.warn('ClubMap save failed:',e));}
+function saveAppliedPayments(){if(!db)return;set(ref(db,'events/'+eventId+'/payments'),appliedPayments).catch(e=>console.warn('Payments save failed:',e));}
+function regsDedupeKey(a){return ((a.name||'')+(a.sur||'')+(a.gender||'')).toLowerCase().replace(/\s/g,'');}
+
+function updateRegsStatus(){
+  const el=document.getElementById('regs-status');
+  if(!el)return;
+  const total=Object.keys(storedRegs).length;
+  const withdrawn=Object.values(storedRegs).filter(a=>a.withdrawn).length;
+  const drawn=Object.values(storedRegs).filter(a=>a.inDraw).length;
+  const pending=total-withdrawn-drawn;
+  if(!total){el.textContent='No registrations yet — paste form data above.';el.style.color='var(--muted)';return;}
+  el.innerHTML='<span style="color:var(--gold)">'+total+' athletes</span> stored · '+'<span style="color:var(--green)">'+drawn+' in draw</span> · '+'<span style="color:var(--gold)">'+pending+' pending</span>'+(withdrawn?' · <span style="color:var(--red)">'+withdrawn+' withdrawn</span>':'');
 }
 
-function saveClubMapToFirebase() {
-  if(!db) return;
-  set(ref(db, 'events/'+eventId+'/clubMap'), storedClubMap).catch(e => console.warn('ClubMap save failed:', e));
-}
-
-function saveAppliedPayments() {
-  if(!db) return;
-  set(ref(db, 'events/'+eventId+'/payments'), appliedPayments).catch(e => console.warn('Payments save failed:', e));
-}
-
-function regsDedupeKey(a) {
-  return ((a.name||'')+(a.sur||'')+(a.gender||'')).toLowerCase().replace(/\s/g,'');
-}
-
-function updateRegsStatus() {
-  const el = document.getElementById('regs-status');
-  if(!el) return;
-  const total = Object.keys(storedRegs).length;
-  const withdrawn = Object.values(storedRegs).filter(a=>a.withdrawn).length;
-  const drawn = Object.values(storedRegs).filter(a=>a.inDraw).length;
-  const pending = total - withdrawn - drawn;
-  if(!total) {
-    el.textContent = 'No registrations yet — paste form data above.';
-    el.style.color = 'var(--muted)';
-    return;
-  }
-  el.innerHTML = '<span style="color:var(--gold)">'+total+' athletes</span> stored · '
-    +'<span style="color:var(--green)">'+drawn+' in draw</span> · '
-    +'<span style="color:var(--gold)">'+pending+' pending</span>'
-    +(withdrawn?' · <span style="color:var(--red)">'+withdrawn+' withdrawn</span>':'');
-}
-
-// ── MERGE import into stored regs ──
-window.regsProcessImport = function() {
-  const raw = document.getElementById('regs-csv-raw').value.trim();
-  if(!raw) { toast('Nothing pasted','red'); return; }
-  const {headers,rows} = parseCSV(raw);
-  if(!headers.length) { toast('Could not parse','red'); return; }
-
-  const iName=colIdx(headers,['Name']),iSur=colIdx(headers,['Surname']),
-    iGender=colIdx(headers,['Gender']),iWeight=colIdx(headers,['Weight']),
-    iDOB=colIdx(headers,['Date of Birth','DOB']),
-    iStyles=colIdx(headers,["style(s) are you registering","styles","style"]),
-    iClub=colIdx(headers,['Club Name','club']),
-    iEmail=colIdx(headers,['Email address','Email']);
-
-  if([iName,iSur,iGender,iWeight,iDOB,iStyles].includes(-1)) {
-    document.getElementById('regs-import-result').innerHTML =
-      '<div style="background:var(--red-bg);border:1px solid var(--red);border-radius:2px;padding:10px;font-size:11px;color:#e07060">Missing required columns.</div>';
-    return;
-  }
-
-  let added=0, updated=0, skipped=0;
-  rows.forEach(r => {
-    const name=(r[iName]||'').trim(), sur=(r[iSur]||'').trim();
-    if(!name) return;
-    const gender=(r[iGender]||'').trim(),
-      weight=parseFloat(r[iWeight])||0,
-      dob=(r[iDOB]||'').trim(),
-      age=calcAge(dob),
-      stylesRaw=(r[iStyles]||'').trim(),
-      styles=stylesRaw.split(',').map(s=>s.trim().toUpperCase()).filter(s=>s),
-      clubRaw=(iClub>-1?(r[iClub]||''):'').trim(),
-      email=(iEmail>-1?(r[iEmail]||''):'').trim().toLowerCase();
-
-    // Resolve club
-    let club = storedClubMap[clubRaw] || clubMap[clubRaw] || '';
-    if(!club) {
-      if(isEagle(clubRaw)) club='Eagle DS';
-      else club=fuzzyMatch(clubRaw,CANONICAL_CLUBS)||clubRaw;
-      if(clubRaw) storedClubMap[clubRaw]=club;
-    }
-
-    const key = regsDedupeKey({name,sur,gender});
-    const existing = storedRegs[key];
-    if(existing) {
-      // Update weight and styles (may have changed), keep draw/withdrawal status
-      const changed = existing.weight!==weight || existing.club!==club;
-      storedRegs[key] = {
-        ...existing,
-        weight, age, dob, styles, clubRaw, club,
-        email: email||existing.email||'',
-        updatedAt: new Date().toISOString()
-      };
-      if(changed) updated++; else skipped++;
-    } else {
-      storedRegs[key] = {
-        name, sur, gender, weight, age, dob, styles, clubRaw, club, email,
-        withdrawn: false, inDraw: false,
-        weighIn: 'pending',
-        addedAt: new Date().toISOString()
-      };
+window.regsProcessImport=function(){
+  const raw=document.getElementById('regs-csv-raw').value.trim();
+  if(!raw){toast('Nothing pasted','red');return;}
+  const {headers,rows}=parseCSV(raw);
+  if(!headers.length){toast('Could not parse','red');return;}
+  const iName=colIdx(headers,['Name']),iSur=colIdx(headers,['Surname']),iGender=colIdx(headers,['Gender']),iWeight=colIdx(headers,['Weight']),iDOB=colIdx(headers,['Date of Birth','DOB']),iStyles=colIdx(headers,["style(s) are you registering","styles","style"]),iClub=colIdx(headers,['Club Name','club']),iEmail=colIdx(headers,['Email address','Email']);
+  if([iName,iSur,iGender,iWeight,iDOB,iStyles].includes(-1)){document.getElementById('regs-import-result').innerHTML='<div style="background:var(--red-bg);border:1px solid var(--red);border-radius:2px;padding:10px;font-size:11px;color:#e07060">Missing required columns.</div>';return;}
+  let added=0,updated=0,skipped=0;
+  rows.forEach(r=>{
+    const name=(r[iName]||'').trim(),sur=(r[iSur]||'').trim();
+    if(!name)return;
+    const gender=(r[iGender]||'').trim(),weight=parseFloat(r[iWeight])||0,dob=(r[iDOB]||'').trim(),age=calcAge(dob),stylesRaw=(r[iStyles]||'').trim(),styles=stylesRaw.split(',').map(s=>s.trim().toUpperCase()).filter(s=>s),clubRaw=(iClub>-1?(r[iClub]||''):'').trim(),email=(iEmail>-1?(r[iEmail]||''):'').trim().toLowerCase();
+    let club=storedClubMap[clubRaw]||clubMap[clubRaw]||'';
+    if(!club){if(isEagle(clubRaw))club='Eagle DS';else club=fuzzyMatch(clubRaw,CANONICAL_CLUBS)||clubRaw;if(clubRaw)storedClubMap[clubRaw]=club;}
+    const key=regsDedupeKey({name,sur,gender});
+    const existing=storedRegs[key];
+    if(existing){
+      const changed=existing.weight!==weight||existing.club!==club;
+      storedRegs[key]={...existing,weight,age,dob,styles,clubRaw,club,email:email||existing.email||'',updatedAt:new Date().toISOString()};
+      if(changed)updated++;else skipped++;
+    }else{
+      storedRegs[key]={name,sur,gender,weight,age,dob,styles,clubRaw,club,email,withdrawn:false,inDraw:false,weighIn:'pending',addedAt:new Date().toISOString()};
       added++;
     }
   });
-
-  saveRegsToFirebase();
-  saveClubMapToFirebase();
-  updateRegsStatus();
-
-  const msg = added+' new · '+updated+' updated · '+skipped+' unchanged';
-  document.getElementById('regs-import-result').innerHTML =
-    '<div style="background:var(--green-bg);border:1px solid var(--green);border-radius:2px;padding:10px;font-size:11px;color:var(--green)">'+msg+'</div>';
-
-  updateRegsMatchSummary();
-  toast(msg, 'green');
+  saveRegsToFirebase();saveClubMapToFirebase();updateRegsStatus();
+  const msg=added+' new · '+updated+' updated · '+skipped+' unchanged';
+  document.getElementById('regs-import-result').innerHTML='<div style="background:var(--green-bg);border:1px solid var(--green);border-radius:2px;padding:10px;font-size:11px;color:var(--green)">'+msg+'</div>';
+  updateRegsMatchSummary();toast(msg,'green');
 };
 
-function updateRegsMatchSummary() {
-  const el = document.getElementById('regs-match-summary');
-  if(!el) return;
-  const active = Object.values(storedRegs).filter(a=>!a.withdrawn);
-  const drawn = active.filter(a=>a.inDraw).length;
-  const pending = active.filter(a=>!a.inDraw).length;
-  el.innerHTML = '<span style="color:var(--gold)">'+pending+' athletes pending matching</span>'
-    +' · <span style="color:var(--green)">'+drawn+' already in draw</span>';
+function updateRegsMatchSummary(){
+  const el=document.getElementById('regs-match-summary');
+  if(!el)return;
+  const active=Object.values(storedRegs).filter(a=>!a.withdrawn);
+  const drawn=active.filter(a=>a.inDraw).length;
+  const pending=active.filter(a=>!a.inDraw).length;
+  el.innerHTML='<span style="color:var(--gold)">'+pending+' athletes pending matching</span> · <span style="color:var(--green)">'+drawn+' already in draw</span>';
 }
 
-// ── ATHLETE LIST ──
-window.renderAthleteList = function() {
-  const el = document.getElementById('regs-athlete-list');
-  const statsEl = document.getElementById('regs-stats-row');
-  if(!el) return;
-
-  const search = (document.getElementById('regs-athlete-search')?.value||'').toLowerCase();
-  const filterDisc = document.getElementById('regs-filter-disc')?.value||'';
-  const filterStatus = document.getElementById('regs-filter-status')?.value||'';
-
-  let athletes = Object.values(storedRegs);
-  if(search) athletes = athletes.filter(a =>
-    ((a.name||'')+' '+(a.sur||'')).toLowerCase().includes(search) ||
-    (a.club||'').toLowerCase().includes(search));
-  if(filterDisc) athletes = athletes.filter(a => a.styles && a.styles.some(s=>normStyle(s)===filterDisc));
-  if(filterStatus==='pending') athletes = athletes.filter(a=>!a.inDraw&&!a.withdrawn);
-  if(filterStatus==='drawn') athletes = athletes.filter(a=>a.inDraw);
-  if(filterStatus==='withdrawn') athletes = athletes.filter(a=>a.withdrawn);
-
+window.renderAthleteList=function(){
+  const el=document.getElementById('regs-athlete-list');
+  const statsEl=document.getElementById('regs-stats-row');
+  if(!el)return;
+  const search=(document.getElementById('regs-athlete-search')?.value||'').toLowerCase();
+  const filterDisc=document.getElementById('regs-filter-disc')?.value||'';
+  const filterStatus=document.getElementById('regs-filter-status')?.value||'';
+  let athletes=Object.values(storedRegs);
+  if(search)athletes=athletes.filter(a=>((a.name||'')+' '+(a.sur||'')).toLowerCase().includes(search)||(a.club||'').toLowerCase().includes(search));
+  if(filterDisc)athletes=athletes.filter(a=>a.styles&&a.styles.some(s=>normStyle(s)===filterDisc));
+  if(filterStatus==='pending')athletes=athletes.filter(a=>!a.inDraw&&!a.withdrawn);
+  if(filterStatus==='drawn')athletes=athletes.filter(a=>a.inDraw);
+  if(filterStatus==='withdrawn')athletes=athletes.filter(a=>a.withdrawn);
   athletes.sort((a,b)=>(a.club||'').localeCompare(b.club||'')||(a.name||'').localeCompare(b.name||''));
-
-  const total=Object.keys(storedRegs).length,
-    drawn=Object.values(storedRegs).filter(a=>a.inDraw).length,
-    pending=Object.values(storedRegs).filter(a=>!a.inDraw&&!a.withdrawn).length,
-    withdrawn=Object.values(storedRegs).filter(a=>a.withdrawn).length;
-
-  if(statsEl) statsEl.innerHTML='<div class="stats" style="margin-bottom:0">'
+  const total=Object.keys(storedRegs).length,drawn=Object.values(storedRegs).filter(a=>a.inDraw).length,pending=Object.values(storedRegs).filter(a=>!a.inDraw&&!a.withdrawn).length,withdrawn=Object.values(storedRegs).filter(a=>a.withdrawn).length;
+  if(statsEl)statsEl.innerHTML='<div class="stats" style="margin-bottom:0">'
     +'<div class="stat" style="border-top:2px solid var(--gold)"><div class="stat-v" style="color:var(--gold)">'+total+'</div><div class="stat-l">TOTAL</div></div>'
     +'<div class="stat" style="border-top:2px solid var(--green)"><div class="stat-v" style="color:var(--green)">'+drawn+'</div><div class="stat-l">IN DRAW</div></div>'
     +'<div class="stat" style="border-top:2px solid var(--gold)"><div class="stat-v" style="color:var(--gold)">'+pending+'</div><div class="stat-l">PENDING</div></div>'
     +'<div class="stat" style="border-top:2px solid var(--red)"><div class="stat-v" style="color:var(--red)">'+withdrawn+'</div><div class="stat-l">WITHDRAWN</div></div>'
     +'</div>';
-
   if(!athletes.length){el.innerHTML='<div class="panel" style="text-align:center;color:var(--muted);font-family:var(--mono);font-size:10px">No athletes match filter.</div>';return;}
-
   let html='<table style="width:100%;border-collapse:collapse;font-size:11px">'
     +'<thead><tr style="background:#0d0d10">'
     +'<th style="font-family:var(--mono);font-size:8px;letter-spacing:1px;color:var(--muted);padding:6px 8px;text-align:left;border-bottom:1px solid var(--border)">NAME</th>'
@@ -1650,8 +1209,7 @@ window.renderAthleteList = function() {
     +'<th style="font-family:var(--mono);font-size:8px;letter-spacing:1px;color:var(--muted);padding:6px 8px;text-align:left;border-bottom:1px solid var(--border)">STATUS</th>'
     +'<th style="font-family:var(--mono);font-size:8px;letter-spacing:1px;color:var(--muted);padding:6px 8px;border-bottom:1px solid var(--border)"></th>'
     +'</tr></thead><tbody>';
-
-  athletes.forEach(a => {
+  athletes.forEach(a=>{
     const key=regsDedupeKey(a);
     const fullName=(a.name+' '+(a.sur||'')).trim();
     const statusColor=a.withdrawn?'var(--red)':a.inDraw?'var(--green)':'var(--gold)';
@@ -1660,73 +1218,50 @@ window.renderAthleteList = function() {
     html+='<tr style="border-bottom:1px solid #111115">'
       +'<td style="padding:6px 8px;font-weight:600">'+escH(fullName)+'<span style="font-family:var(--mono);font-size:8px;color:var(--muted);margin-left:6px">'+a.gender+'</span></td>'
       +'<td style="padding:6px 8px;color:var(--muted)">'+escH(a.club||a.clubRaw||'')+'</td>'
-      +'<td style="padding:6px 8px;font-family:var(--mono);font-size:9px">'+
-        '<span style="cursor:pointer;border-bottom:1px dashed var(--border)" onclick="editAthleteWeight(\''+escA(key)+'\')">'+(a.age||'?')+'yr · '+(a.weight||'?')+'kg</span></td>'
+      +'<td style="padding:6px 8px;font-family:var(--mono);font-size:9px"><span style="cursor:pointer;border-bottom:1px dashed var(--border)" onclick="editAthleteWeight(\''+escA(key)+'\')">'+(a.age||'?')+'yr · '+(a.weight||'?')+'kg</span></td>'
       +'<td style="padding:6px 8px;font-size:10px;color:var(--muted)">'+escH(discs)+'</td>'
       +'<td style="padding:6px 8px"><span style="font-family:var(--mono);font-size:8px;color:'+statusColor+'">'+statusText+'</span></td>'
       +'<td style="padding:4px 8px;white-space:nowrap">'
       +(!a.inDraw?'<button class="btn btn-ghost btn-xs" style="color:var(--red);font-size:8px" data-key="'+escA(key)+'" onclick="toggleWithdrawal(this.dataset.key)">'+(a.withdrawn?'REINSTATE':'WITHDRAW')+'</button>':'')
       +' <button class="btn btn-ghost btn-xs" style="color:var(--muted);font-size:8px" data-key="'+escA(key)+'" onclick="deleteAthlete(this.dataset.key)">✕ DELETE</button>'
-      +'</td>'
-      +'</tr>';
+      +'</td></tr>';
   });
   el.innerHTML=html+'</tbody></table>';
 };
 
-window.deleteAthlete = function(key) {
-  const a = storedRegs[key];
-  if(!a) return;
-  const fullName = ((a.name||'')+' '+(a.sur||'')).trim();
-  if(!confirm('Delete "'+fullName+'" permanently? This cannot be undone.')) return;
-  delete storedRegs[key];
-  saveRegsToFirebase();
-  renderAthleteList();
-  updateRegsStatus();
-  updateRegsMatchSummary();
+window.deleteAthlete=function(key){
+  const a=storedRegs[key];
+  if(!a)return;
+  const fullName=((a.name||'')+' '+(a.sur||'')).trim();
+  if(!confirm('Delete "'+fullName+'" permanently? This cannot be undone.'))return;
+  delete storedRegs[key];saveRegsToFirebase();renderAthleteList();updateRegsStatus();updateRegsMatchSummary();
   toast('Deleted','red');
 };
 
-window.toggleWithdrawal = function(key) {
-  if(!storedRegs[key]) return;
-  storedRegs[key].withdrawn = !storedRegs[key].withdrawn;
-  saveRegsToFirebase();
-  renderAthleteList();
-  updateRegsStatus();
-  updateRegsMatchSummary();
+window.toggleWithdrawal=function(key){
+  if(!storedRegs[key])return;
+  storedRegs[key].withdrawn=!storedRegs[key].withdrawn;
+  saveRegsToFirebase();renderAthleteList();updateRegsStatus();updateRegsMatchSummary();
   toast(storedRegs[key].withdrawn?'Marked withdrawn':'Reinstated','gold');
 };
 
-window.editAthleteWeight = function(key) {
-  const a = storedRegs[key];
-  if(!a) return;
-  const newWt = prompt('Update weight for '+(a.name+' '+(a.sur||'')).trim()+' (current: '+a.weight+'kg):', a.weight);
-  if(newWt===null) return;
-  const parsed = parseFloat(newWt);
-  if(!parsed||parsed<10||parsed>200) { toast('Invalid weight','red'); return; }
-  storedRegs[key].weight = parsed;
-  saveRegsToFirebase();
-  renderAthleteList();
+window.editAthleteWeight=function(key){
+  const a=storedRegs[key];
+  if(!a)return;
+  const newWt=prompt('Update weight for '+(a.name+' '+(a.sur||'')).trim()+' (current: '+a.weight+'kg):',a.weight);
+  if(newWt===null)return;
+  const parsed=parseFloat(newWt);
+  if(!parsed||parsed<10||parsed>200){toast('Invalid weight','red');return;}
+  storedRegs[key].weight=parsed;saveRegsToFirebase();renderAthleteList();
   toast('Weight updated','green');
 };
 
-// ── CLUB NORMALISATION (persistent) ──
-window.renderRegsClubs = function() {
-  const rawClubs = [...new Set(Object.values(storedRegs).map(a=>a.clubRaw).filter(c=>c))];
-  if(!rawClubs.length) {
-    document.getElementById('regs-club-body').innerHTML='<div style="color:var(--muted);font-size:11px">No athletes loaded yet.</div>';
-    return;
-  }
-
-  rawClubs.forEach(raw=>{
-    if(!storedClubMap[raw]) {
-      if(isEagle(raw)) storedClubMap[raw]='Eagle DS';
-      else storedClubMap[raw]=fuzzyMatch(raw,CANONICAL_CLUBS)||raw;
-    }
-  });
-
+window.renderRegsClubs=function(){
+  const rawClubs=[...new Set(Object.values(storedRegs).map(a=>a.clubRaw).filter(c=>c))];
+  if(!rawClubs.length){document.getElementById('regs-club-body').innerHTML='<div style="color:var(--muted);font-size:11px">No athletes loaded yet.</div>';return;}
+  rawClubs.forEach(raw=>{if(!storedClubMap[raw]){if(isEagle(raw))storedClubMap[raw]='Eagle DS';else storedClubMap[raw]=fuzzyMatch(raw,CANONICAL_CLUBS)||raw;}});
   const groups={};
   rawClubs.forEach(raw=>{const canon=storedClubMap[raw]||raw;if(!groups[canon])groups[canon]=[];groups[canon].push(raw);});
-
   let html='<table class="club-tbl"><thead><tr><th>RAW (from form)</th><th>CANONICAL NAME</th><th>#</th></tr></thead><tbody>';
   Object.entries(groups).sort((a,b)=>a[0].localeCompare(b[0])).forEach(([canon,raws])=>{
     raws.forEach(raw=>{
@@ -1748,135 +1283,77 @@ window.renderRegsClubs = function() {
   document.getElementById('regs-club-body').innerHTML=html+'</tbody></table>';
 };
 
-window.handleRegsClubSel = function(sel) {
+window.handleRegsClubSel=function(sel){
   const raw=sel.dataset.raw;if(!raw)return;
   const inp=sel.parentElement.querySelector('input[data-raw="'+raw+'"]');
   if(sel.value==='__other__'){if(inp){inp.style.display='inline-block';inp.focus();}storedClubMap[raw]='';}
   else{if(inp)inp.style.display='none';storedClubMap[raw]=sel.value;}
 };
-window.handleRegsClubCustom = function(inp) {
-  const raw=inp.dataset.raw;if(raw)storedClubMap[raw]=inp.value;
+window.handleRegsClubCustom=function(inp){const raw=inp.dataset.raw;if(raw)storedClubMap[raw]=inp.value;};
+
+window.regsApplyClubs=function(){
+  Object.values(storedRegs).forEach(a=>{const resolved=storedClubMap[a.clubRaw];if(resolved)a.club=resolved;});
+  saveRegsToFirebase();saveClubMapToFirebase();Object.assign(clubMap,storedClubMap);
+  toast('Club names saved','green');renderAthleteList();
 };
 
-window.regsApplyClubs = function() {
-  // Apply stored club map to all athlete records
-  Object.values(storedRegs).forEach(a=>{
-    const resolved=storedClubMap[a.clubRaw];
-    if(resolved) a.club=resolved;
-  });
-  saveRegsToFirebase();
-  saveClubMapToFirebase();
-  Object.assign(clubMap, storedClubMap);
-  toast('Club names saved','green');
-  renderAthleteList();
-};
-
-// ── MATCHING from stored regs ──
-window.regsRunMatch = function() {
-  const active = Object.values(storedRegs).filter(a=>!a.withdrawn&&!a.inDraw);
+window.regsRunMatch=function(){
+  const active=Object.values(storedRegs).filter(a=>!a.withdrawn&&!a.inDraw);
   if(!active.length){toast('No pending athletes to match','orange');return;}
-
-  // Build athletes array for matching engine
-  athletes = active.map(a=>({...a,sur:a.sur||'',paired:false}));
-
-  // Run matching (reuses existing runMatching logic)
+  athletes=active.map(a=>({...a,sur:a.sur||'',paired:false}));
   runMatching();
-
-  // Show results in regs tab
   const total=matches.length,tbc=matches.filter(m=>m.status==='tbc').length;
-  document.getElementById('regs-match-result').innerHTML=
-    '<div style="background:var(--green-bg);border:1px solid var(--green);border-radius:2px;padding:10px;font-size:11px;color:var(--green);margin-top:8px">'
-    +'<strong>'+(total-tbc)+' bouts matched</strong>'+(tbc?' · '+tbc+' TBC':'')+'. Review in PROCESS tab then send to draw.</div>';
-
-  // Switch to process step 3 so user can review
-  goView('process');
-  goStep(3);
+  document.getElementById('regs-match-result').innerHTML='<div style="background:var(--green-bg);border:1px solid var(--green);border-radius:2px;padding:10px;font-size:11px;color:var(--green);margin-top:8px"><strong>'+(total-tbc)+' bouts matched</strong>'+(tbc?' · '+tbc+' TBC':'')+'. Review in PROCESS tab then send to draw.</div>';
+  goView('process');goStep(3);
   toast((total-tbc)+' bouts matched — review below','green');
 };
 
-// ── REMATCH ALL — clear scheduled bouts, unmatch untouched athletes, leave live/completed alone ──
-window.rematchAll = function() {
-  const liveOrDone = bouts.filter(b=>b.status==='live'||b.status==='completed');
-  const scheduled = bouts.filter(b=>b.status!=='live'&&b.status!=='completed');
-  if(!scheduled.length){ toast('No scheduled bouts to clear','orange'); return; }
-
-  const warnMsg = liveOrDone.length
-    ? 'This clears '+scheduled.length+' scheduled bout(s) and unmatches those athletes.\n\n'+liveOrDone.length+' live/completed bout(s) will NOT be touched — any athlete already fighting in one of those (in ANY discipline) stays locked in and will be skipped by rematching, to protect real results.\n\nContinue?'
-    : 'This clears all '+scheduled.length+' scheduled bouts and unmatches every athlete so you can run MATCH PENDING fresh. Continue?';
-  if(!confirm(warnMsg)) return;
-
-  // Names currently locked into a live or completed bout — same name-matching pattern as markAthletesAsDrawn
-  const lockedKeys = new Set();
+window.rematchAll=function(){
+  const liveOrDone=bouts.filter(b=>b.status==='live'||b.status==='completed');
+  const scheduled=bouts.filter(b=>b.status!=='live'&&b.status!=='completed');
+  if(!scheduled.length){toast('No scheduled bouts to clear','orange');return;}
+  const warnMsg=liveOrDone.length
+    ?'This clears '+scheduled.length+' scheduled bout(s) and unmatches those athletes.\n\n'+liveOrDone.length+' live/completed bout(s) will NOT be touched — any athlete already fighting in one of those (in ANY discipline) stays locked in and will be skipped by rematching, to protect real results.\n\nContinue?'
+    :'This clears all '+scheduled.length+' scheduled bouts and unmatches every athlete so you can run MATCH PENDING fresh. Continue?';
+  if(!confirm(warnMsg))return;
+  const lockedKeys=new Set();
   liveOrDone.forEach(b=>{
-    [b.red.name, b.blue.name].forEach(fullName=>{
-      if(!fullName||fullName==='TBC') return;
+    [b.red.name,b.blue.name].forEach(fullName=>{
+      if(!fullName||fullName==='TBC')return;
       const parts=fullName.trim().split(' ');
-      const name=parts[0], sur=parts.slice(1).join(' ');
-      const key=Object.keys(storedRegs).find(k=>{
-        const a=storedRegs[k];
-        return ((a.name||'')+(a.sur||'')).toLowerCase().replace(/\s/g,'')===(name+sur).toLowerCase().replace(/\s/g,'');
-      });
-      if(key) lockedKeys.add(key);
+      const name=parts[0],sur=parts.slice(1).join(' ');
+      const key=Object.keys(storedRegs).find(k=>{const a=storedRegs[k];return ((a.name||'')+(a.sur||'')).toLowerCase().replace(/\s/g,'')===(name+sur).toLowerCase().replace(/\s/g,'');});
+      if(key)lockedKeys.add(key);
     });
   });
-
-  // Keep only live/completed bouts — drop every scheduled/paused/cancelled bout
-  bouts = liveOrDone;
-
-  // Unmatch every athlete not locked in, so they're eligible for MATCH PENDING again
+  bouts=liveOrDone;
   let unmatched=0;
-  Object.keys(storedRegs).forEach(key=>{
-    if(storedRegs[key].inDraw && !lockedKeys.has(key)){
-      storedRegs[key].inDraw = false;
-      unmatched++;
-    }
-  });
-
-  saveBouts();
-  saveRegsToFirebase();
-  updateRegsStatus();
-  updateRegsMatchSummary();
-  renderDraw();
-  document.getElementById('rematch-summary').innerHTML =
-    '<span style="color:var(--green)">Cleared '+scheduled.length+' bout(s) · '+unmatched+' athletes unmatched</span>'
-    +(lockedKeys.size?' · <span style="color:var(--orange)">'+lockedKeys.size+' locked (already fighting)</span>':'');
+  Object.keys(storedRegs).forEach(key=>{if(storedRegs[key].inDraw&&!lockedKeys.has(key)){storedRegs[key].inDraw=false;unmatched++;}});
+  saveBouts();saveRegsToFirebase();updateRegsStatus();updateRegsMatchSummary();renderDraw();
+  document.getElementById('rematch-summary').innerHTML='<span style="color:var(--green)">Cleared '+scheduled.length+' bout(s) · '+unmatched+' athletes unmatched</span>'+(lockedKeys.size?' · <span style="color:var(--orange)">'+lockedKeys.size+' locked (already fighting)</span>':'');
   toast(unmatched+' athletes ready — go tap MATCH PENDING above','gold');
 };
 
-
-function markAthletesAsDrawn(newBouts) {
+function markAthletesAsDrawn(newBouts){
   newBouts.forEach(b=>{
-    [b.red.name, b.blue.name].forEach(fullName=>{
-      if(!fullName||fullName==='TBC') return;
+    [b.red.name,b.blue.name].forEach(fullName=>{
+      if(!fullName||fullName==='TBC')return;
       const parts=fullName.trim().split(' ');
-      const name=parts[0], sur=parts.slice(1).join(' ');
-      // find by name match
-      const key=Object.keys(storedRegs).find(k=>{
-        const a=storedRegs[k];
-        return ((a.name||'')+(a.sur||'')).toLowerCase().replace(/\s/g,'')===(name+sur).toLowerCase().replace(/\s/g,'');
-      });
-      if(key) storedRegs[key].inDraw=true;
+      const name=parts[0],sur=parts.slice(1).join(' ');
+      const key=Object.keys(storedRegs).find(k=>{const a=storedRegs[k];return ((a.name||'')+(a.sur||'')).toLowerCase().replace(/\s/g,'')===(name+sur).toLowerCase().replace(/\s/g,'');});
+      if(key)storedRegs[key].inDraw=true;
     });
   });
-  saveRegsToFirebase();
-  updateRegsStatus();
-  updateRegsMatchSummary();
+  saveRegsToFirebase();updateRegsStatus();updateRegsMatchSummary();
 }
 
-// ══════════════════════════════════════════
-// WEIGH-IN — CHECK-IN + PAYMENTS
-// ══════════════════════════════════════════
 function calcOwed(a){const n=(a.styles||[]).length;return n<=0?0:40+20*(n-1);}
 
 function findRegKeyByFullName(fullName){
   if(!fullName)return null;
   const target=normS(fullName);
   let best=null,bestScore=0;
-  Object.entries(storedRegs).forEach(([k,a])=>{
-    const full=((a.name||'')+' '+(a.sur||'')).trim();
-    const s=jaccardSim(target,normS(full));
-    if(s>bestScore){bestScore=s;best=k;}
-  });
+  Object.entries(storedRegs).forEach(([k,a])=>{const full=((a.name||'')+' '+(a.sur||'')).trim();const s=jaccardSim(target,normS(full));if(s>bestScore){bestScore=s;best=k;}});
   return bestScore>0.5?best:null;
 }
 
@@ -1902,21 +1379,13 @@ window.renderCheckin=function(){
   if(!body)return;
   const search=(document.getElementById('checkin-search')?.value||'').toLowerCase();
   let entries=Object.entries(storedRegs).filter(([k,a])=>!a.withdrawn);
-  if(search) entries=entries.filter(([k,a])=>((a.name||'')+' '+(a.sur||'')).toLowerCase().includes(search)||(a.club||a.clubRaw||'').toLowerCase().includes(search));
+  if(search)entries=entries.filter(([k,a])=>((a.name||'')+' '+(a.sur||'')).toLowerCase().includes(search)||(a.club||a.clubRaw||'').toLowerCase().includes(search));
   entries.sort((a,b)=>((a[1].name||'')+(a[1].sur||'')).localeCompare((b[1].name||'')+(b[1].sur||'')));
-
-  if(!entries.length){
-    body.innerHTML='';
-    if(empty){empty.style.display='block';empty.textContent=search?'No athletes match that search.':'No registrations yet.';}
-    if(statsEl)statsEl.innerHTML='';
-    return;
-  }
+  if(!entries.length){body.innerHTML='';if(empty){empty.style.display='block';empty.textContent=search?'No athletes match that search.':'No registrations yet.';}if(statsEl)statsEl.innerHTML='';return;}
   if(empty)empty.style.display='none';
-
   const warnSet=buildArrivalWarnings();
   let totalArrived=0,totalWeighed=0,totalPaid=0;
   Object.values(storedRegs).forEach(a=>{if(a.withdrawn)return;const ci=a.checkin||{};if(ci.arrived)totalArrived++;if(ci.weighedIn)totalWeighed++;if(ci.paid)totalPaid++;});
-
   let html='';
   entries.forEach(([key,a])=>{
     const ci=a.checkin||{arrived:false,weighedIn:false,paid:false,paidAmount:0};
@@ -1950,11 +1419,7 @@ function buildArrivalWarnings(){
     active.filter(b=>b.area===mat).forEach(b=>{
       const fightsOut=(b.matFightNum||0)-(nextNum||0);
       if(fightsOut<=3){
-        ['red','blue'].forEach(corner=>{
-          const f=b[corner];if(!f.name||f.name==='TBC')return;
-          const key=findRegKeyByFullName(f.name);
-          if(key)set.add(key);
-        });
+        ['red','blue'].forEach(corner=>{const f=b[corner];if(!f.name||f.name==='TBC')return;const key=findRegKeyByFullName(f.name);if(key)set.add(key);});
       }
     });
   });
@@ -1965,8 +1430,7 @@ window.updateCheckinWeight=function(inp){
   const key=inp.dataset.key,val=parseFloat(inp.value);
   if(!storedRegs[key])return;
   if(!val||val<10||val>200){toast('Invalid weight','red');inp.value=storedRegs[key].weight||'';return;}
-  storedRegs[key].weight=val;
-  saveRegsToFirebase();
+  storedRegs[key].weight=val;saveRegsToFirebase();
   toast('Weight updated','green');
 };
 
@@ -1981,8 +1445,7 @@ window.quickCashPaid=function(btn){
   if(!storedRegs[key].checkin)storedRegs[key].checkin={arrived:false,weighedIn:false,paid:false,paidAmount:0};
   storedRegs[key].checkin.paidAmount=(storedRegs[key].checkin.paidAmount||0)+parsed;
   storedRegs[key].checkin.paid=storedRegs[key].checkin.paidAmount>=owed;
-  saveRegsToFirebase();
-  renderCheckin();
+  saveRegsToFirebase();renderCheckin();
   toast('$'+parsed+' recorded','green');
 };
 
@@ -1992,11 +1455,9 @@ window.toggleCheckinField=function(btn){
   if(!storedRegs[key])return;
   if(!storedRegs[key].checkin)storedRegs[key].checkin={arrived:false,weighedIn:false,paid:false,paidAmount:0};
   storedRegs[key].checkin[field]=!storedRegs[key].checkin[field];
-  saveRegsToFirebase();
-  renderCheckin();
+  saveRegsToFirebase();renderCheckin();
 };
 
-// ── PAYMENTS ──
 let pendingPayments=[];
 const SPECT_ADULT=10,SPECT_KID=5;
 
@@ -2007,9 +1468,8 @@ window.parsePayments=function(){
   const raw=document.getElementById('payments-raw').value.trim();
   if(!raw){toast('Nothing pasted','red');return;}
   const {headers,rows}=parseCSV(raw);
-  const looksLikeHeader=headers.length===3 && !/\d/.test(headers.join(''));
+  const looksLikeHeader=headers.length===3&&!/\d/.test(headers.join(''));
   const allRows=looksLikeHeader?rows:[headers,...rows];
-
   pendingPayments=[];
   allRows.forEach(r=>{
     if(r.length<3)return;
@@ -2049,10 +1509,7 @@ function renderPaymentsReview(){
       +'<span style="font-family:var(--mono);font-size:9px;color:'+(mismatch?'var(--orange)':'var(--green)')+'">'+(mismatch?'⚠ ALLOCATED $'+allocTotal.toFixed(0)+' / $'+p.amountPaid:'✓ FULLY ALLOCATED')+'</span>'
       +'</div>';
     p.allocations.forEach((a,ai)=>{
-      const opts=Object.entries(storedRegs).map(([k,reg])=>{
-        const full=((reg.name||'')+' '+(reg.sur||'')).trim();
-        return '<option value="'+escA(k)+'"'+(k===a.key?' selected':'')+'>'+escH(full)+' · '+escH(reg.club||'')+'</option>';
-      }).join('');
+      const opts=Object.entries(storedRegs).map(([k,reg])=>{const full=((reg.name||'')+' '+(reg.sur||'')).trim();return '<option value="'+escA(k)+'"'+(k===a.key?' selected':'')+'>'+escH(full)+' · '+escH(reg.club||'')+'</option>';}).join('');
       const reg=a.key&&a.key!=='__unassigned__'?storedRegs[a.key]:null;
       html+='<div style="background:var(--surf);border:1px solid '+(a.key==='__unassigned__'?'var(--orange)':'var(--border)')+';border-radius:2px;padding:6px 8px;margin-bottom:5px">'
         +'<div style="display:flex;gap:5px;flex-wrap:wrap;align-items:center;margin-bottom:5px">'
@@ -2069,13 +1526,11 @@ function renderPaymentsReview(){
         +'</div>'
         +'</div>';
     });
-    html+='<button class="btn btn-ghost btn-xs" data-idx="'+i+'" onclick="addAllocationRow(this)">+ SPLIT TO ANOTHER ATHLETE</button>'
-      +'</div>';
+    html+='<button class="btn btn-ghost btn-xs" data-idx="'+i+'" onclick="addAllocationRow(this)">+ SPLIT TO ANOTHER ATHLETE</button>'+'</div>';
   });
   html+='<div class="row-btns"><button class="btn btn-gold" onclick="applyAllConfirmedPayments()">APPLY ALL CONFIRMED</button><button class="btn btn-ghost btn-sm" onclick="pendingPayments=[];renderPaymentsReview();">✕ DISCARD</button></div></div>';
   el.innerHTML=html;
-  renderUnassignedPayments();
-  renderPaymentsLog();
+  renderUnassignedPayments();renderPaymentsLog();
 }
 
 window.updateAllocation=function(inp){
@@ -2114,10 +1569,7 @@ window.applyAllConfirmedPayments=function(){
       reg.checkin.paid=reg.checkin.paidAmount>=calcOwed(reg);
       reg.checkin.lastPaymentTimestamp=p.timestamp;
       const sa=spectAmt(a);
-      if(sa>0){
-        reg.checkin.spectatorFees.totalAmount=(reg.checkin.spectatorFees.totalAmount||0)+sa;
-        reg.checkin.spectatorFees.entries.push({timestamp:p.timestamp,adults:parseInt(a.spectAdults)||0,kids:parseInt(a.spectKids)||0,amount:sa});
-      }
+      if(sa>0){reg.checkin.spectatorFees.totalAmount=(reg.checkin.spectatorFees.totalAmount||0)+sa;reg.checkin.spectatorFees.entries.push({timestamp:p.timestamp,adults:parseInt(a.spectAdults)||0,kids:parseInt(a.spectKids)||0,amount:sa});}
     });
     if(unassignedAllocs.length)trackedUnassigned+=unassignedAllocs.length;
     appliedPayments[p.txKey]={timestamp:p.timestamp,fullName:p.fullName,amount:p.amountPaid,allocations:[
@@ -2126,8 +1578,7 @@ window.applyAllConfirmedPayments=function(){
     ]};
     applied++;
   });
-  saveRegsToFirebase();
-  saveAppliedPayments();
+  saveRegsToFirebase();saveAppliedPayments();
   pendingPayments=[];
   const rawEl=document.getElementById('payments-raw');if(rawEl)rawEl.value='';
   renderPaymentsReview();
@@ -2135,13 +1586,10 @@ window.applyAllConfirmedPayments=function(){
   if(document.getElementById('view-weighin')?.classList.contains('on'))renderCheckin();
 };
 
-// ── UNASSIGNED PAYMENTS — paid but no completed registration yet ──
 function getUnassignedList(){
   const list=[];
   Object.entries(appliedPayments).forEach(([txKey,rec])=>{
-    (rec.allocations||[]).forEach((a,ai)=>{
-      if(a.key==='__unassigned__') list.push({txKey,allocIdx:ai,name:a.unassignedName||rec.fullName,amount:a.amount,spectAdults:a.spectAdults,spectKids:a.spectKids,timestamp:rec.timestamp});
-    });
+    (rec.allocations||[]).forEach((a,ai)=>{if(a.key==='__unassigned__')list.push({txKey,allocIdx:ai,name:a.unassignedName||rec.fullName,amount:a.amount,spectAdults:a.spectAdults,spectKids:a.spectKids,timestamp:rec.timestamp});});
   });
   return list;
 }
@@ -2154,10 +1602,7 @@ function renderUnassignedPayments(){
   const total=list.reduce((s,x)=>s+(parseFloat(x.amount)||0)+(x.spectAdults||0)*SPECT_ADULT+(x.spectKids||0)*SPECT_KID,0);
   let html='<div class="panel" style="border-color:var(--orange)"><div class="panel-title" style="color:var(--orange)">⚠ UNASSIGNED PAYMENTS — '+list.length+' · $'+total.toFixed(0)+'</div><div class="panel-sub">Paid but registration not completed yet. Assign once they finish registering — the amount moves onto their record automatically.</div>';
   list.forEach(u=>{
-    const opts=Object.entries(storedRegs).map(([k,reg])=>{
-      const full=((reg.name||'')+' '+(reg.sur||'')).trim();
-      return '<option value="'+escA(k)+'">'+escH(full)+' · '+escH(reg.club||'')+'</option>';
-    }).join('');
+    const opts=Object.entries(storedRegs).map(([k,reg])=>{const full=((reg.name||'')+' '+(reg.sur||'')).trim();return '<option value="'+escA(k)+'">'+escH(full)+' · '+escH(reg.club||'')+'</option>';}).join('');
     html+='<div style="background:var(--surf2);border:1px solid var(--border);border-radius:3px;padding:8px 10px;margin-bottom:6px">'
       +'<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:6px">'
       +'<div style="flex:1"><div style="font-weight:600;font-size:12px">'+escH(u.name)+'</div><div style="font-family:var(--mono);font-size:9px;color:var(--muted)">'+escH(u.timestamp)+' · $'+u.amount+((u.spectAdults||u.spectKids)?' + spectator':'')+'</div></div>'
@@ -2180,20 +1625,13 @@ window.assignUnassignedPayment=function(sel){
   reg.checkin.paidAmount=(reg.checkin.paidAmount||0)+(parseFloat(alloc.amount)||0);
   reg.checkin.paid=reg.checkin.paidAmount>=calcOwed(reg);
   const sa=spectAmt(alloc);
-  if(sa>0){
-    reg.checkin.spectatorFees.totalAmount=(reg.checkin.spectatorFees.totalAmount||0)+sa;
-    reg.checkin.spectatorFees.entries.push({timestamp:rec.timestamp,adults:parseInt(alloc.spectAdults)||0,kids:parseInt(alloc.spectKids)||0,amount:sa});
-  }
+  if(sa>0){reg.checkin.spectatorFees.totalAmount=(reg.checkin.spectatorFees.totalAmount||0)+sa;reg.checkin.spectatorFees.entries.push({timestamp:rec.timestamp,adults:parseInt(alloc.spectAdults)||0,kids:parseInt(alloc.spectKids)||0,amount:sa});}
   alloc.key=athleteKey;
-  saveRegsToFirebase();
-  saveAppliedPayments();
-  renderUnassignedPayments();
-  renderPaymentsLog();
+  saveRegsToFirebase();saveAppliedPayments();renderUnassignedPayments();renderPaymentsLog();
   if(document.getElementById('view-weighin')?.classList.contains('on'))renderCheckin();
   toast('Assigned $'+alloc.amount+' to '+((reg.name||'')+' '+(reg.sur||'')).trim(),'green');
 };
 
-// ── PAYMENT LOG — view/edit/delete already-applied transactions ──
 function renderPaymentsLog(){
   const el=document.getElementById('payments-log');
   if(!el)return;
@@ -2244,8 +1682,7 @@ function reverseAppliedPayment(txKey){
 window.editAppliedPayment=function(btn){
   const txKey=btn.dataset.txkey,rec=reverseAppliedPayment(txKey);
   if(!rec)return;
-  saveRegsToFirebase();
-  saveAppliedPayments();
+  saveRegsToFirebase();saveAppliedPayments();
   pendingPayments.push({timestamp:rec.timestamp,fullName:rec.fullName,amountPaid:rec.amount,txKey,already:false,allocations:(rec.allocations||[{key:'',amount:rec.amount,spectAdults:0,spectKids:0}]).map(a=>({...a}))});
   renderPaymentsReview();
   if(document.getElementById('view-weighin')?.classList.contains('on'))renderCheckin();
@@ -2256,15 +1693,11 @@ window.deleteAppliedPayment=function(btn){
   if(!confirm('Delete this payment record permanently? This reverses the amounts.'))return;
   const txKey=btn.dataset.txkey,rec=reverseAppliedPayment(txKey);
   if(!rec)return;
-  saveRegsToFirebase();
-  saveAppliedPayments();
-  renderPaymentsLog();
+  saveRegsToFirebase();saveAppliedPayments();renderPaymentsLog();
   if(document.getElementById('view-weighin')?.classList.contains('on'))renderCheckin();
   toast('Payment deleted','red');
 };
 
-// ── PRINTABLE PAYMENT REPORT ──
-// ── EXPORT OUTSTANDING TO CRM ──
 function renderOutstandingSummary(){
   const el=document.getElementById('outstanding-summary');
   if(!el)return;
@@ -2276,10 +1709,7 @@ function renderOutstandingSummary(){
 }
 
 function getOutstandingList(){
-  return Object.values(storedRegs).filter(a=>!a.withdrawn).map(a=>{
-    const owed=calcOwed(a),paid=(a.checkin&&a.checkin.paidAmount)||0;
-    return {name:((a.name||'')+' '+(a.sur||'')).trim(),email:a.email||'',balance:owed-paid};
-  }).filter(x=>x.balance>0.01);
+  return Object.values(storedRegs).filter(a=>!a.withdrawn).map(a=>{const owed=calcOwed(a),paid=(a.checkin&&a.checkin.paidAmount)||0;return {name:((a.name||'')+' '+(a.sur||'')).trim(),email:a.email||'',balance:owed-paid};}).filter(x=>x.balance>0.01);
 }
 
 window.copyOutstandingList=function(){
@@ -2288,18 +1718,10 @@ window.copyOutstandingList=function(){
   const missing=list.filter(x=>!x.email).length;
   const rows=['Name\tEmail\tBalance'].concat(list.map(x=>x.name+'\t'+x.email+'\t'+x.balance.toFixed(2)));
   const text=rows.join('\n');
-  navigator.clipboard.writeText(text).then(()=>{
-    toast('Copied '+list.length+' outstanding'+(missing?' · '+missing+' missing email':''),'gold');
-  }).catch(()=>{
-    toast('Copy failed — select and copy manually','red');
-  });
+  navigator.clipboard.writeText(text).then(()=>{toast('Copied '+list.length+' outstanding'+(missing?' · '+missing+' missing email':''),'gold');}).catch(()=>{toast('Copy failed — select and copy manually','red');});
 };
 
-function getAllActiveRegistrationsList(){
-  return Object.values(storedRegs).filter(a=>!a.withdrawn).map(a=>{
-    return {name:((a.name||'')+' '+(a.sur||'')).trim(),email:a.email||''};
-  });
-}
+function getAllActiveRegistrationsList(){return Object.values(storedRegs).filter(a=>!a.withdrawn).map(a=>{return {name:((a.name||'')+' '+(a.sur||'')).trim(),email:a.email||''};});}
 
 window.copyAllRegistrationsList=function(){
   const list=getAllActiveRegistrationsList();
@@ -2307,24 +1729,14 @@ window.copyAllRegistrationsList=function(){
   const missing=list.filter(x=>!x.email).length;
   const rows=['Name\tEmail'].concat(list.map(x=>x.name+'\t'+x.email));
   const text=rows.join('\n');
-  navigator.clipboard.writeText(text).then(()=>{
-    toast('Copied '+list.length+' registrations'+(missing?' · '+missing+' missing email':''),'gold');
-  }).catch(()=>{
-    toast('Copy failed — select and copy manually','red');
-  });
+  navigator.clipboard.writeText(text).then(()=>{toast('Copied '+list.length+' registrations'+(missing?' · '+missing+' missing email':''),'gold');}).catch(()=>{toast('Copy failed — select and copy manually','red');});
 };
 
 window.printPaymentReport=function(){
   const activeRegs=Object.values(storedRegs).filter(a=>!a.withdrawn);
   if(!activeRegs.length){toast('No registrations yet','red');return;}
-
   let totalOwed=0,totalPaid=0,totalSpect=0;
-  const rows=activeRegs.map(a=>{
-    const owed=calcOwed(a),paid=(a.checkin&&a.checkin.paidAmount)||0,spect=(a.checkin&&a.checkin.spectatorFees&&a.checkin.spectatorFees.totalAmount)||0;
-    totalOwed+=owed;totalPaid+=paid;totalSpect+=spect;
-    return {name:((a.name||'')+' '+(a.sur||'')).trim(),club:a.club||a.clubRaw||'',owed,paid,spect,balance:owed-paid};
-  }).sort((a,b)=>a.club.localeCompare(b.club)||a.name.localeCompare(b.name));
-
+  const rows=activeRegs.map(a=>{const owed=calcOwed(a),paid=(a.checkin&&a.checkin.paidAmount)||0,spect=(a.checkin&&a.checkin.spectatorFees&&a.checkin.spectatorFees.totalAmount)||0;totalOwed+=owed;totalPaid+=paid;totalSpect+=spect;return {name:((a.name||'')+' '+(a.sur||'')).trim(),club:a.club||a.clubRaw||'',owed,paid,spect,balance:owed-paid};}).sort((a,b)=>a.club.localeCompare(b.club)||a.name.localeCompare(b.name));
   const outstanding=Math.max(0,totalOwed-totalPaid);
   let html='<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Payment Report — '+escH(eventId)+'</title>'
     +'<style>body{font-family:Arial,sans-serif;padding:24px;color:#111}h1{font-size:18px;margin-bottom:2px}h2{font-size:12px;color:#555;margin-bottom:16px;font-weight:normal}table{width:100%;border-collapse:collapse;font-size:12px}th,td{padding:6px 8px;border-bottom:1px solid #ccc;text-align:left}th{background:#f0f0f0;font-size:10px;letter-spacing:1px;text-transform:uppercase}.num{text-align:right}.bal-owe{color:#c0392b;font-weight:600}.bal-ok{color:#27ae60}.summary{margin:16px 0;font-size:13px}.summary b{font-size:15px}@media print{.no-print{display:none}}</style></head><body>'
@@ -2333,41 +1745,27 @@ window.printPaymentReport=function(){
     +'<h2>'+escH(eventId)+' · Generated '+new Date().toLocaleString()+'</h2>'
     +'<div class="summary"><b>$'+totalPaid.toFixed(2)+'</b> collected of <b>$'+totalOwed.toFixed(2)+'</b> owed'+(totalSpect?' · <b>$'+totalSpect.toFixed(2)+'</b> spectator fees':'')+' — <b style="color:'+(outstanding>0?'#c0392b':'#27ae60')+'">$'+outstanding.toFixed(2)+' outstanding</b></div>'
     +'<table><thead><tr><th>Name</th><th>Club</th><th class="num">Owed</th><th class="num">Paid</th><th class="num">Spectator</th><th class="num">Balance</th></tr></thead><tbody>';
-  rows.forEach(r=>{
-    html+='<tr><td>'+escH(r.name)+'</td><td>'+escH(r.club)+'</td><td class="num">$'+r.owed.toFixed(2)+'</td><td class="num">$'+r.paid.toFixed(2)+'</td><td class="num">'+(r.spect?'$'+r.spect.toFixed(2):'—')+'</td><td class="num '+(r.balance>0?'bal-owe':'bal-ok')+'">'+(r.balance>0?'$'+r.balance.toFixed(2)+' owing':'paid')+'</td></tr>';
-  });
+  rows.forEach(r=>{html+='<tr><td>'+escH(r.name)+'</td><td>'+escH(r.club)+'</td><td class="num">$'+r.owed.toFixed(2)+'</td><td class="num">$'+r.paid.toFixed(2)+'</td><td class="num">'+(r.spect?'$'+r.spect.toFixed(2):'—')+'</td><td class="num '+(r.balance>0?'bal-owe':'bal-ok')+'">'+(r.balance>0?'$'+r.balance.toFixed(2)+' owing':'paid')+'</td></tr>';});
   html+='</tbody></table>';
-
   const unassignedList=getUnassignedList();
   if(unassignedList.length){
     const unassignedTotal=unassignedList.reduce((s,x)=>s+(parseFloat(x.amount)||0)+(x.spectAdults||0)*SPECT_ADULT+(x.spectKids||0)*SPECT_KID,0);
     html+='<h2 style="margin-top:24px;color:#c0392b">Unassigned payments — $'+unassignedTotal.toFixed(2)+' (paid, registration not completed)</h2>'
       +'<table><thead><tr><th>Name</th><th>Timestamp</th><th class="num">Amount</th></tr></thead><tbody>';
-    unassignedList.forEach(u=>{
-      const sa=(u.spectAdults||0)*SPECT_ADULT+(u.spectKids||0)*SPECT_KID;
-      html+='<tr><td>'+escH(u.name)+'</td><td>'+escH(u.timestamp)+'</td><td class="num">$'+(parseFloat(u.amount)+sa).toFixed(2)+'</td></tr>';
-    });
+    unassignedList.forEach(u=>{const sa=(u.spectAdults||0)*SPECT_ADULT+(u.spectKids||0)*SPECT_KID;html+='<tr><td>'+escH(u.name)+'</td><td>'+escH(u.timestamp)+'</td><td class="num">$'+(parseFloat(u.amount)+sa).toFixed(2)+'</td></tr>';});
     html+='</tbody></table>';
   }
-
   html+='</body></html>';
-
   const w=window.open('','_blank');
   if(!w){toast('Pop-up blocked — allow pop-ups to print','red');return;}
-  w.document.write(html);
-  w.document.close();
+  w.document.write(html);w.document.close();
 };
 
-// ── DEMO DATA ──
-window.loadRegsDemo = function() {
-  document.getElementById('regs-csv-raw').value = document.getElementById('csv-raw')?.value || '';
-  if(!document.getElementById('regs-csv-raw').value) {
-    // load same demo as process tab
-    window.loadDemo && window.loadDemo();
-    setTimeout(()=>{
-      document.getElementById('regs-csv-raw').value = document.getElementById('csv-raw').value;
-      document.getElementById('csv-raw').value='';
-    },100);
+window.loadRegsDemo=function(){
+  document.getElementById('regs-csv-raw').value=document.getElementById('csv-raw')?.value||'';
+  if(!document.getElementById('regs-csv-raw').value){
+    window.loadDemo&&window.loadDemo();
+    setTimeout(()=>{document.getElementById('regs-csv-raw').value=document.getElementById('csv-raw').value;document.getElementById('csv-raw').value='';},100);
   }
   regsProcessImport();
 };
@@ -2462,21 +1860,17 @@ function renderNeedsMatch(){const c=document.getElementById('needs-match-contain
 window.withdrawDisplaced=function(i){needsMatch.splice(i,1);renderNeedsMatch();};
 
 window.sendToDrawTab=function(){
-  // Never wipe existing bouts — only add new ones
   const existingIds=new Set(bouts.map(b=>b.red.name+'|'+b.blue.name+'|'+b.disc));
   let boutNum=bouts.length+1;const newBouts=[],styleOrder=[...STYLE_ORDER,...[...new Set(matches.map(m=>m.style))].filter(s=>!STYLE_ORDER.includes(s))];
   const sorted=[...matches].sort((a,b)=>{const si=styleOrder.indexOf(a.style)-styleOrder.indexOf(b.style);if(si!==0)return si;const agO=['Under 12','13-17','Adult'],aA=a.f2?Math.min(a.f1.age||99,a.f2.age||99):a.f1.age||99,bA=b.f2?Math.min(b.f1.age||99,b.f2.age||99):b.f1.age||99;return agO.indexOf(ageGroup(aA))-agO.indexOf(ageGroup(bA))||a.f1.weight-b.f1.weight;});
   sorted.forEach(m=>{
-    // Skip if this pairing already exists in the draw
     const f1n=(m.f1.name+' '+(m.f1.sur||'')).trim();
     const f2n_check=m.f2?(m.f2.name+' '+(m.f2.sur||'')).trim():'TBC';
     const pairKey=f1n+'|'+f2n_check+'|'+m.style;
     const pairKeyRev=f2n_check+'|'+f1n+'|'+m.style;
-    if(existingIds.has(pairKey)||existingIds.has(pairKeyRev)) return;const f2n=m.f2?(m.f2.name+' '+(m.f2.sur||'')).trim():'TBC';newBouts.push({id:'B'+String(boutNum).padStart(3,'0'),disc:m.style,ageGrp:m.f2?ageGroup(Math.min(m.f1.age||99,m.f2.age||99)):ageGroup(m.f1.age||99),div:m.gender,red:{name:(m.f1.name+' '+(m.f1.sur||'')).trim(),club:m.f1.club,age:m.f1.age,wt:m.f1.weight},blue:{name:f2n,club:m.f2?m.f2.club:'',age:m.f2?m.f2.age:0,wt:m.f2?m.f2.weight:0},noHead:m.noHead,notes:m.eagleExhibition?'Exhibition':m.status==='tbc'?'TBC':m.ageFlag?'Age Flag':'',area:'Mat 1',status:'scheduled',score:{red:0,blue:0},round:1,winner:null,wtDiff:m.wDiff,ageDiff:m.f2?Math.abs((m.f1.age||0)-(m.f2.age||0)):0,checkin:{red:null,blue:null}});boutNum++;});
-  // Append new bouts to existing draw
+    if(existingIds.has(pairKey)||existingIds.has(pairKeyRev))return;const f2n=m.f2?(m.f2.name+' '+(m.f2.sur||'')).trim():'TBC';newBouts.push({id:'B'+String(boutNum).padStart(3,'0'),disc:m.style,ageGrp:m.f2?ageGroup(Math.min(m.f1.age||99,m.f2.age||99)):ageGroup(m.f1.age||99),div:m.gender,red:{name:(m.f1.name+' '+(m.f1.sur||'')).trim(),club:m.f1.club,age:m.f1.age,wt:m.f1.weight},blue:{name:f2n,club:m.f2?m.f2.club:'',age:m.f2?m.f2.age:0,wt:m.f2?m.f2.weight:0},noHead:m.noHead,notes:m.eagleExhibition?'Exhibition':m.status==='tbc'?'TBC':m.ageFlag?'Age Flag':'',area:'Mat 1',status:'scheduled',score:{red:0,blue:0},round:1,winner:null,wtDiff:m.wDiff,ageDiff:m.f2?Math.abs((m.f1.age||0)-(m.f2.age||0)):0,checkin:{red:null,blue:null}});boutNum++;});
   bouts=[...bouts,...newBouts];
   saveBouts();
-  // Mark athletes as drawn in registrations
   markAthletesAsDrawn(newBouts);
   goStep(4);
   toast(newBouts.length+' new bouts added to draw ('+bouts.length+' total)','green');
@@ -2496,72 +1890,42 @@ function renderDiscAssignment(){
   const el=document.getElementById('disc-assignment');
   if(!groups.length){if(el)el.innerHTML='<div style="font-family:var(--mono);font-size:10px;color:var(--muted)">No bouts loaded yet.</div>';return;}
   const matNames=Array.from({length:matCount},(_,i)=>'Mat '+(i+1));
-
-  // Left: group chips (click to select/deselect)
   let html='<div style="flex-shrink:0;min-width:180px;max-width:220px">'
     +'<div style="font-family:var(--mono);font-size:8px;letter-spacing:1px;color:var(--muted);margin-bottom:6px;text-transform:uppercase">GROUPS</div>'
     +'<div style="display:flex;gap:4px;margin-bottom:8px">'
     +'<button class="btn btn-ghost btn-xs" style="font-size:8px" onclick="selectAllGroups()">ALL</button>'
     +'<button class="btn btn-ghost btn-xs" style="font-size:8px" onclick="clearGroupSelect()">CLEAR</button>'
     +'</div>';
-
   groups.forEach(g=>{
     const assigned=discMatMap[g.key];
     const col=g.div==='Female'?'#c060c0':'#4090d0';
     const isSel=selectedGroups.has(g.key);
-    const chipStyle='display:flex;align-items:center;gap:6px;padding:5px 8px;border-radius:2px;margin-bottom:4px;cursor:pointer;font-family:var(--mono);font-size:9px;border-left:3px solid '+col+';'
-      +(isSel?'background:var(--gold-bg);border:1px solid var(--gold-dk);color:var(--gold);border-left:3px solid '+col+';':'background:var(--surf2);border:1px solid var(--border);color:var(--text);');
-    html+='<div style="'+chipStyle+'" data-key="'+escA(g.key)+'" onclick="handleChipClick(this)">'
-      +(isSel?'✓ ':'○ ')
-      +escH(g.disc)+' · '+g.ageGrp+' · '+g.div
-      +(assigned?'<span style="color:var(--muted);margin-left:auto">→ '+assigned+'</span>':'')
-      +'</div>';
+    const chipStyle='display:flex;align-items:center;gap:6px;padding:5px 8px;border-radius:2px;margin-bottom:4px;cursor:pointer;font-family:var(--mono);font-size:9px;border-left:3px solid '+col+';'+(isSel?'background:var(--gold-bg);border:1px solid var(--gold-dk);color:var(--gold);border-left:3px solid '+col+';':'background:var(--surf2);border:1px solid var(--border);color:var(--text);');
+    html+='<div style="'+chipStyle+'" data-key="'+escA(g.key)+'" onclick="handleChipClick(this)">'+(isSel?'✓ ':'○ ')+escH(g.disc)+' · '+g.ageGrp+' · '+g.div+(assigned?'<span style="color:var(--muted);margin-left:auto">→ '+assigned+'</span>':'')+'</div>';
   });
   html+='</div>';
-
-  // Right: one column per mat with assign button + assigned group list
   matNames.forEach(mat=>{
     const ordered=(matGroupOrder[mat]||[]).map(k=>groups.find(g=>g.key===k)).filter(Boolean);
-    // add any assigned but not yet ordered
     groups.filter(g=>discMatMap[g.key]===mat).forEach(g=>{if(!ordered.find(x=>x.key===g.key))ordered.push(g);});
     const hasSel=selectedGroups.size>0;
-
     html+='<div style="flex:1;min-width:140px;background:var(--surf);border:1px solid var(--border);border-radius:3px;overflow:hidden">'
       +'<div style="background:#0d0d10;border-bottom:2px solid var(--gold);padding:6px 10px;display:flex;align-items:center;gap:6px">'
       +'<div style="font-family:\'Bebas Neue\',sans-serif;font-size:16px;letter-spacing:2px;color:var(--gold);flex:1">'+mat+'</div>'
-      +'<button class="btn btn-gold btn-xs" style="font-size:8px" data-mat="'+escA(mat)+'" onclick="assignSelectedToMat(this.dataset.mat)">'
-      +(hasSel?'→ ASSIGN':'ASSIGN')+'</button>'
+      +'<button class="btn btn-gold btn-xs" style="font-size:8px" data-mat="'+escA(mat)+'" onclick="assignSelectedToMat(this.dataset.mat)">'+(hasSel?'→ ASSIGN':'ASSIGN')+'</button>'
       +'</div>'
       +'<div style="padding:6px;min-height:50px">';
-
-    if(!ordered.length){
-      html+='<div style="font-family:var(--mono);font-size:9px;color:var(--dim);padding:6px 4px">No groups yet</div>';
-    } else {
-      ordered.forEach(g=>{
-        const col=g.div==='Female'?'#c060c0':'#4090d0';
-        html+='<div style="display:flex;align-items:center;gap:4px;padding:4px 6px;border-left:3px solid '+col+';background:var(--surf2);border-radius:2px;margin-bottom:3px;font-family:var(--mono);font-size:9px">'
-          +'<span style="flex:1">'+escH(g.disc)+' · '+g.ageGrp+' · '+g.div+'</span>'
-          +'<button style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:10px;padding:0 2px;line-height:1" data-key="'+escA(g.key)+'" onclick="removeGroup(this.dataset.key)">✕</button>'
-          +'</div>';
-      });
-    }
+    if(!ordered.length){html+='<div style="font-family:var(--mono);font-size:9px;color:var(--dim);padding:6px 4px">No groups yet</div>';}
+    else{ordered.forEach(g=>{const col=g.div==='Female'?'#c060c0':'#4090d0';html+='<div style="display:flex;align-items:center;gap:4px;padding:4px 6px;border-left:3px solid '+col+';background:var(--surf2);border-radius:2px;margin-bottom:3px;font-family:var(--mono);font-size:9px"><span style="flex:1">'+escH(g.disc)+' · '+g.ageGrp+' · '+g.div+'</span><button style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:10px;padding:0 2px;line-height:1" data-key="'+escA(g.key)+'" onclick="removeGroup(this.dataset.key)">✕</button></div>';});}
     html+='</div></div>';
   });
-
-  if(el) el.innerHTML=html;
+  if(el)el.innerHTML=html;
 }
 
 window.assignSelectedToMat=function(mat){
   if(!selectedGroups.size){toast('Select groups first','orange');return;}
   if(!matGroupOrder[mat])matGroupOrder[mat]=[];
-  selectedGroups.forEach(key=>{
-    // remove from other mats
-    Object.keys(matGroupOrder).forEach(m=>{if(m!==mat)matGroupOrder[m]=(matGroupOrder[m]||[]).filter(k=>k!==key);});
-    discMatMap[key]=mat;
-    if(matGroupOrder[mat].indexOf(key)===-1)matGroupOrder[mat].push(key);
-  });
-  selectedGroups.clear();
-  renderDiscAssignment();
+  selectedGroups.forEach(key=>{Object.keys(matGroupOrder).forEach(m=>{if(m!==mat)matGroupOrder[m]=(matGroupOrder[m]||[]).filter(k=>k!==key);});discMatMap[key]=mat;if(matGroupOrder[mat].indexOf(key)===-1)matGroupOrder[mat].push(key);});
+  selectedGroups.clear();renderDiscAssignment();
   toast('Assigned to '+mat,'green');
 };
 
@@ -2569,7 +1933,6 @@ window.selectAllGroups=function(){getGroups().filter(g=>!discMatMap[g.key]).forE
 window.clearGroupSelect=function(){selectedGroups.clear();renderDiscAssignment();};
 window.handleChipClick=function(el){const key=el.getAttribute('data-key');if(!key)return;if(selectedGroups.has(key))selectedGroups.delete(key);else selectedGroups.add(key);renderDiscAssignment();};
 window.removeGroup=function(key){delete discMatMap[key];Object.keys(matGroupOrder).forEach(m=>{matGroupOrder[m]=(matGroupOrder[m]||[]).filter(k=>k!==key);});renderDiscAssignment();};
-
 
 window.buildOrder=function(){
   const sel=document.getElementById('mat-count-sel');if(sel)matCount=parseInt(sel.value)||2;
@@ -2594,7 +1957,7 @@ window.renderDraw=function(){
   const container=document.getElementById('draw-mat-cols');if(!container)return;
   if(!bouts.length){container.innerHTML='<div style="font-family:var(--mono);font-size:10px;color:var(--muted);padding:20px">No bouts yet — process data first.</div>';return;}
   const mats=[...new Set(bouts.map(b=>b.area))].sort();
-  container.innerHTML=mats.map(mat=>{const matBouts=bouts.filter(b=>b.area===mat),remaining=matBouts.filter(b=>b.status==='scheduled'||b.status==='live').length;return '<div class="draw-mat-col"><div class="draw-mat-hdr"><div class="draw-mat-title">'+mat+'</div><div class="draw-mat-count">'+remaining+' left</div></div><div class="draw-mat-list" data-mat="'+mat+'">'+matBouts.map(b=>drawBoutRow(b)).join('')+'</div></div>';}).join('');
+  container.innerHTML=mats.map(mat=>{const matBouts=bouts.filter(b=>b.area===mat&&b.status!=='cancelled'),remaining=matBouts.filter(b=>b.status==='scheduled'||b.status==='live').length;return '<div class="draw-mat-col"><div class="draw-mat-hdr"><div class="draw-mat-title">'+mat+'</div><div class="draw-mat-count">'+remaining+' left</div></div><div class="draw-mat-list" data-mat="'+mat+'">'+matBouts.map(b=>drawBoutRow(b)).join('')+'</div></div>';}).join('');
   attachBoutDragDrop(document.getElementById('draw-mat-cols'));
 };
 
@@ -2603,13 +1966,74 @@ function drawBoutRow(b){
   const flags=[];if(b.noHead)flags.push('<span class="flag f-nh">⚠</span>');if(b.notes==='Exhibition')flags.push('<span class="flag f-ex">★</span>');if(b.notes==='Age Flag')flags.push('<span class="flag f-ag">⚠AGE</span>');if(isLive)flags.push('<span class="flag f-lv">●</span>');if(isDone)flags.push('<span class="flag f-dn">✓</span>');
   const fightLabel=b.matFightNum?'F'+b.matFightNum:b.id,hasUndo=boutHistory[b.id];
   const redDrop=buildInlineDrop(b,'red'),blueDrop=buildInlineDrop(b,'blue');
-  return '<div class="'+cls+'" id="dbr-'+b.id+'" '+bidAttr+'><div class="draw-bout-hdr">'+(!isDone?'<div class="draw-handle">⠿</div>':'')+'<div class="draw-fight-num">'+fightLabel+'</div><div class="draw-disc-tag">'+escH(b.disc)+' · '+b.ageGrp+'</div>'+flags.join('')+(hasUndo?'<button class="undo-btn" data-bid="'+b.id+'" onclick="undoBout(this.dataset.bid)">↩</button>':'')+'</div><div class="draw-bout-body"><div><div class="draw-name" style="color:var(--red)">'+escH(b.red.name)+'</div><div class="draw-club">'+escH(b.red.club||'')+'</div><div class="draw-club">'+(b.red.age?b.red.age+'yr':'')+' '+(b.red.wt?b.red.wt+'kg':'')+'</div></div><div class="draw-vs">VS</div><div style="text-align:right"><div class="draw-name" style="color:var(--blue)">'+escH(b.blue.name)+'</div><div class="draw-club">'+escH(b.blue.club||'')+'</div><div class="draw-club">'+(b.blue.age?b.blue.age+'yr':'')+' '+(b.blue.wt?b.blue.wt+'kg':'')+'</div></div></div>'+(!isDone?'<div class="draw-inline-replace"><select class="inline-sel" data-bid="'+b.id+'" data-corner="red" onchange="inlineReplace(this)">'+redDrop+'</select><select class="inline-sel" data-bid="'+b.id+'" data-corner="blue" onchange="inlineReplace(this)">'+blueDrop+'</select>'+(isLive?'<button class="btn btn-red btn-xs" data-bid="'+b.id+'" onclick="openScore(this.dataset.bid)">SCORE</button>':'<button class="btn btn-gold btn-xs" data-bid="'+b.id+'" onclick="startBout(this.dataset.bid)">▶</button>')+'</div>':'')+'</div>';
+  return '<div class="'+cls+'" id="dbr-'+b.id+'" '+bidAttr+'><div class="draw-bout-hdr">'+(!isDone?'<div class="draw-handle">⠿</div>':'')+'<div class="draw-fight-num">'+fightLabel+'</div><div class="draw-disc-tag">'+escH(b.disc)+' · '+b.ageGrp+'</div>'+flags.join('')+(hasUndo?'<button class="undo-btn" data-bid="'+b.id+'" onclick="undoBout(this.dataset.bid)">↩</button>':'')+'</div><div class="draw-bout-body"><div><div class="draw-name" style="color:var(--red)">'+escH(b.red.name)+'</div><div class="draw-club">'+escH(b.red.club||'')+'</div><div class="draw-club">'+(b.red.age?b.red.age+'yr':'')+' '+(b.red.wt?b.red.wt+'kg':'')+'</div></div><div class="draw-vs">VS</div><div style="text-align:right"><div class="draw-name" style="color:var(--blue)">'+escH(b.blue.name)+'</div><div class="draw-club">'+escH(b.blue.club||'')+'</div><div class="draw-club">'+(b.blue.age?b.blue.age+'yr':'')+' '+(b.blue.wt?b.blue.wt+'kg':'')+'</div></div></div>'+(!isDone?'<div class="draw-inline-replace"><select class="inline-sel" data-bid="'+b.id+'" data-corner="red" onchange="inlineReplace(this)">'+redDrop+'</select><select class="inline-sel" data-bid="'+b.id+'" data-corner="blue" onchange="inlineReplace(this)">'+blueDrop+'</select>'+(isLive?'<button class="btn btn-red btn-xs" data-bid="'+b.id+'" onclick="openScore(this.dataset.bid)">SCORE</button>':'<button class="btn btn-gold btn-xs" data-bid="'+b.id+'" onclick="startBout(this.dataset.bid)">▶</button>')+(!isLive?'<button class="undo-btn" style="color:var(--red);border-color:#5a0000" data-bid="'+b.id+'" onclick="withdrawBout(this.dataset.bid)">WITHDRAW</button>':'')+'</div>':'')+'</div>';
 }
 
 function buildInlineDrop(b,corner){const current=b[corner],other=corner==='red'?b.blue:b.red,pool=bouts.filter(x=>x.disc===b.disc&&x.div===b.div&&x.id!==b.id&&x.status!=='completed').flatMap(x=>[{name:x.red.name,club:x.red.club||'',age:x.red.age||0,weight:x.red.wt||0},{name:x.blue.name,club:x.blue.club||'',age:x.blue.age||0,weight:x.blue.wt||0}]).filter((f,i,a)=>a.findIndex(x=>x.name===f.name)===i&&f.name!==current.name&&f.name!=='TBC');pool.sort((a,x)=>Math.abs(a.weight-(other.wt||0))-Math.abs(x.weight-(other.wt||0)));const label='— '+(current.name||'TBC')+' —',opts=pool.slice(0,12).map(f=>{const val=encodeURIComponent(f.name)+'|'+encodeURIComponent(f.club)+'|'+f.age+'|'+f.weight;return '<option value="'+val+'">'+escH(f.name)+' · '+escH(f.club)+'</option>';}).join('');return '<option value="">'+escH(label)+'</option>'+opts+'<option value="__manual__">✎ Manual…</option>';}
 
 window.inlineReplace=function(sel){const bid=sel.dataset.bid,corner=sel.dataset.corner,b=bouts.find(x=>x.id===bid);if(!b)return;boutHistory[bid]=JSON.parse(JSON.stringify(b));if(sel.value==='__manual__'){const name=prompt('Fighter name:');if(!name){sel.value='';return;}const club=prompt('Club:','')||'',age=parseInt(prompt('Age:',''))||0,wt=parseFloat(prompt('Weight kg:',''))||0;b[corner]={name,club,age,wt};}else if(sel.value){const parts=sel.value.split('|');b[corner]={name:decodeURIComponent(parts[0]||''),club:decodeURIComponent(parts[1]||''),age:parseInt(parts[2])||0,wt:parseFloat(parts[3])||0};}else return;b.wtDiff=Math.abs((b.red.wt||0)-(b.blue.wt||0));b.ageDiff=Math.abs((b.red.age||0)-(b.blue.age||0));b.noHead=Math.min(b.red.age||99,b.blue.age||99)<=12;saveBouts();renderDraw();toast('Replaced — tap ↩ to undo','gold');};
 window.undoBout=function(id){const prev=boutHistory[id];if(!prev)return;const idx=bouts.findIndex(x=>x.id===id);if(idx>-1){bouts[idx]=prev;delete boutHistory[id];}saveBouts();renderDraw();toast('Undone','gold');};
+
+window.withdrawBout=function(id){
+  const b=bouts.find(x=>x.id===id);if(!b)return;
+  if(!confirm('Withdraw '+b.id+' ('+b.red.name+' vs '+b.blue.name+')?\n\nThis removes it from '+b.area+'. Restore it later from the Withdrawn Fights page (Quick Launch on Home).'))return;
+  b.status='cancelled';saveBouts();renderDraw();
+  toast(b.id+' withdrawn','red');
+};
+
+window.openAddMatch=function(){
+  const discs=[...new Set(bouts.map(b=>b.disc))].sort();
+  const mats=[...new Set(bouts.map(b=>b.area))].sort();
+  const discOpts=(discs.length?discs:['Hybrid Light','MMA','K1 Light','Boxing Light']).map(d=>'<option value="'+escA(d)+'">'+escH(d)+'</option>').join('');
+  const matOpts=(mats.length?mats:['Mat 1','Mat 2']).map(m=>'<option value="'+escA(m)+'">'+escH(m)+'</option>').join('');
+  document.getElementById('modal-box').innerHTML=
+    '<div class="modal-title">ADD MATCH</div>'
+    +'<div class="g2">'
+      +'<div class="fld"><label>Discipline</label><select id="am-disc">'+discOpts+'<option value="__other__">✎ Other…</option></select></div>'
+      +'<div class="fld"><label>Age Group</label><select id="am-age"><option>Under 12</option><option selected>13-17</option><option>Adult</option></select></div>'
+      +'<div class="fld"><label>Division</label><select id="am-div"><option>Male</option><option>Female</option></select></div>'
+      +'<div class="fld"><label>Mat</label><select id="am-mat">'+matOpts+'<option value="__other__">✎ Other…</option></select></div>'
+    +'</div>'
+    +'<div style="font-family:var(--mono);font-size:9px;letter-spacing:1px;margin:12px 0 6px;text-transform:uppercase;color:var(--red)">RED CORNER</div>'
+    +'<div class="fld"><label>Name</label><input id="am-r-name" placeholder="Fighter name"/></div>'
+    +'<div class="g2">'
+      +'<div class="fld"><label>Club</label><input id="am-r-club" placeholder="Club"/></div>'
+      +'<div class="fld"><label>Age / Weight (kg)</label><div style="display:flex;gap:6px"><input id="am-r-age" type="number" placeholder="Age"/><input id="am-r-wt" type="number" placeholder="kg"/></div></div>'
+    +'</div>'
+    +'<div style="font-family:var(--mono);font-size:9px;letter-spacing:1px;margin:12px 0 6px;text-transform:uppercase;color:var(--blue)">BLUE CORNER</div>'
+    +'<div class="fld"><label>Name</label><input id="am-b-name" placeholder="Fighter name"/></div>'
+    +'<div class="g2">'
+      +'<div class="fld"><label>Club</label><input id="am-b-club" placeholder="Club"/></div>'
+      +'<div class="fld"><label>Age / Weight (kg)</label><div style="display:flex;gap:6px"><input id="am-b-age" type="number" placeholder="Age"/><input id="am-b-wt" type="number" placeholder="kg"/></div></div>'
+    +'</div>'
+    +'<button class="btn btn-gold" style="width:100%;margin-top:10px" onclick="submitAddMatch()">+ ADD TO DRAW</button>'
+    +'<button class="btn btn-ghost" style="width:100%;margin-top:6px" onclick="closeModal()">CANCEL</button>';
+  document.getElementById('overlay').classList.add('show');
+};
+
+window.submitAddMatch=function(){
+  const rName=document.getElementById('am-r-name').value.trim();
+  const bName=document.getElementById('am-b-name').value.trim();
+  if(!rName||!bName){toast('Both fighter names are required','red');return;}
+  let disc=document.getElementById('am-disc').value;
+  if(disc==='__other__'){disc=(prompt('Discipline name:')||'').trim();if(!disc){toast('Discipline required','red');return;}}
+  let mat=document.getElementById('am-mat').value;
+  if(mat==='__other__'){mat=(prompt('Mat name:')||'').trim();if(!mat){toast('Mat required','red');return;}}
+  const ageGrp=document.getElementById('am-age').value;
+  const div=document.getElementById('am-div').value;
+  const rClub=document.getElementById('am-r-club').value.trim();
+  const rAge=parseInt(document.getElementById('am-r-age').value)||0;
+  const rWt=parseFloat(document.getElementById('am-r-wt').value)||0;
+  const bClub=document.getElementById('am-b-club').value.trim();
+  const bAge=parseInt(document.getElementById('am-b-age').value)||0;
+  const bWt=parseFloat(document.getElementById('am-b-wt').value)||0;
+  let n=bouts.length+1,newId='B'+String(n).padStart(3,'0');
+  while(bouts.find(b=>b.id===newId)){n++;newId='B'+String(n).padStart(3,'0');}
+  const newBout={id:newId,disc,ageGrp,div,red:{name:rName,club:rClub,age:rAge,wt:rWt},blue:{name:bName,club:bClub,age:bAge,wt:bWt},noHead:Math.min(rAge||99,bAge||99)<=12,notes:'',area:mat,status:'scheduled',score:{red:0,blue:0},round:1,winner:null,wtDiff:Math.abs(rWt-bWt),ageDiff:Math.abs(rAge-bAge),checkin:{red:null,blue:null}};
+  bouts.push(newBout);
+  saveBouts();renderDraw();closeModal();
+  toast(newId+' added to '+mat,'green');
+};
 
 function attachBoutDragDrop(container){
   if(!container)return;
@@ -2621,17 +2045,9 @@ function attachBoutDragDrop(container){
         if(fromMat!==toMat)moved.area=toMat;
         var lists=fromMat===toMat?[evt.from]:[evt.from,evt.to];
         lists.forEach(function(listEl){var items=Array.from(listEl.querySelectorAll('[data-bid]')),ordered=items.map(function(el){return bouts.find(function(b){return b.id===el.dataset.bid;});}).filter(Boolean);ordered.forEach(function(b,i){b.matFightNum=i+1;});ordered.forEach(function(b){var row=document.getElementById('dbr-'+b.id);if(row){var num=row.querySelector('.draw-fight-num');if(num)num.textContent='F'+b.matFightNum;}});var col=listEl.closest('.draw-mat-col');if(col){var cntEl=col.querySelector('.draw-mat-count');if(cntEl){var rem=ordered.filter(function(b){return b.status==='scheduled'||b.status==='live';}).length;cntEl.textContent=rem+' left';}}});
-        // Rebuild bouts array from actual DOM order across ALL mat columns — never guess array positions from indices.
-        // Every bout lives in exactly one visible mat column, so concatenating DOM order per column is a complete, lossless reconstruction.
         var newBouts=[];
-        container.querySelectorAll('.draw-mat-list').forEach(function(listEl){
-          Array.from(listEl.querySelectorAll('[data-bid]')).forEach(function(el){
-            var b=bouts.find(function(x){return x.id===el.dataset.bid;});
-            if(b&&newBouts.indexOf(b)===-1) newBouts.push(b);
-          });
-        });
-        // Safety net: append anything somehow not in the DOM (shouldn't happen, but never silently drop a bout)
-        bouts.forEach(function(b){ if(newBouts.indexOf(b)===-1) newBouts.push(b); });
+        container.querySelectorAll('.draw-mat-list').forEach(function(listEl){Array.from(listEl.querySelectorAll('[data-bid]')).forEach(function(el){var b=bouts.find(function(x){return x.id===el.dataset.bid;});if(b&&newBouts.indexOf(b)===-1)newBouts.push(b);});});
+        bouts.forEach(function(b){if(newBouts.indexOf(b)===-1)newBouts.push(b);});
         bouts=newBouts;
         localStorage.setItem('cgs-bouts',JSON.stringify(bouts));if(db)syncToFirebase();
         toast(fromMat!==toMat?'Moved to '+toMat:'Reordered','gold');
@@ -2642,7 +2058,6 @@ function attachBoutDragDrop(container){
 
 window.publishDraw=function(){saveBouts();toast('Draw published — public view updated','green');};
 
-// ── PRINTABLE DRAW — running order sheet, grouped by mat ──
 window.printDraw=function(){
   if(!bouts.length){toast('No bouts to print','red');return;}
   const mats=[...new Set(bouts.map(b=>b.area))].sort();
@@ -2653,29 +2068,20 @@ window.printDraw=function(){
     +'<h2>'+escH(eventId)+' · Generated '+new Date().toLocaleString()+' · '+bouts.length+' bouts total</h2>';
   mats.forEach(mat=>{
     const matBouts=bouts.filter(b=>b.area===mat).sort((a,b)=>(a.matFightNum||0)-(b.matFightNum||0));
-    html+='<h3>'+escH(mat)+' — '+matBouts.length+' bouts</h3>'
-      +'<table><thead><tr><th>#</th><th>Discipline</th><th>Age/Div</th><th>Red</th><th>Blue</th><th>Notes</th></tr></thead><tbody>';
+    html+='<h3>'+escH(mat)+' — '+matBouts.length+' bouts</h3>'+'<table><thead><tr><th>#</th><th>Discipline</th><th>Age/Div</th><th>Red</th><th>Blue</th><th>Notes</th></tr></thead><tbody>';
     matBouts.forEach(b=>{
       const isDone=b.status==='completed'||b.status==='cancelled';
       const flags=[];
       if(b.noHead)flags.push('NO HEAD');
       if(b.notes)flags.push(b.notes.toUpperCase());
-      html+='<tr class="'+(isDone?'done':'')+'">'
-        +'<td>F'+(b.matFightNum||'?')+'</td>'
-        +'<td>'+escH(b.disc)+'</td>'
-        +'<td>'+escH(b.ageGrp)+' '+escH(b.div)+'</td>'
-        +'<td>'+escH(b.red.name)+' <span style="color:#888">('+escH(b.red.club||'')+')</span></td>'
-        +'<td>'+escH(b.blue.name)+' <span style="color:#888">('+escH(b.blue.club||'')+')</span></td>'
-        +'<td class="flag">'+flags.join(' · ')+'</td>'
-        +'</tr>';
+      html+='<tr class="'+(isDone?'done':'')+'"><td>F'+(b.matFightNum||'?')+'</td><td>'+escH(b.disc)+'</td><td>'+escH(b.ageGrp)+' '+escH(b.div)+'</td><td>'+escH(b.red.name)+' <span style="color:#888">('+escH(b.red.club||'')+')</span></td><td>'+escH(b.blue.name)+' <span style="color:#888">('+escH(b.blue.club||'')+')</span></td><td class="flag">'+flags.join(' · ')+'</td></tr>';
     });
     html+='</tbody></table>';
   });
   html+='</body></html>';
   const w=window.open('','_blank');
   if(!w){toast('Pop-up blocked — allow pop-ups to print','red');return;}
-  w.document.write(html);
-  w.document.close();
+  w.document.write(html);w.document.close();
 };
 window.changeMat=function(sel){const b=bouts.find(x=>x.id===sel.dataset.bid);if(b){b.area=sel.value;saveBouts();}};
 
@@ -2781,6 +2187,7 @@ window.hotPlay=function(boutId,sessionId){
     round:1,style:style,
     timerSeconds:120,timerMax:120,timerRunning:false,timerVisible:false,
     winner:'',roundResults:[],judgeCardHistory:{},roundEnded:0,roundActive:false,
+    lastScoringSide:null,
     boutId:b.id,eventId:eventId,matchComplete:false,matchWinnerSide:''
   }).catch(()=>toast('Scoreboard push failed','red'));
   set(ref(db,`sessions/${sessionId}/judgeCards`),null);
