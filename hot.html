@@ -21,7 +21,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
 ::-webkit-scrollbar{width:2px;height:2px}::-webkit-scrollbar-thumb{background:#333}
 #toast{position:fixed;top:56px;right:10px;z-index:500;font-family:var(--mono);font-size:10px;padding:7px 12px;border-radius:2px;display:none;max-width:260px;line-height:1.5}
 #toast.show{display:block}
-.hdr{background:#0a0a0d;border-bottom:2px solid var(--gold);padding:12px 14px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:10}
+.hdr{background:#0a0a0d;border-bottom:2px solid var(--gold);padding:0 14px;height:48px;box-sizing:border-box;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:10}
 .hdr-title{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;color:var(--gold);flex:1}
 .sync-dot{width:7px;height:7px;border-radius:50%;background:var(--dim);flex-shrink:0;transition:background .3s}
 .sync-dot.live{background:var(--green);box-shadow:0 0 6px var(--green)}
@@ -34,7 +34,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
 .btn-xs{padding:3px 7px;font-size:9px}
 .tables-wrap{display:flex;gap:8px;overflow-x:auto;padding:8px;-webkit-overflow-scrolling:touch;min-height:calc(100vh - 52px)}
 .queue-col{background:var(--surf);border:1px solid var(--border);border-radius:3px;flex:1;min-width:260px;max-width:440px}
-.queue-col-hdr{background:#0d0d10;border-bottom:1px solid var(--border);padding:8px 12px;display:flex;align-items:center;gap:8px;position:sticky;top:48px;z-index:5}
+.queue-col-hdr{background:#0d0d10;border-bottom:1px solid var(--border);padding:8px 12px;display:flex;align-items:center;gap:8px;position:sticky;top:48px;z-index:10}
 .queue-mat-name{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;color:var(--gold)}
 .queue-count{font-family:var(--mono);font-size:9px;color:var(--muted);margin-left:auto}
 .queue-list{padding:6px}
@@ -60,7 +60,6 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
   <div class="hdr-title">🎙 HEAD OF TABLE</div>
   <div class="live-status" id="hot-live-status"></div>
   <div class="sync-dot" id="sync-dot" title="Firebase sync"></div>
-  <a href="https://eagleds.github.io/CGS-manager/" style="text-decoration:none"><button class="btn btn-ghost btn-xs">FULL APP →</button></a>
 </div>
 
 <div class="tables-wrap" id="hot-tables"></div>
