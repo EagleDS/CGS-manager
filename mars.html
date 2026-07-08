@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Marshal — CGS</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#08080a;--surf:#0f0f12;--surf2:#16161a;--border:#222228;--dim:#3a3a42;
+  --text:#f0f0f4;--muted:#64646e;
+  --gold:#f0b429;--gold-dk:#c89010;--gold-bg:#120e00;
+  --red:#e03030;--red-dk:#a02020;--red-bg:#120404;
+  --green:#20b040;--green-bg:#021008;
+  --orange:#f07020;
+  --mono:'IBM Plex Mono',monospace;
+  --sans:'IBM Plex Sans',sans-serif;
+}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13px;min-height:100vh;-webkit-tap-highlight-color:transparent}
+::-webkit-scrollbar{width:2px;height:2px}::-webkit-scrollbar-thumb{background:#333}
+#toast{position:fixed;top:56px;right:10px;z-index:500;font-family:var(--mono);font-size:10px;padding:7px 12px;border-radius:2px;display:none;max-width:260px;line-height:1.5}
+#toast.show{display:block}
+.hdr{background:#0a0a0d;border-bottom:2px solid var(--gold);padding:12px 14px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:10}
+.hdr-title{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;color:var(--gold);flex:1}
+.sync-dot{width:7px;height:7px;border-radius:50%;background:var(--dim);flex-shrink:0;transition:background .3s}
+.sync-dot.live{background:var(--green);box-shadow:0 0 6px var(--green)}
+.sync-dot.err{background:var(--red)}
+.btn{border:none;cursor:pointer;font-family:var(--mono);font-weight:600;letter-spacing:.8px;border-radius:2px;padding:7px 14px;font-size:11px;-webkit-tap-highlight-color:transparent;user-select:none}
+.btn-ghost{background:none;border:1px solid var(--border);color:var(--muted)}.btn-ghost:hover{border-color:#555;color:var(--text)}
+.btn-xs{padding:3px 7px;font-size:9px}
+.flag{display:inline-flex;align-items:center;font-family:var(--mono);font-size:8px;font-weight:700;padding:2px 4px;border-radius:2px;letter-spacing:.5px;white-space:nowrap;margin:1px}
+.f-lv{background:var(--red-bg);border:1px solid var(--red);color:var(--red)}
+.f-dn{background:var(--green-bg);border:1px solid var(--green);color:var(--green)}
+.f-nh{background:#1a0e00;border:1px solid #6a3800;color:#e09020}
+.f-ex{background:#12061a;border:1px solid #4a2a6a;color:#9060d0}
+.f-ag{background:#1a1000;border:1px solid #6a5000;color:#d0a000}
+.draw-mat-cols{display:flex;gap:8px;overflow-x:auto;padding:8px;padding-bottom:24px;-webkit-overflow-scrolling:touch;min-height:calc(100vh - 52px)}
+.draw-mat-col{flex:0 0 280px;background:var(--surf);border:1px solid var(--border);border-radius:3px;overflow:hidden}
+@media(min-width:800px){.draw-mat-col{flex:1;min-width:260px}}
+.draw-mat-hdr{background:#0d0d10;border-bottom:2px solid var(--gold);padding:8px 12px;display:flex;align-items:center;gap:8px;position:sticky;top:48px;z-index:5}
+.draw-mat-title{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;color:var(--gold)}
+.draw-mat-count{font-family:var(--mono);font-size:9px;color:var(--muted);margin-left:auto}
+.draw-mat-list{padding:5px;user-select:none;-webkit-user-select:none}
+.draw-mat-list *{user-select:none;-webkit-user-select:none}
+.draw-bout-row{background:#0d0d10;border:1px solid var(--border);border-radius:3px;margin-bottom:4px;overflow:hidden;transition:border-color .15s}
+.draw-bout-row.live{border-color:var(--red)}
+.draw-bout-row.done{opacity:.5;border-color:#0a2010}
+.draw-bout-row.flagged{border-color:var(--orange)}
+.draw-bout-row.dragging{opacity:.3}
+.draw-bout-row.drag-over{border-color:var(--gold)!important;background:#1a1200!important}
+.draw-bout-hdr{display:flex;align-items:center;gap:6px;padding:5px 8px;border-bottom:1px solid #111115}
+.draw-fight-num{font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--gold);min-width:32px;line-height:1}
+.draw-disc-tag{font-family:var(--mono);font-size:8px;color:var(--muted);flex:1}
+.draw-bout-body{padding:5px 8px 6px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:4px}
+.draw-name{font-weight:600;font-size:12px;line-height:1.2}
+.draw-club{font-size:9px;color:var(--muted)}
+.draw-vs{font-family:'Bebas Neue',sans-serif;font-size:11px;color:var(--dim);text-align:center}
+.draw-handle{color:var(--dim);font-size:13px;cursor:grab;padding:0 2px;touch-action:none;flex-shrink:0}
+</style>
+</head>
+<body>
+
+<div id="toast"></div>
+
+<div class="hdr">
+  <div class="hdr-title">📋 MARSHAL</div>
+  <div class="sync-dot" id="sync-dot" title="Firebase sync"></div>
+  <a href="https://eagleds.github.io/CGS-manager/" style="text-decoration:none"><button class="btn btn-ghost btn-xs">FULL APP →</button></a>
+</div>
+
+<div class="draw-mat-cols" id="draw-mat-cols"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+<script type="module">
+import { initializeApp, getApps } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getDatabase, ref, set, onValue } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
+
+// ── Same event as CGS Manager. Override with ?event=your-event-id if needed. ──
+const params = new URLSearchParams(location.search);
+const eventId = params.get('event') || 'cgs-july-11-2026';
+
+let bouts = [], db = null;
+
+function escH(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+function toast(msg,type='gold'){
+  const t=document.getElementById('toast');
+  const colors={gold:['#1a1000','var(--gold)'],green:['var(--green-bg)','var(--green)'],red:['var(--red-bg)','var(--red)'],orange:['#1a0e00','var(--orange)']};
+  const[bg,bc]=colors[type]||colors.gold;
+  t.textContent=msg;t.style.background=bg;t.style.border='1px solid '+bc;t.style.color='#fff';t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2200);
+}
+
+function updateSyncDot(state){const d=document.getElementById('sync-dot');if(d)d.className='sync-dot '+state;}
+
+function saveBouts(){
+  if(!db)return;
+  set(ref(db,`events/${eventId}/bouts`),bouts).catch(()=>{updateSyncDot('err');toast('Sync failed — check connection','red');});
+}
+
+function drawBoutRow(b){
+  const isLive=b.status==='live',isDone=b.status==='completed'||b.status==='cancelled';
+  const cls='draw-bout-row'+(isLive?' live':isDone?' done':b.notes==='Age Flag'?' flagged':'');
+  const flags=[];
+  if(b.noHead)flags.push('<span class="flag f-nh">⚠</span>');
+  if(b.notes==='Exhibition')flags.push('<span class="flag f-ex">★</span>');
+  if(b.notes==='Age Flag')flags.push('<span class="flag f-ag">⚠AGE</span>');
+  if(isLive)flags.push('<span class="flag f-lv">●</span>');
+  if(isDone)flags.push('<span class="flag f-dn">✓</span>');
+  const fightLabel=b.matFightNum?'F'+b.matFightNum:b.id;
+  return '<div class="'+cls+'" id="mbr-'+b.id+'" data-bid="'+b.id+'">'
+    +'<div class="draw-bout-hdr">'+(!isDone?'<div class="draw-handle">⠿</div>':'')
+    +'<div class="draw-fight-num">'+fightLabel+'</div>'
+    +'<div class="draw-disc-tag">'+escH(b.disc)+' · '+escH(b.ageGrp)+'</div>'
+    +flags.join('')+'</div>'
+    +'<div class="draw-bout-body">'
+    +'<div><div class="draw-name" style="color:var(--red)">'+escH(b.red.name)+'</div><div class="draw-club">'+escH(b.red.club||'')+'</div></div>'
+    +'<div class="draw-vs">VS</div>'
+    +'<div style="text-align:right"><div class="draw-name" style="color:var(--blue)">'+escH(b.blue.name)+'</div><div class="draw-club">'+escH(b.blue.club||'')+'</div></div>'
+    +'</div></div>';
+}
+
+function renderDraw(){
+  const container=document.getElementById('draw-mat-cols');
+  if(!container)return;
+  if(!bouts.length){container.innerHTML='<div style="font-family:var(--mono);font-size:10px;color:var(--muted);padding:20px">No bouts loaded yet.</div>';return;}
+  const mats=[...new Set(bouts.map(b=>b.area))].sort();
+  container.innerHTML=mats.map(mat=>{
+    const matBouts=bouts.filter(b=>b.area===mat);
+    const remaining=matBouts.filter(b=>b.status==='scheduled'||b.status==='live').length;
+    return '<div class="draw-mat-col"><div class="draw-mat-hdr"><div class="draw-mat-title">'+mat+'</div><div class="draw-mat-count">'+remaining+' left</div></div>'
+      +'<div class="draw-mat-list" data-mat="'+mat+'">'+matBouts.map(b=>drawBoutRow(b)).join('')+'</div></div>';
+  }).join('');
+  attachDragDrop(container);
+}
+
+function attachDragDrop(container){
+  container.querySelectorAll('.draw-mat-list').forEach(list=>{
+    if(list._sortable)list._sortable.destroy();
+    list._sortable=new Sortable(list,{
+      animation:150,ghostClass:'drag-over',chosenClass:'dragging',group:'bouts',
+      delay:100,delayOnTouchOnly:false,touchStartThreshold:3,
+      onEnd:function(evt){
+        const fromMat=evt.from.dataset.mat,toMat=evt.to.dataset.mat;
+        const movedId=evt.item.dataset.bid,moved=bouts.find(b=>b.id===movedId);
+        if(!moved)return;
+        if(fromMat!==toMat)moved.area=toMat;
+
+        const lists=fromMat===toMat?[evt.from]:[evt.from,evt.to];
+        lists.forEach(listEl=>{
+          const items=Array.from(listEl.querySelectorAll('[data-bid]'));
+          const ordered=items.map(el=>bouts.find(b=>b.id===el.dataset.bid)).filter(Boolean);
+          ordered.forEach((b,i)=>{b.matFightNum=i+1;});
+          ordered.forEach(b=>{
+            const row=document.getElementById('mbr-'+b.id);
+            if(row){const num=row.querySelector('.draw-fight-num');if(num)num.textContent='F'+b.matFightNum;}
+          });
+          const col=listEl.closest('.draw-mat-col');
+          if(col){
+            const cntEl=col.querySelector('.draw-mat-count');
+            if(cntEl){const rem=ordered.filter(b=>b.status==='scheduled'||b.status==='live').length;cntEl.textContent=rem+' left';}
+          }
+        });
+
+        // Rebuild bouts array from actual DOM order across ALL mat columns — never guess
+        // array positions from indices. Every bout lives in exactly one visible mat
+        // column, so concatenating DOM order per column is a complete, lossless
+        // reconstruction (same safety pattern as the main CGS Manager DRAW tab).
+        const newBouts=[];
+        container.querySelectorAll('.draw-mat-list').forEach(listEl=>{
+          Array.from(listEl.querySelectorAll('[data-bid]')).forEach(el=>{
+            const b=bouts.find(x=>x.id===el.dataset.bid);
+            if(b&&newBouts.indexOf(b)===-1)newBouts.push(b);
+          });
+        });
+        bouts.forEach(b=>{if(newBouts.indexOf(b)===-1)newBouts.push(b);});
+        bouts=newBouts;
+        saveBouts();
+        toast(fromMat!==toMat?'Moved to '+toMat:'Reordered','gold');
+      }
+    });
+  });
+}
+
+function initFirebase(){
+  const cfg={
+    apiKey:"AIzaSyDKqodxFjM0EG_qu4zkCAQ37udwYTdSSQY",
+    authDomain:"cgs-manager.firebaseapp.com",
+    databaseURL:"https://cgs-manager-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId:"cgs-manager",
+    storageBucket:"cgs-manager.firebasestorage.app",
+    messagingSenderId:"928662574013",
+    appId:"1:928662574013:web:be540e308d022d28f678d4"
+  };
+  try{
+    const existing=getApps().find(a=>a.name==='cgs-marshal');
+    const app=existing||initializeApp(cfg,'cgs-marshal');
+    db=getDatabase(app);
+    updateSyncDot('live');
+    onValue(ref(db,`events/${eventId}/bouts`),snap=>{
+      if(!snap.exists())return;
+      const data=snap.val();
+      if(Array.isArray(data)){bouts=data;renderDraw();}
+    });
+  }catch(e){updateSyncDot('err');toast('Firebase connection failed','red');console.warn(e);}
+}
+
+initFirebase();
+</script>
+</body>
+</html>
