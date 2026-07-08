@@ -57,6 +57,11 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
 .draw-club{font-size:9px;color:var(--muted)}
 .draw-vs{font-family:'Bebas Neue',sans-serif;font-size:11px;color:var(--dim);text-align:center}
 .draw-handle{color:var(--dim);font-size:13px;cursor:grab;padding:0 2px;touch-action:none;flex-shrink:0}
+.draw-inline-replace{padding:4px 6px 6px;border-top:1px solid #111115;display:flex;gap:4px;flex-wrap:wrap}
+.inline-sel{flex:1;min-width:120px;background:#080808;border:1px solid var(--border);color:var(--text);padding:3px 6px;border-radius:2px;font-family:var(--mono);font-size:9px;-webkit-appearance:none}
+.inline-sel:focus{outline:none;border-color:var(--gold)}
+.undo-btn{background:#1a1000;border:1px solid #4a3000;color:var(--gold);font-family:var(--mono);font-size:9px;padding:3px 8px;border-radius:2px;cursor:pointer;white-space:nowrap;flex-shrink:0}
+.undo-btn:hover{background:#2a1800}
 </style>
 </head>
 <body>
@@ -99,6 +104,51 @@ function saveBouts(){
   set(ref(db,`events/${eventId}/bouts`),bouts).catch(()=>{updateSyncDot('err');toast('Sync failed — check connection','red');});
 }
 
+let boutHistory = {};
+
+function buildInlineDrop(b,corner){
+  const current=b[corner],other=corner==='red'?b.blue:b.red;
+  const pool=bouts.filter(x=>x.disc===b.disc&&x.div===b.div&&x.id!==b.id&&x.status!=='completed')
+    .flatMap(x=>[
+      {name:x.red.name,club:x.red.club||'',age:x.red.age||0,weight:x.red.wt||0},
+      {name:x.blue.name,club:x.blue.club||'',age:x.blue.age||0,weight:x.blue.wt||0}
+    ])
+    .filter((f,i,a)=>a.findIndex(y=>y.name===f.name)===i&&f.name!==current.name&&f.name!=='TBC');
+  pool.sort((a,x)=>Math.abs(a.weight-(other.wt||0))-Math.abs(x.weight-(other.wt||0)));
+  const label='— '+(current.name||'TBC')+' —';
+  const opts=pool.slice(0,12).map(f=>{
+    const val=encodeURIComponent(f.name)+'|'+encodeURIComponent(f.club)+'|'+f.age+'|'+f.weight;
+    return '<option value="'+val+'">'+escH(f.name)+' · '+escH(f.club)+'</option>';
+  }).join('');
+  return '<option value="">'+escH(label)+'</option>'+opts+'<option value="__manual__">✎ Manual…</option>';
+}
+
+window.inlineReplace=function(sel){
+  const bid=sel.dataset.bid,corner=sel.dataset.corner,b=bouts.find(x=>x.id===bid);
+  if(!b)return;
+  boutHistory[bid]=JSON.parse(JSON.stringify(b));
+  if(sel.value==='__manual__'){
+    const name=prompt('Fighter name:');
+    if(!name){sel.value='';return;}
+    const club=prompt('Club:','')||'',age=parseInt(prompt('Age:',''))||0,wt=parseFloat(prompt('Weight kg:',''))||0;
+    b[corner]={name,club,age,wt};
+  }else if(sel.value){
+    const parts=sel.value.split('|');
+    b[corner]={name:decodeURIComponent(parts[0]||''),club:decodeURIComponent(parts[1]||''),age:parseInt(parts[2])||0,wt:parseFloat(parts[3])||0};
+  }else return;
+  b.wtDiff=Math.abs((b.red.wt||0)-(b.blue.wt||0));
+  b.ageDiff=Math.abs((b.red.age||0)-(b.blue.age||0));
+  b.noHead=Math.min(b.red.age||99,b.blue.age||99)<=12;
+  saveBouts();renderDraw();toast('Replaced — tap ↩ to undo','gold');
+};
+
+window.undoBout=function(id){
+  const prev=boutHistory[id];if(!prev)return;
+  const idx=bouts.findIndex(x=>x.id===id);
+  if(idx>-1){bouts[idx]=prev;delete boutHistory[id];}
+  saveBouts();renderDraw();toast('Undone','gold');
+};
+
 function drawBoutRow(b){
   const isLive=b.status==='live',isDone=b.status==='completed'||b.status==='cancelled';
   const cls='draw-bout-row'+(isLive?' live':isDone?' done':b.notes==='Age Flag'?' flagged':'');
@@ -109,16 +159,22 @@ function drawBoutRow(b){
   if(isLive)flags.push('<span class="flag f-lv">●</span>');
   if(isDone)flags.push('<span class="flag f-dn">✓</span>');
   const fightLabel=b.matFightNum?'F'+b.matFightNum:b.id;
+  const hasUndo=boutHistory[b.id];
+  const redDrop=buildInlineDrop(b,'red'),blueDrop=buildInlineDrop(b,'blue');
   return '<div class="'+cls+'" id="mbr-'+b.id+'" data-bid="'+b.id+'">'
     +'<div class="draw-bout-hdr">'+(!isDone?'<div class="draw-handle">⠿</div>':'')
     +'<div class="draw-fight-num">'+fightLabel+'</div>'
     +'<div class="draw-disc-tag">'+escH(b.disc)+' · '+escH(b.ageGrp)+'</div>'
-    +flags.join('')+'</div>'
+    +flags.join('')
+    +(hasUndo?'<button class="undo-btn" data-bid="'+b.id+'" onclick="undoBout(this.dataset.bid)">↩</button>':'')
+    +'</div>'
     +'<div class="draw-bout-body">'
-    +'<div><div class="draw-name" style="color:var(--red)">'+escH(b.red.name)+'</div><div class="draw-club">'+escH(b.red.club||'')+'</div></div>'
+    +'<div><div class="draw-name" style="color:var(--red)">'+escH(b.red.name)+'</div><div class="draw-club">'+escH(b.red.club||'')+'</div><div class="draw-club">'+(b.red.age?b.red.age+'yr':'')+' '+(b.red.wt?b.red.wt+'kg':'')+'</div></div>'
     +'<div class="draw-vs">VS</div>'
-    +'<div style="text-align:right"><div class="draw-name" style="color:var(--blue)">'+escH(b.blue.name)+'</div><div class="draw-club">'+escH(b.blue.club||'')+'</div></div>'
-    +'</div></div>';
+    +'<div style="text-align:right"><div class="draw-name" style="color:var(--blue)">'+escH(b.blue.name)+'</div><div class="draw-club">'+escH(b.blue.club||'')+'</div><div class="draw-club">'+(b.blue.age?b.blue.age+'yr':'')+' '+(b.blue.wt?b.blue.wt+'kg':'')+'</div></div>'
+    +'</div>'
+    +(!isDone?'<div class="draw-inline-replace"><select class="inline-sel" data-bid="'+b.id+'" data-corner="red" onchange="inlineReplace(this)">'+redDrop+'</select><select class="inline-sel" data-bid="'+b.id+'" data-corner="blue" onchange="inlineReplace(this)">'+blueDrop+'</select></div>':'')
+    +'</div>';
 }
 
 function renderDraw(){
@@ -210,4 +266,3 @@ initFirebase();
 </script>
 </body>
 </html>
-
