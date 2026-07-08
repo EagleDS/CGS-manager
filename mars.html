@@ -84,6 +84,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
   <div class="hdr-title">📋 MARSHAL</div>
   <button class="btn btn-gold btn-xs" onclick="openAddMatch()">+ ADD MATCH</button>
   <div class="sync-dot" id="sync-dot" title="Firebase sync"></div>
+  <a href="https://eagleds.github.io/CGS-manager/withdrawn.html" style="text-decoration:none"><button class="btn btn-ghost btn-xs" style="color:var(--red);border-color:var(--red-dk)">WITHDRAWN</button></a>
   <a href="https://eagleds.github.io/CGS-manager/" style="text-decoration:none"><button class="btn btn-ghost btn-xs">FULL APP →</button></a>
 </div>
 
@@ -167,6 +168,14 @@ window.undoBout=function(id){
   const idx=bouts.findIndex(x=>x.id===id);
   if(idx>-1){bouts[idx]=prev;delete boutHistory[id];}
   saveBouts();renderDraw();toast('Undone','gold');
+};
+
+window.withdrawBout=function(id){
+  const b=bouts.find(x=>x.id===id);if(!b)return;
+  if(!confirm('Withdraw '+b.id+' ('+b.red.name+' vs '+b.blue.name+')?\n\nThis removes it from '+b.area+'. You can restore it from the Withdrawn Fights page.'))return;
+  b.status='cancelled';
+  saveBouts();renderDraw();
+  toast(b.id+' withdrawn','red');
 };
 window.openAddMatch=function(){
   const discs=[...new Set(bouts.map(b=>b.disc))].sort();
@@ -257,7 +266,7 @@ function drawBoutRow(b){
     +'<div class="draw-vs">VS</div>'
     +'<div style="text-align:right"><div class="draw-name" style="color:var(--blue)">'+escH(b.blue.name)+'</div><div class="draw-club">'+escH(b.blue.club||'')+'</div><div class="draw-club">'+(b.blue.age?b.blue.age+'yr':'')+' '+(b.blue.wt?b.blue.wt+'kg':'')+'</div></div>'
     +'</div>'
-    +(!isDone?'<div class="draw-inline-replace"><select class="inline-sel" data-bid="'+b.id+'" data-corner="red" onchange="inlineReplace(this)">'+redDrop+'</select><select class="inline-sel" data-bid="'+b.id+'" data-corner="blue" onchange="inlineReplace(this)">'+blueDrop+'</select></div>':'')
+    +(!isDone?'<div class="draw-inline-replace"><select class="inline-sel" data-bid="'+b.id+'" data-corner="red" onchange="inlineReplace(this)">'+redDrop+'</select><select class="inline-sel" data-bid="'+b.id+'" data-corner="blue" onchange="inlineReplace(this)">'+blueDrop+'</select>'+(!isLive?'<button class="undo-btn" style="color:var(--red);border-color:#5a0000" data-bid="'+b.id+'" onclick="withdrawBout(this.dataset.bid)">WITHDRAW</button>':'')+'</div>':'')
     +'</div>';
 }
 
@@ -267,7 +276,7 @@ function renderDraw(){
   if(!bouts.length){container.innerHTML='<div style="font-family:var(--mono);font-size:10px;color:var(--muted);padding:20px">No bouts loaded yet.</div>';return;}
   const mats=[...new Set(bouts.map(b=>b.area))].sort();
   container.innerHTML=mats.map(mat=>{
-    const matBouts=bouts.filter(b=>b.area===mat);
+    const matBouts=bouts.filter(b=>b.area===mat&&b.status!=='cancelled');
     const remaining=matBouts.filter(b=>b.status==='scheduled'||b.status==='live').length;
     return '<div class="draw-mat-col"><div class="draw-mat-hdr"><div class="draw-mat-title">'+mat+'</div><div class="draw-mat-count">'+remaining+' left</div></div>'
       +'<div class="draw-mat-list" data-mat="'+mat+'">'+matBouts.map(b=>drawBoutRow(b)).join('')+'</div></div>';
