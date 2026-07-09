@@ -405,6 +405,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
 <div id="view-pools" class="view">
   <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px">
     <div id="pools-stats" style="display:flex;gap:6px;flex-wrap:wrap;flex:1"></div>
+    <button class="btn btn-red btn-sm" id="pools-mass-delete-btn" style="display:none" onclick="poolsMassDelete()">🗑 DELETE SELECTED (0)</button>
     <button class="btn btn-gold btn-sm" onclick="regsRunMatch()">⚡ MATCH THESE POOLS →</button>
     <button class="btn btn-red btn-sm" onclick="rematchAll()">↺ REMATCH ALL</button>
     <button class="btn btn-ghost btn-sm" onclick="renderPools()">↺ REFRESH</button>
@@ -869,12 +870,16 @@ window.resetActiveEvent=function(){
   });
 };
 
+let poolsSelectedForDelete=new Set();
+
 window.renderPools=function(){
   const athletes=Object.values(storedRegs).filter(a=>!a.withdrawn);
   const empty=document.getElementById('pools-empty');
   const body=document.getElementById('pools-body');
   const statsEl=document.getElementById('pools-stats');
-  if(!athletes.length){if(body)body.innerHTML='';if(empty)empty.style.display='block';return;}
+  const allActiveKeys=new Set(Object.keys(storedRegs));
+  poolsSelectedForDelete.forEach(k=>{if(!allActiveKeys.has(k))poolsSelectedForDelete.delete(k);});
+  if(!athletes.length){if(body)body.innerHTML='';if(empty)empty.style.display='block';updatePoolsMassDeleteButton();return;}
   if(empty)empty.style.display='none';
   const filterDisc=document.getElementById('pools-filter-disc')?.value||'';
   const filterGender=document.getElementById('pools-filter-gender')?.value||'';
@@ -935,11 +940,13 @@ window.renderPools=function(){
     if(hasWeightOutlier)flags.push('<span class="flag f-wt">WT OUTLIER</span>');
     html+='<div style="background:var(--surf);border:1px solid '+borderColor+';border-radius:3px;margin-bottom:6px;overflow:hidden">'
       +'<div style="background:#0d0d10;padding:7px 12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">'
+      +'<input type="checkbox" data-poolkey="'+escA(key)+'" onchange="togglePoolGroupSelect(this)" title="Select all in this pool"/>'
       +'<div style="font-family:\'Bebas Neue\',sans-serif;font-size:15px;letter-spacing:1px;color:'+(pool.gender==='Female'?'#c060c0':'#4090d0')+'">'+pool.ag+' · '+pool.gender+'</div>'
       +'<div style="font-family:var(--mono);font-size:9px;color:var(--muted)">'+count+' athlete'+(count!==1?'s':'')+'</div>'
       +flags.join('')+'</div>'
       +'<table style="width:100%;border-collapse:collapse">'
       +'<thead><tr style="background:#0a0a0d">'
+      +'<th style="font-family:var(--mono);font-size:8px;color:var(--muted);padding:4px 6px;text-align:center;border-bottom:1px solid var(--border)"></th>'
       +'<th style="font-family:var(--mono);font-size:8px;color:var(--muted);padding:4px 10px;text-align:left;border-bottom:1px solid var(--border);letter-spacing:1px">NAME</th>'
       +'<th style="font-family:var(--mono);font-size:8px;color:var(--muted);padding:4px 10px;text-align:left;border-bottom:1px solid var(--border);letter-spacing:1px">CLUB</th>'
       +'<th style="font-family:var(--mono);font-size:8px;color:var(--muted);padding:4px 10px;text-align:right;border-bottom:1px solid var(--border);letter-spacing:1px">AGE</th>'
@@ -951,7 +958,10 @@ window.renderPools=function(){
       const wtDiff=idx>0?Math.abs((a.weight||0)-(pool.athletes[idx-1].weight||0)):0;
       const isOutlier=idx>0&&wtDiff>15;
       const isDrawn=a.inDraw;
+      const rowKey=regsDedupeKey(a);
+      const checked=poolsSelectedForDelete.has(rowKey);
       html+='<tr style="border-bottom:1px solid #111115'+(isOutlier?';border-top:1px dashed var(--orange)':'')+'">'
+        +'<td style="padding:5px 6px;text-align:center">'+(isDrawn?'<span title="Already in draw — use draw tools to remove" style="color:var(--dim);font-size:9px">🔒</span>':'<input type="checkbox" data-key="'+escA(rowKey)+'" data-poolrow="'+escA(key)+'" '+(checked?'checked':'')+' onchange="togglePoolSelect(this)"/>')+'</td>'
         +'<td style="padding:5px 10px;font-weight:600;color:'+(isDrawn?'var(--green)':'var(--text)')+'">'+escH(fullName)+(isDrawn?' <span style="font-family:var(--mono);font-size:7px;color:var(--green)">IN DRAW</span>':'')+'</td>'
         +'<td style="padding:5px 10px;font-size:10px;color:var(--muted)">'+escH(a.club||a.clubRaw||'')+'</td>'
         +'<td style="padding:5px 10px;font-family:var(--mono);font-size:10px;text-align:right;color:var(--muted)">'+(a.age||'?')+'</td>'
@@ -961,6 +971,69 @@ window.renderPools=function(){
     html+='</tbody></table></div>';
   });
   if(body)body.innerHTML=html||'<div class="panel" style="text-align:center;color:var(--muted);font-family:var(--mono);font-size:10px">No pools match filters.</div>';
+  updatePoolsMassDeleteButton();
+};
+
+window.togglePoolSelect=function(cb){
+  const key=cb.dataset.key;
+  if(!key)return;
+  if(cb.checked)poolsSelectedForDelete.add(key);
+  else poolsSelectedForDelete.delete(key);
+  updatePoolsMassDeleteButton();
+};
+
+window.togglePoolGroupSelect=function(cb){
+  const poolKey=cb.dataset.poolkey;
+  const checked=cb.checked;
+  document.querySelectorAll('input[data-poolrow="'+cssEsc(poolKey)+'"]').forEach(function(rowCb){
+    rowCb.checked=checked;
+    const key=rowCb.dataset.key;
+    if(!key)return;
+    if(checked)poolsSelectedForDelete.add(key);
+    else poolsSelectedForDelete.delete(key);
+  });
+  updatePoolsMassDeleteButton();
+};
+
+function cssEsc(s){return (window.CSS&&CSS.escape)?CSS.escape(s):String(s).replace(/["\\\]]/g,'\\$&');}
+
+function updatePoolsMassDeleteButton(){
+  const btn=document.getElementById('pools-mass-delete-btn');
+  if(!btn)return;
+  const n=poolsSelectedForDelete.size;
+  if(n>0){btn.style.display='';btn.textContent='🗑 DELETE SELECTED ('+n+')';}
+  else{btn.style.display='none';}
+}
+
+window.poolsMassDelete=function(){
+  const keys=[...poolsSelectedForDelete];
+  if(!keys.length){toast('Nothing selected','orange');return;}
+  const names=[];
+  const withPayments=[];
+  keys.forEach(function(key){
+    const a=storedRegs[key];
+    if(!a)return;
+    const fullName=((a.name||'')+' '+(a.sur||'')).trim();
+    names.push(fullName);
+    const paid=(a.checkin&&a.checkin.paidAmount)||0;
+    if(paid>0)withPayments.push(fullName+' ($'+paid+' paid)');
+  });
+  if(!names.length){toast('Selected athletes no longer exist','orange');poolsSelectedForDelete.clear();renderPools();return;}
+  if(withPayments.length){
+    if(!confirm('⚠ '+withPayments.length+' of the selected athletes have payments recorded against their registration:\n\n'+withPayments.join('\n')+'\n\nDeleting removes their registration record, but the payment transaction itself stays in the payment log (WEIGH-IN → PAYMENTS) — it will just show as unassigned rather than lost. You can reassign it there later.\n\nDelete all '+keys.length+' selected registration(s)?'))return;
+  } else {
+    if(!confirm('Delete '+keys.length+' selected registration(s) permanently?\n\n'+names.join('\n')+'\n\nThis cannot be undone. No payment data exists for these athletes, so nothing is lost.'))return;
+  }
+  let deleted=0;
+  keys.forEach(function(key){
+    if(storedRegs[key]){delete storedRegs[key];deleted++;}
+  });
+  poolsSelectedForDelete.clear();
+  saveRegsToFirebase();
+  renderPools();updateRegsStatus();updateRegsMatchSummary();
+  if(document.getElementById('view-regs')?.classList.contains('on'))renderAthleteList();
+  if(document.getElementById('view-home')?.classList.contains('on'))renderDashboard();
+  toast(deleted+' registration(s) deleted — payment log untouched','red');
 };
 
 function checkSameClub(athletes){const clubs=athletes.map(a=>a.club||a.clubRaw||'');return clubs.some((c,i)=>clubs.indexOf(c)!==i&&c!=='Eagle DS'&&c!=='');}
