@@ -306,9 +306,13 @@ h1.brand{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.4rem,4vw,2.4rem);
         style="flex:1;padding:20px 24px;font-family:'Bebas Neue',sans-serif;font-size:1.9rem;letter-spacing:.15em;border:none;border-radius:14px;cursor:pointer;background:var(--gold);color:#1a1200;touch-action:manipulation;transition:background .2s,color .2s">
         &#9654; START ROUND <span id="h-round-in-btn" style="opacity:.6">&middot; R1</span>
       </button>
-      <button id="h-pause-btn" onclick="CGS.pauseRound()" style="display:none;padding:20px 16px;font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:.1em;border:none;border-radius:14px;cursor:pointer;background:#1a1a2a;color:var(--gold);border:1px solid rgba(245,197,24,.3);touch-action:manipulation">&#9646;&#9646;<br>PAUSE</button>
+      <button id="h-pause-btn" onclick="CGS.pauseRound()" style="display:none;padding:20px 16px;font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:.1em;border:none;border-radius:14px;cursor:pointer;background:#1a1a2a;color:var(--gold);border:1px solid rgba(245,197,24,.3);touch-action:manipulation">&#9646;&#9646;<br><span id="h-pause-lbl">PAUSE</span></button>
       <button id="h-undo-btn" onclick="CGS.undoRound()" style="display:none;padding:20px 16px;font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:.1em;border:none;border-radius:14px;cursor:pointer;background:#1a0808;color:#ff6060;border:1px solid #5a1515;touch-action:manipulation">&#8617;<br>UNDO</button>
     </div>
+
+    <!-- Reverses the most recently COMMITTED end-of-round result (accidental End Round tap).
+         Only shown when a snapshot exists to undo, i.e. right after a round has ended. -->
+    <button id="h-undo-end-btn" onclick="CGS.undoEndRound()" style="display:none;width:100%;max-width:560px;padding:12px;font-family:'Bebas Neue',sans-serif;font-size:.95rem;letter-spacing:.1em;border:none;border-radius:12px;cursor:pointer;background:#2a1a08;color:var(--orange);border:1px solid #6a3800;touch-action:manipulation">&#8617; UNDO END ROUND &mdash; reverse last round result</button>
 
     <!-- Round number + round countdown timer + host stopwatch, always visible -->
     <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-start;justify-content:center;width:100%">
@@ -720,8 +724,10 @@ let timerRunning=false, timerInterval=null, lastTick=null, cachedSecs=120;
 
 // ── Round stopwatch — tenths-of-a-second precision, starts automatically the
 // instant the round starts and stops automatically when the round ends. Purely
-// local — never written to Firebase — so it can never appear on the public page. ──
-let swStartTs=null, swInterval=null;
+// local — never written to Firebase — so it can never appear on the public page.
+// swAccumMs holds elapsed time banked from before the current pause segment;
+// swPaused tracks whether the display is currently frozen. ──
+let swStartTs=null, swInterval=null, swAccumMs=0, swPaused=false;
 function fmtStopwatch(ms){
   ms=Math.max(0,ms||0);
   const mins=Math.floor(ms/60000);
@@ -729,14 +735,36 @@ function fmtStopwatch(ms){
   const tenths=Math.floor((ms%1000)/100);
   return mins+":"+String(secs).padStart(2,"0")+"."+tenths;
 }
+function setPauseLabel(paused){
+  const lbl=el("h-pause-lbl");
+  if(lbl)lbl.textContent=paused?"RESUME":"PAUSE";
+}
 function stopwatchStart(){
   clearInterval(swInterval);
+  swAccumMs=0;swPaused=false;
   swStartTs=Date.now();
   T("h-stopwatch","0:00.0");
-  swInterval=setInterval(()=>{T("h-stopwatch",fmtStopwatch(Date.now()-swStartTs));},100);
+  swInterval=setInterval(()=>{T("h-stopwatch",fmtStopwatch(swAccumMs+(Date.now()-swStartTs)));},100);
+  setPauseLabel(false);
+}
+// Pauses/resumes the stopwatch in place, banking elapsed time in swAccumMs so
+// resuming continues from exactly where it left off rather than restarting.
+function stopwatchPauseToggle(){
+  if(swPaused){
+    swStartTs=Date.now();
+    clearInterval(swInterval);
+    swInterval=setInterval(()=>{T("h-stopwatch",fmtStopwatch(swAccumMs+(Date.now()-swStartTs)));},100);
+    swPaused=false;
+  }else{
+    swAccumMs+=Date.now()-swStartTs;
+    clearInterval(swInterval);swInterval=null;
+    swPaused=true;
+  }
+  setPauseLabel(swPaused);
 }
 function stopwatchStop(){
-  clearInterval(swInterval);swInterval=null;
+  clearInterval(swInterval);swInterval=null;swPaused=false;
+  setPauseLabel(false);
 }
 
 // ── NEW: collapsible "Details" section for less-essential host controls ──
@@ -796,6 +824,13 @@ function initHost(){
       renderJudgePills(tallies);
     }catch(e){}
   });
+  // Show / hide the "Undo End Round" button based on whether a reversible
+  // snapshot exists (written right before each End Round commit, cleared
+  // once a new round starts or the snapshot is consumed).
+  onValue(ref(db,`sessions/${SES}/lastRoundSnapshot`),snap=>{
+    const btn=el("h-undo-end-btn");
+    if(btn)btn.style.display=snap.exists()?"block":"none";
+  });
   Object.assign(window.CGS,{
     adjRound:d=>adjRound(d),
     timerToggle:()=>timerToggle(),
@@ -809,6 +844,7 @@ function initHost(){
     toggleRound:()=>toggleRound(),
     pauseRound:()=>pauseRound(),
     undoRound:()=>undoRound(),
+    undoEndRound:()=>undoEndRound(),
     declareWinner:()=>declareWinner(),
     clearWinner:()=>{set(ref(db,`sessions/${SES}/state/winner`),"");el("h-wo").classList.remove("show");},
     addGam:side=>addGam(side),
@@ -848,6 +884,7 @@ async function initState(style,hardReset){
   });
   set(ref(db,`sessions/${SES}/judgeCards`),null);
   set(ref(db,`sessions/${SES}/tallies`),null);
+  set(ref(db,`sessions/${SES}/lastRoundSnapshot`),null);
 }
 
 function renderHost(s){
@@ -983,6 +1020,9 @@ async function startRoundNow(st){
   // Clear tallies, mark active, reset last-scorer tracking, start timer if visible
   await set(ref(db,`sessions/${SES}/judgeCards`),null);
   await set(ref(db,`sessions/${SES}/tallies`),null);
+  // Starting a fresh round retires any pending "undo end round" snapshot —
+  // there is nothing sensible left to revert to once new scoring has begun.
+  await set(ref(db,`sessions/${SES}/lastRoundSnapshot`),null);
   const updates={roundActive:true,roundEnded:0,lastScoringSide:null};
   if(st.timerVisible){
     updates.timerSeconds=st.timerMax||120;
@@ -1003,6 +1043,21 @@ async function endRoundNow(st){
   await set(ref(db,`sessions/${SES}/state/timerRunning`),false);
   await set(ref(db,`sessions/${SES}/state/roundActive`),false);
 
+  // ── UNDO-END-ROUND SNAPSHOT ─────────────────────────────────
+  // Capture the exact pre-commit state — including this round's still-live
+  // judge tallies/judge cards — so an accidental End Round tap can be fully
+  // reversed and the round resumed exactly where it was, not restarted from
+  // 0-0. Overwrites any previous snapshot (only the most recent end-round
+  // action is reversible).
+  const talliesSnap=await get(ref(db,`sessions/${SES}/tallies`));
+  const judgeCardsSnap=await get(ref(db,`sessions/${SES}/judgeCards`));
+  await set(ref(db,`sessions/${SES}/lastRoundSnapshot`),{
+    state:{...st,roundActive:true,timerRunning:st.timerRunning||false},
+    tallies:talliesSnap.val()||null,
+    judgeCards:judgeCardsSnap.val()||null,
+    ts:Date.now()
+  });
+
   // ── Score calculation ──────────────────────────────────────
   let rp=0,bp=0,winner="draw";
   let roundJudgeCards=null; // per-judge card for THIS round (non-TKD only)
@@ -1018,8 +1073,8 @@ async function endRoundNow(st){
     else if(bs>rs) winner="blue";
     else winner=st.lastScoringSide==="red"?"red":st.lastScoringSide==="blue"?"blue":"draw";
   } else {
-    const talliesSnap=await get(ref(db,`sessions/${SES}/tallies`));
-    const tallies=talliesSnap.val()||{};
+    const talliesSrc = talliesSnap.val() || {};
+    const tallies=talliesSrc;
     const keys=Object.keys(tallies);
     const redDed=st.redDeductions||0;
     const blueDed=st.blueDeductions||0;
@@ -1131,8 +1186,16 @@ async function endRoundNow(st){
 }
 
 async function pauseRound(){
-  const running=(await get(ref(db,`sessions/${SES}/state/timerRunning`))).val()||false;
-  await set(ref(db,`sessions/${SES}/state/timerRunning`),!running);
+  // Round countdown timer (only relevant when the optional visible timer is on)
+  const timerVisible=(await get(ref(db,`sessions/${SES}/state/timerVisible`))).val()||false;
+  if(timerVisible){
+    const running=(await get(ref(db,`sessions/${SES}/state/timerRunning`))).val()||false;
+    await set(ref(db,`sessions/${SES}/state/timerRunning`),!running);
+  }
+  // Host stopwatch is local-only and was previously never touched by this
+  // button — that was the bug. It now always pauses/resumes with this button
+  // regardless of whether the optional round timer is shown.
+  stopwatchPauseToggle();
 }
 
 async function undoRound(){
@@ -1145,6 +1208,29 @@ async function undoRound(){
   await set(ref(db,`sessions/${SES}/tallies`),null);
   const mx=(await get(ref(db,`sessions/${SES}/state/timerMax`))).val()||120;
   await set(ref(db,`sessions/${SES}/state/timerSeconds`),mx);
+}
+
+// ── UNDO END ROUND ────────────────────────────────────────────
+// Reverses the most recently COMMITTED round (the last End Round tap),
+// restoring: the round back to active, cumulative scores back to their
+// pre-commit values, that round removed from roundResults/judgeCardHistory,
+// and any winner/matchComplete flag cleared if this was the fight-ending
+// round. Also restores the judges' live tallies/judge cards so scoring
+// resumes exactly where it was, not from 0-0. One level of undo only —
+// the snapshot is cleared after use and also whenever a new round starts.
+async function undoEndRound(){
+  const snapSnap=await get(ref(db,`sessions/${SES}/lastRoundSnapshot`));
+  if(!snapSnap.exists()){alert("Nothing to undo.");return;}
+  if(!confirm("Undo End Round? This reverses the last round's result and resumes that round."))return;
+  const snap=snapSnap.val();
+  await set(ref(db,`sessions/${SES}/state`),snap.state);
+  await set(ref(db,`sessions/${SES}/tallies`),snap.tallies);
+  await set(ref(db,`sessions/${SES}/judgeCards`),snap.judgeCards);
+  await set(ref(db,`sessions/${SES}/lastRoundSnapshot`),null);
+  // Round is active again — restart the local host stopwatch fresh, since the
+  // exact sub-second stopwatch reading at the moment of the original End Round
+  // tap was never stored (it's local/never written to Firebase, by design).
+  stopwatchStart();
 }
 
 async function declareWinner(){
