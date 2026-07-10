@@ -147,7 +147,8 @@ function renderHotTable(matCfg,clashes){
     const isLive=b.status==='live',isNext=!isLive&&idx===(liveOnMat.length?1:0),hasClash=clashes[b.red.name]||clashes[b.blue.name],cls='queue-item'+(isLive?' live-item':'');
     const statusBadge=isLive?'<span class="flag f-lv">&#9679; LIVE ON '+matCfg.label.toUpperCase()+'</span>':(isNext?'<span style="font-family:var(--mono);font-size:8px;padding:2px 6px;border-radius:2px;background:#001a08;border:1px solid var(--green);color:var(--green)">UP NEXT</span>':'');
     const clashBadge=hasClash?'<span style="font-family:var(--mono);font-size:8px;padding:2px 4px;border-radius:2px;background:#1a0a00;border:1px solid var(--orange);color:var(--orange)">&#9888; CLASH</span>':'';
-    html+='<div class="'+cls+'"><div class="queue-item-top"><div class="queue-num">'+b.id+'</div><div class="queue-disc">'+escH(b.disc)+' · '+escH(b.ageGrp)+'</div>'+statusBadge+clashBadge+'</div><div class="queue-item-body"><div><div class="qi-name" style="color:var(--red)">'+escH(b.red.name)+'</div><div class="qi-club">'+escH(b.red.club||'')+'</div></div><div class="qi-vs">VS</div><div style="text-align:right"><div class="qi-name" style="color:var(--blue)">'+escH(b.blue.name)+'</div><div class="qi-club">'+escH(b.blue.club||'')+'</div></div></div>';
+    const noHeadBadge=b.noHead?'<span style="font-family:var(--mono);font-size:8px;font-weight:700;padding:2px 6px;border-radius:2px;background:#1a0e00;border:1px solid var(--orange);color:var(--orange);letter-spacing:.5px">&#9888; NO HEAD CONTACT</span>':'';
+    html+='<div class="'+cls+'"><div class="queue-item-top"><div class="queue-num">'+b.id+'</div><div class="queue-disc">'+escH(b.disc)+' · '+escH(b.ageGrp)+'</div>'+statusBadge+clashBadge+noHeadBadge+'</div><div class="queue-item-body"><div><div class="qi-name" style="color:var(--red)">'+escH(b.red.name)+'</div><div class="qi-club">'+escH(b.red.club||'')+'</div></div><div class="qi-vs">VS</div><div style="text-align:right"><div class="qi-name" style="color:var(--blue)">'+escH(b.blue.name)+'</div><div class="qi-club">'+escH(b.blue.club||'')+'</div></div></div>';
     if(!isLive){
       const playLabel=liveOnMat.length?'&#8646; SWAP IN':'&#9654; PLAY TO '+matCfg.label.toUpperCase();
       html+='<div class="queue-item-actions"><button class="btn btn-gold btn-xs" data-bid="'+b.id+'" data-session="'+matCfg.session+'" onclick="hotPlay(this.dataset.bid,this.dataset.session)">'+playLabel+'</button></div>';
@@ -303,4 +304,3 @@ initFirebase();
 </script>
 </body>
 </html>
-
