@@ -396,10 +396,10 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
   <div id="regs-panel-clubs" style="display:none">
     <div class="panel">
       <div class="panel-title">CLUB NORMALISATION</div>
-      <div class="panel-sub">Assign canonical club names to raw form entries. Saved permanently — survives all future pastes.</div>
+      <div class="panel-sub">Assign canonical club names to raw form entries. Saves automatically the moment you pick a club or finish typing a custom name — no button needed. SAVE ALL below is just a manual re-sync if you ever want to force it.</div>
       <div id="regs-club-body"></div>
       <div class="row-btns">
-        <button class="btn btn-gold" onclick="regsApplyClubs()">SAVE CLUBS</button>
+        <button class="btn btn-gold" onclick="regsApplyClubs()">SAVE ALL</button>
       </div>
     </div>
   </div>
@@ -1299,13 +1299,37 @@ window.renderRegsClubs=function(){
   document.getElementById('regs-club-body').innerHTML=html+'</tbody></table>';
 };
 
+function applyAndSaveClub(raw){
+  const resolved=storedClubMap[ckey(raw)];
+  if(resolved){
+    let touched=false;
+    Object.values(storedRegs).forEach(a=>{if(a.clubRaw===raw){a.club=resolved;touched=true;}});
+    if(touched)saveRegsToFirebase();
+  }
+  saveClubMapToFirebase();
+}
+
+let clubSaveDebounce=null;
+
 window.handleRegsClubSel=function(sel){
   const raw=sel.dataset.raw;if(!raw)return;
   const inp=sel.parentElement.querySelector('input[data-raw="'+raw+'"]');
-  if(sel.value==='__other__'){if(inp){inp.style.display='inline-block';inp.focus();}storedClubMap[ckey(raw)]='';}
-  else{if(inp)inp.style.display='none';storedClubMap[ckey(raw)]=sel.value;}
+  if(sel.value==='__other__'){if(inp){inp.style.display='inline-block';inp.focus();}storedClubMap[ckey(raw)]='';return;}
+  if(inp)inp.style.display='none';
+  storedClubMap[ckey(raw)]=sel.value;
+  applyAndSaveClub(raw);
+  toast('Saved: '+raw+' → '+sel.value,'green');
 };
-window.handleRegsClubCustom=function(inp){const raw=inp.dataset.raw;if(raw)storedClubMap[ckey(raw)]=inp.value;};
+window.handleRegsClubCustom=function(inp){
+  const raw=inp.dataset.raw;if(!raw)return;
+  storedClubMap[ckey(raw)]=inp.value;
+  clearTimeout(clubSaveDebounce);
+  clubSaveDebounce=setTimeout(()=>{
+    if(!inp.value.trim())return;
+    applyAndSaveClub(raw);
+    toast('Saved: '+raw+' → '+inp.value,'green');
+  },700);
+};
 
 window.regsApplyClubs=function(){
   Object.values(storedRegs).forEach(a=>{const resolved=storedClubMap[ckey(a.clubRaw)];if(resolved)a.club=resolved;});
