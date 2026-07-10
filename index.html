@@ -261,6 +261,9 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
       <a href="https://eagleds.github.io/CGS-manager/wd.html" target="_blank" style="text-decoration:none">
         <button class="btn btn-ghost" style="width:100%;text-align:left;color:var(--red);border-color:var(--red-dk)">✕ WITHDRAWN FIGHTS</button>
       </a>
+      <a href="https://eagleds.github.io/CGS-manager/results.html" target="_blank" style="text-decoration:none">
+        <button class="btn btn-ghost" style="width:100%;text-align:left;color:var(--green);border-color:var(--green)">🏆 RESULTS</button>
+      </a>
       <a href="https://eagleds.github.io/CRM/eagle-os.html" target="_blank" style="text-decoration:none">
         <button class="btn btn-ghost" style="width:100%;text-align:left">🦅 EAGLE OS</button>
       </a>
@@ -405,7 +408,6 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
 <div id="view-pools" class="view">
   <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px">
     <div id="pools-stats" style="display:flex;gap:6px;flex-wrap:wrap;flex:1"></div>
-    <button class="btn btn-red btn-sm" id="pools-mass-delete-btn" style="display:none" onclick="poolsMassDelete()">🗑 DELETE SELECTED (0)</button>
     <button class="btn btn-gold btn-sm" onclick="regsRunMatch()">⚡ MATCH THESE POOLS →</button>
     <button class="btn btn-red btn-sm" onclick="rematchAll()">↺ REMATCH ALL</button>
     <button class="btn btn-ghost btn-sm" onclick="renderPools()">↺ REFRESH</button>
@@ -870,16 +872,12 @@ window.resetActiveEvent=function(){
   });
 };
 
-let poolsSelectedForDelete=new Set();
-
 window.renderPools=function(){
   const athletes=Object.values(storedRegs).filter(a=>!a.withdrawn);
   const empty=document.getElementById('pools-empty');
   const body=document.getElementById('pools-body');
   const statsEl=document.getElementById('pools-stats');
-  const allActiveKeys=new Set(Object.keys(storedRegs));
-  poolsSelectedForDelete.forEach(k=>{if(!allActiveKeys.has(k))poolsSelectedForDelete.delete(k);});
-  if(!athletes.length){if(body)body.innerHTML='';if(empty)empty.style.display='block';updatePoolsMassDeleteButton();return;}
+  if(!athletes.length){if(body)body.innerHTML='';if(empty)empty.style.display='block';return;}
   if(empty)empty.style.display='none';
   const filterDisc=document.getElementById('pools-filter-disc')?.value||'';
   const filterGender=document.getElementById('pools-filter-gender')?.value||'';
@@ -940,13 +938,11 @@ window.renderPools=function(){
     if(hasWeightOutlier)flags.push('<span class="flag f-wt">WT OUTLIER</span>');
     html+='<div style="background:var(--surf);border:1px solid '+borderColor+';border-radius:3px;margin-bottom:6px;overflow:hidden">'
       +'<div style="background:#0d0d10;padding:7px 12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">'
-      +'<input type="checkbox" data-poolkey="'+escA(key)+'" onchange="togglePoolGroupSelect(this)" title="Select all in this pool"/>'
       +'<div style="font-family:\'Bebas Neue\',sans-serif;font-size:15px;letter-spacing:1px;color:'+(pool.gender==='Female'?'#c060c0':'#4090d0')+'">'+pool.ag+' · '+pool.gender+'</div>'
       +'<div style="font-family:var(--mono);font-size:9px;color:var(--muted)">'+count+' athlete'+(count!==1?'s':'')+'</div>'
       +flags.join('')+'</div>'
       +'<table style="width:100%;border-collapse:collapse">'
       +'<thead><tr style="background:#0a0a0d">'
-      +'<th style="font-family:var(--mono);font-size:8px;color:var(--muted);padding:4px 6px;text-align:center;border-bottom:1px solid var(--border)"></th>'
       +'<th style="font-family:var(--mono);font-size:8px;color:var(--muted);padding:4px 10px;text-align:left;border-bottom:1px solid var(--border);letter-spacing:1px">NAME</th>'
       +'<th style="font-family:var(--mono);font-size:8px;color:var(--muted);padding:4px 10px;text-align:left;border-bottom:1px solid var(--border);letter-spacing:1px">CLUB</th>'
       +'<th style="font-family:var(--mono);font-size:8px;color:var(--muted);padding:4px 10px;text-align:right;border-bottom:1px solid var(--border);letter-spacing:1px">AGE</th>'
@@ -958,10 +954,7 @@ window.renderPools=function(){
       const wtDiff=idx>0?Math.abs((a.weight||0)-(pool.athletes[idx-1].weight||0)):0;
       const isOutlier=idx>0&&wtDiff>15;
       const isDrawn=a.inDraw;
-      const rowKey=regsDedupeKey(a);
-      const checked=poolsSelectedForDelete.has(rowKey);
       html+='<tr style="border-bottom:1px solid #111115'+(isOutlier?';border-top:1px dashed var(--orange)':'')+'">'
-        +'<td style="padding:5px 6px;text-align:center">'+(isDrawn?'<span title="Already in draw — use draw tools to remove" style="color:var(--dim);font-size:9px">🔒</span>':'<input type="checkbox" data-key="'+escA(rowKey)+'" data-poolrow="'+escA(key)+'" '+(checked?'checked':'')+' onchange="togglePoolSelect(this)"/>')+'</td>'
         +'<td style="padding:5px 10px;font-weight:600;color:'+(isDrawn?'var(--green)':'var(--text)')+'">'+escH(fullName)+(isDrawn?' <span style="font-family:var(--mono);font-size:7px;color:var(--green)">IN DRAW</span>':'')+'</td>'
         +'<td style="padding:5px 10px;font-size:10px;color:var(--muted)">'+escH(a.club||a.clubRaw||'')+'</td>'
         +'<td style="padding:5px 10px;font-family:var(--mono);font-size:10px;text-align:right;color:var(--muted)">'+(a.age||'?')+'</td>'
@@ -971,69 +964,6 @@ window.renderPools=function(){
     html+='</tbody></table></div>';
   });
   if(body)body.innerHTML=html||'<div class="panel" style="text-align:center;color:var(--muted);font-family:var(--mono);font-size:10px">No pools match filters.</div>';
-  updatePoolsMassDeleteButton();
-};
-
-window.togglePoolSelect=function(cb){
-  const key=cb.dataset.key;
-  if(!key)return;
-  if(cb.checked)poolsSelectedForDelete.add(key);
-  else poolsSelectedForDelete.delete(key);
-  updatePoolsMassDeleteButton();
-};
-
-window.togglePoolGroupSelect=function(cb){
-  const poolKey=cb.dataset.poolkey;
-  const checked=cb.checked;
-  document.querySelectorAll('input[data-poolrow="'+cssEsc(poolKey)+'"]').forEach(function(rowCb){
-    rowCb.checked=checked;
-    const key=rowCb.dataset.key;
-    if(!key)return;
-    if(checked)poolsSelectedForDelete.add(key);
-    else poolsSelectedForDelete.delete(key);
-  });
-  updatePoolsMassDeleteButton();
-};
-
-function cssEsc(s){return (window.CSS&&CSS.escape)?CSS.escape(s):String(s).replace(/["\\\]]/g,'\\$&');}
-
-function updatePoolsMassDeleteButton(){
-  const btn=document.getElementById('pools-mass-delete-btn');
-  if(!btn)return;
-  const n=poolsSelectedForDelete.size;
-  if(n>0){btn.style.display='';btn.textContent='🗑 DELETE SELECTED ('+n+')';}
-  else{btn.style.display='none';}
-}
-
-window.poolsMassDelete=function(){
-  const keys=[...poolsSelectedForDelete];
-  if(!keys.length){toast('Nothing selected','orange');return;}
-  const names=[];
-  const withPayments=[];
-  keys.forEach(function(key){
-    const a=storedRegs[key];
-    if(!a)return;
-    const fullName=((a.name||'')+' '+(a.sur||'')).trim();
-    names.push(fullName);
-    const paid=(a.checkin&&a.checkin.paidAmount)||0;
-    if(paid>0)withPayments.push(fullName+' ($'+paid+' paid)');
-  });
-  if(!names.length){toast('Selected athletes no longer exist','orange');poolsSelectedForDelete.clear();renderPools();return;}
-  if(withPayments.length){
-    if(!confirm('⚠ '+withPayments.length+' of the selected athletes have payments recorded against their registration:\n\n'+withPayments.join('\n')+'\n\nDeleting removes their registration record, but the payment transaction itself stays in the payment log (WEIGH-IN → PAYMENTS) — it will just show as unassigned rather than lost. You can reassign it there later.\n\nDelete all '+keys.length+' selected registration(s)?'))return;
-  } else {
-    if(!confirm('Delete '+keys.length+' selected registration(s) permanently?\n\n'+names.join('\n')+'\n\nThis cannot be undone. No payment data exists for these athletes, so nothing is lost.'))return;
-  }
-  let deleted=0;
-  keys.forEach(function(key){
-    if(storedRegs[key]){delete storedRegs[key];deleted++;}
-  });
-  poolsSelectedForDelete.clear();
-  saveRegsToFirebase();
-  renderPools();updateRegsStatus();updateRegsMatchSummary();
-  if(document.getElementById('view-regs')?.classList.contains('on'))renderAthleteList();
-  if(document.getElementById('view-home')?.classList.contains('on'))renderDashboard();
-  toast(deleted+' registration(s) deleted — payment log untouched','red');
 };
 
 function checkSameClub(athletes){const clubs=athletes.map(a=>a.club||a.clubRaw||'');return clubs.some((c,i)=>clubs.indexOf(c)!==i&&c!=='Eagle DS'&&c!=='');}
@@ -2050,7 +1980,7 @@ function drawBoutRow(b){
   const flags=[];if(b.noHead)flags.push('<span class="flag f-nh">⚠</span>');if(b.notes==='Exhibition')flags.push('<span class="flag f-ex">★</span>');if(b.notes==='Age Flag')flags.push('<span class="flag f-ag">⚠AGE</span>');if(isLive)flags.push('<span class="flag f-lv">●</span>');if(isDone)flags.push('<span class="flag f-dn">✓</span>');
   const fightLabel=b.matFightNum?'F'+b.matFightNum:b.id,hasUndo=boutHistory[b.id];
   const redDrop=buildInlineDrop(b,'red'),blueDrop=buildInlineDrop(b,'blue');
-  return '<div class="'+cls+'" id="dbr-'+b.id+'" '+bidAttr+'><div class="draw-bout-hdr">'+(!isDone?'<div class="draw-handle">⠿</div>':'')+'<div class="draw-fight-num">'+fightLabel+'</div><div class="draw-disc-tag">'+escH(b.disc)+' · '+b.ageGrp+'</div>'+flags.join('')+(hasUndo?'<button class="undo-btn" data-bid="'+b.id+'" onclick="undoBout(this.dataset.bid)">↩</button>':'')+'</div><div class="draw-bout-body"><div><div class="draw-name" style="color:var(--red)">'+escH(b.red.name)+'</div><div class="draw-club">'+escH(b.red.club||'')+'</div><div class="draw-club">'+(b.red.age?b.red.age+'yr':'')+' '+(b.red.wt?b.red.wt+'kg':'')+'</div></div><div class="draw-vs">VS</div><div style="text-align:right"><div class="draw-name" style="color:var(--blue)">'+escH(b.blue.name)+'</div><div class="draw-club">'+escH(b.blue.club||'')+'</div><div class="draw-club">'+(b.blue.age?b.blue.age+'yr':'')+' '+(b.blue.wt?b.blue.wt+'kg':'')+'</div></div></div>'+(!isDone?'<div class="draw-inline-replace"><select class="inline-sel" data-bid="'+b.id+'" data-corner="red" onchange="inlineReplace(this)">'+redDrop+'</select><select class="inline-sel" data-bid="'+b.id+'" data-corner="blue" onchange="inlineReplace(this)">'+blueDrop+'</select>'+(isLive?'<button class="btn btn-red btn-xs" data-bid="'+b.id+'" onclick="openScore(this.dataset.bid)">SCORE</button>':'<button class="btn btn-gold btn-xs" data-bid="'+b.id+'" onclick="startBout(this.dataset.bid)">▶</button>')+(!isLive?'<button class="undo-btn" style="color:var(--red);border-color:#5a0000" data-bid="'+b.id+'" onclick="withdrawBout(this.dataset.bid)">WITHDRAW</button>':'')+'</div>':'')+'</div>';
+  return '<div class="'+cls+'" id="dbr-'+b.id+'" '+bidAttr+'><div class="draw-bout-hdr">'+(!isDone?'<div class="draw-handle">⠿</div>':'')+'<div class="draw-fight-num">'+fightLabel+'</div><div class="draw-disc-tag">'+escH(b.disc)+' · '+b.ageGrp+'</div>'+flags.join('')+(hasUndo?'<button class="undo-btn" data-bid="'+b.id+'" onclick="undoBout(this.dataset.bid)">↩</button>':'')+'</div><div class="draw-bout-body"><div><div class="draw-name" style="color:var(--red)">'+escH(b.red.name)+'</div><div class="draw-club">'+escH(b.red.club||'')+'</div><div class="draw-club">'+(b.red.age?b.red.age+'yr':'')+' '+(b.red.wt?b.red.wt+'kg':'')+'</div></div><div class="draw-vs">VS</div><div style="text-align:right"><div class="draw-name" style="color:var(--blue)">'+escH(b.blue.name)+'</div><div class="draw-club">'+escH(b.blue.club||'')+'</div><div class="draw-club">'+(b.blue.age?b.blue.age+'yr':'')+' '+(b.blue.wt?b.blue.wt+'kg':'')+'</div></div></div>'+(!isDone?'<div class="draw-inline-replace"><select class="inline-sel" data-bid="'+b.id+'" data-corner="red" onchange="inlineReplace(this)">'+redDrop+'</select><select class="inline-sel" data-bid="'+b.id+'" data-corner="blue" onchange="inlineReplace(this)">'+blueDrop+'</select>'+(isLive?'<button class="btn btn-red btn-xs" data-bid="'+b.id+'" onclick="openScore(this.dataset.bid)">SCORE</button>':'<button class="btn btn-gold btn-xs" data-bid="'+b.id+'" onclick="startBout(this.dataset.bid)">▶</button>')+(!isLive?'<button class="undo-btn" style="color:var(--red);border-color:#5a0000" data-bid="'+b.id+'" onclick="withdrawBout(this.dataset.bid)">WITHDRAW</button>':'')+'</div>':(b.status==='completed'?'<div class="draw-inline-replace"><span style="font-family:var(--mono);font-size:9px;color:var(--muted)">Result: '+(b.winner==='draw'?'DRAW':(b.winner==='red'?escH(b.red.name):escH(b.blue.name))+' won '+b.score.red+'-'+b.score.blue)+'</span><button class="undo-btn" style="color:var(--orange);border-color:#6a3800" data-bid="'+b.id+'" onclick="reopenBout(this.dataset.bid)">↺ REOPEN</button></div>':''))+'</div>';
 }
 
 function buildInlineDrop(b,corner){const current=b[corner],other=corner==='red'?b.blue:b.red,pool=bouts.filter(x=>x.disc===b.disc&&x.div===b.div&&x.id!==b.id&&x.status!=='completed').flatMap(x=>[{name:x.red.name,club:x.red.club||'',age:x.red.age||0,weight:x.red.wt||0},{name:x.blue.name,club:x.blue.club||'',age:x.blue.age||0,weight:x.blue.wt||0}]).filter((f,i,a)=>a.findIndex(x=>x.name===f.name)===i&&f.name!==current.name&&f.name!=='TBC');pool.sort((a,x)=>Math.abs(a.weight-(other.wt||0))-Math.abs(x.weight-(other.wt||0)));const label='— '+(current.name||'TBC')+' —',opts=pool.slice(0,12).map(f=>{const val=encodeURIComponent(f.name)+'|'+encodeURIComponent(f.club)+'|'+f.age+'|'+f.weight;return '<option value="'+val+'">'+escH(f.name)+' · '+escH(f.club)+'</option>';}).join('');return '<option value="">'+escH(label)+'</option>'+opts+'<option value="__manual__">✎ Manual…</option>';}
@@ -2063,6 +1993,17 @@ window.withdrawBout=function(id){
   if(!confirm('Withdraw '+b.id+' ('+b.red.name+' vs '+b.blue.name+')?\n\nThis removes it from '+b.area+'. Restore it later from the Withdrawn Fights page (Quick Launch on Home).'))return;
   b.status='cancelled';saveBouts();renderDraw();
   toast(b.id+' withdrawn','red');
+};
+
+window.reopenBout=function(id){
+  const b=bouts.find(x=>x.id===id);if(!b)return;
+  const currentResult=b.winner==='draw'?'DRAW':b.winner==='red'?b.red.name+' won':b.blue.name+' won';
+  if(!confirm('Reopen '+b.id+' ('+b.red.name+' vs '+b.blue.name+')?\n\nCurrent recorded result: '+currentResult+' ('+b.score.red+'-'+b.score.blue+').\n\nThis clears the result and sends the bout back to scheduled on '+b.area+' so it can be re-run or re-scored. This also updates Standings and Results immediately.'))return;
+  b.status='scheduled';
+  b.winner=null;
+  b.score={red:0,blue:0};
+  saveBouts();renderDraw();renderResults();renderLive();
+  toast(b.id+' reopened — result cleared','orange');
 };
 
 window.openAddMatch=function(){
@@ -2197,7 +2138,7 @@ window.closeModal=function(){document.getElementById('overlay').classList.remove
 
 function renderLive(){const lv=bouts.filter(b=>b.status==='live'),grid=document.getElementById('live-grid'),empty=document.getElementById('live-empty');if(!lv.length){if(grid)grid.innerHTML='';if(empty)empty.style.display='block';return;}if(empty)empty.style.display='none';if(grid)grid.innerHTML=lv.map(b=>'<div class="bout-card live" style="cursor:pointer;padding:0" onclick="openScore(\''+b.id+'\')"><div class="bout-top"><div class="bout-num">'+b.id+'</div><span class="flag f-lv">● LIVE</span><div class="bout-mat">'+b.area+'</div></div><div class="bout-body"><div class="bf"><div class="bf-name" style="color:var(--red)">'+escH(b.red.name)+'</div><div class="bf-club">'+escH(b.red.club||'')+'</div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:40px;color:var(--red);line-height:1">'+b.score.red+'</div></div><div class="vs-col"><div class="vs-txt">VS</div></div><div class="bf right"><div class="bf-name" style="color:var(--blue)">'+escH(b.blue.name)+'</div><div class="bf-club">'+escH(b.blue.club||'')+'</div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:40px;color:var(--blue);line-height:1">'+b.score.blue+'</div></div></div></div>').join('');}
 
-function renderResults(){const dn=bouts.filter(b=>b.status==='completed').slice().reverse(),el=document.getElementById('results-body'),empty=document.getElementById('results-empty');if(!dn.length){if(el)el.innerHTML='';if(empty)empty.style.display='block';}else{if(empty)empty.style.display='none';if(el)el.innerHTML=dn.map(b=>{const wname=b.winner==='draw'?'DRAW':b.winner==='red'?b.red.name:b.blue.name;return '<div style="background:var(--surf);border:1px solid var(--border);border-left:3px solid var(--green);border-radius:3px;padding:8px 12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:5px"><div style="font-family:var(--mono);font-size:8px;color:var(--gold);min-width:70px">'+escH(b.disc)+'</div><div style="font-size:10px;color:var(--muted);min-width:60px">'+b.ageGrp+'</div><div style="flex:1;min-width:140px"><span style="font-weight:'+(b.winner==='red'?700:400)+';color:'+(b.winner==='red'?'var(--text)':'var(--muted)')+'">'+escH(b.red.name)+'</span><span style="font-family:\'Bebas Neue\',sans-serif;font-size:16px;color:var(--green);margin:0 6px">'+b.score.red+'–'+b.score.blue+'</span><span style="font-weight:'+(b.winner==='blue'?700:400)+';color:'+(b.winner==='blue'?'var(--text)':'var(--muted)')+'">'+escH(b.blue.name)+'</span></div><div style="font-family:var(--mono);font-size:9px;font-weight:700;color:var(--green)">'+escH(wname)+'</div></div>';}).join('');}renderStandings();}
+function renderResults(){const dn=bouts.filter(b=>b.status==='completed').slice().reverse(),el=document.getElementById('results-body'),empty=document.getElementById('results-empty');if(!dn.length){if(el)el.innerHTML='';if(empty)empty.style.display='block';}else{if(empty)empty.style.display='none';if(el)el.innerHTML=dn.map(b=>{const wname=b.winner==='draw'?'DRAW':b.winner==='red'?b.red.name:b.blue.name;return '<div style="background:var(--surf);border:1px solid var(--border);border-left:3px solid var(--green);border-radius:3px;padding:8px 12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:5px"><div style="font-family:var(--mono);font-size:8px;color:var(--gold);min-width:70px">'+escH(b.disc)+'</div><div style="font-size:10px;color:var(--muted);min-width:60px">'+b.ageGrp+'</div><div style="flex:1;min-width:140px"><span style="font-weight:'+(b.winner==='red'?700:400)+';color:'+(b.winner==='red'?'var(--text)':'var(--muted)')+'">'+escH(b.red.name)+'</span><span style="font-family:\'Bebas Neue\',sans-serif;font-size:16px;color:var(--green);margin:0 6px">'+b.score.red+'–'+b.score.blue+'</span><span style="font-weight:'+(b.winner==='blue'?700:400)+';color:'+(b.winner==='blue'?'var(--text)':'var(--muted)')+'">'+escH(b.blue.name)+'</span></div><div style="font-family:var(--mono);font-size:9px;font-weight:700;color:var(--green)">'+escH(wname)+'</div><button class="btn btn-ghost btn-xs" style="color:var(--orange);border-color:#6a3800" data-bid="'+b.id+'" onclick="reopenBout(this.dataset.bid)">↺ REOPEN</button></div>';}).join('');}renderStandings();}
 
 window.goResultsTab=function(tab){
   ['recent','standings'].forEach(t=>{
