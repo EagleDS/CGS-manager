@@ -102,10 +102,27 @@ import { getDatabase, ref, set, onValue } from 'https://www.gstatic.com/firebase
 const params = new URLSearchParams(location.search);
 const eventId = params.get('event') || 'cgs-july-11-2026';
 
-let bouts = [], db = null;
+let bouts = [], storedRegs = {}, db = null;
 
 function escH(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function escA(s){return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;');}
+function normS(s){return String(s||'').trim().toLowerCase().replace(/[^a-z0-9]/g,' ').replace(/\s+/g,' ').trim();}
+function jaccardSim(a,b){const sa=new Set(a.split(' ').filter(x=>x.length>1));const sb=new Set(b.split(' ').filter(x=>x.length>1));if(!sa.size&&!sb.size)return 1;let inter=0;sa.forEach(w=>{if(sb.has(w))inter++;});return inter/(sa.size+sb.size-inter||1);}
+function findRegKeyByFullName(fullName){
+  if(!fullName)return null;
+  const target=normS(fullName);
+  let best=null,bestScore=0;
+  Object.entries(storedRegs).forEach(([k,a])=>{const full=((a.name||'')+' '+(a.sur||'')).trim();const s=jaccardSim(target,normS(full));if(s>bestScore){bestScore=s;best=k;}});
+  return bestScore>0.5?best:null;
+}
+function isUnpaid(fullName){
+  if(!fullName||fullName==='TBC')return false;
+  const key=findRegKeyByFullName(fullName);
+  if(!key)return false;
+  const reg=storedRegs[key];
+  if(!reg)return false;
+  return !(reg.checkin&&reg.checkin.paid);
+}
 
 function toast(msg,type='gold'){
   const t=document.getElementById('toast');
@@ -253,6 +270,8 @@ function drawBoutRow(b){
   const fightLabel=b.matFightNum?'F'+b.matFightNum:b.id;
   const hasUndo=boutHistory[b.id];
   const redDrop=buildInlineDrop(b,'red'),blueDrop=buildInlineDrop(b,'blue');
+  const redUnpaid=!isDone&&isUnpaid(b.red.name),blueUnpaid=!isDone&&isUnpaid(b.blue.name);
+  const unpaidBadge='<span style="display:inline-flex;align-items:center;justify-content:center;width:14px;height:14px;border-radius:50%;background:var(--red-bg);border:1px solid var(--red);color:var(--red);font-size:9px;font-weight:700;margin-left:4px;vertical-align:middle" title="Unpaid">$</span>';
   return '<div class="'+cls+'" id="mbr-'+b.id+'" data-bid="'+b.id+'">'
     +'<div class="draw-bout-hdr">'+(!isDone?'<div class="draw-handle">⠿</div>':'')
     +'<div class="draw-fight-num">'+fightLabel+'</div>'
@@ -261,9 +280,9 @@ function drawBoutRow(b){
     +(hasUndo?'<button class="undo-btn" data-bid="'+b.id+'" onclick="undoBout(this.dataset.bid)">↩</button>':'')
     +'</div>'
     +'<div class="draw-bout-body">'
-    +'<div><div class="draw-name" style="color:var(--red)">'+escH(b.red.name)+'</div><div class="draw-club">'+escH(b.red.club||'')+'</div><div class="draw-club">'+(b.red.age?b.red.age+'yr':'')+' '+(b.red.wt?b.red.wt+'kg':'')+'</div></div>'
+    +'<div><div class="draw-name" style="color:var(--red)">'+escH(b.red.name)+(redUnpaid?unpaidBadge:'')+'</div><div class="draw-club">'+escH(b.red.club||'')+'</div><div class="draw-club">'+(b.red.age?b.red.age+'yr':'')+' '+(b.red.wt?b.red.wt+'kg':'')+'</div></div>'
     +'<div class="draw-vs">VS</div>'
-    +'<div style="text-align:right"><div class="draw-name" style="color:var(--blue)">'+escH(b.blue.name)+'</div><div class="draw-club">'+escH(b.blue.club||'')+'</div><div class="draw-club">'+(b.blue.age?b.blue.age+'yr':'')+' '+(b.blue.wt?b.blue.wt+'kg':'')+'</div></div>'
+    +'<div style="text-align:right"><div class="draw-name" style="color:var(--blue)">'+(blueUnpaid?unpaidBadge:'')+escH(b.blue.name)+'</div><div class="draw-club">'+escH(b.blue.club||'')+'</div><div class="draw-club">'+(b.blue.age?b.blue.age+'yr':'')+' '+(b.blue.wt?b.blue.wt+'kg':'')+'</div></div>'
     +'</div>'
     +(!isDone?'<div class="draw-inline-replace"><select class="inline-sel" data-bid="'+b.id+'" data-corner="red" onchange="inlineReplace(this)">'+redDrop+'</select><select class="inline-sel" data-bid="'+b.id+'" data-corner="blue" onchange="inlineReplace(this)">'+blueDrop+'</select>'+(!isLive?'<button class="undo-btn" style="color:var(--red);border-color:#5a0000" data-bid="'+b.id+'" onclick="withdrawBout(this.dataset.bid)">WITHDRAW</button>':'')+'</div>':'')
     +'</div>';
@@ -350,6 +369,10 @@ function initFirebase(){
       if(!snap.exists())return;
       const data=snap.val();
       if(Array.isArray(data)){bouts=data;renderDraw();}
+    });
+    onValue(ref(db,`events/${eventId}/registrations`),snap=>{
+      storedRegs=snap.exists()?(snap.val()||{}):{};
+      renderDraw();
     });
   }catch(e){updateSyncDot('err');toast('Firebase connection failed','red');console.warn(e);}
 }
