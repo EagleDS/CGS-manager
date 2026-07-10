@@ -60,6 +60,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
   <div class="hdr-title">🎙 HEAD OF TABLE</div>
   <div class="live-status" id="hot-live-status"></div>
   <div class="sync-dot" id="sync-dot" title="Firebase sync"></div>
+  <a id="results-link" href="https://eagleds.co.nz/results.html" style="text-decoration:none"><button class="btn btn-ghost btn-xs">🏆 RESULTS</button></a>
 </div>
 
 <div class="tables-wrap" id="hot-tables"></div>
@@ -71,6 +72,7 @@ import { getDatabase, ref, set, onValue } from 'https://www.gstatic.com/firebase
 // ── Same event as CGS Manager. Override with ?event=your-event-id if needed. ──
 const params = new URLSearchParams(location.search);
 const eventId = params.get('event') || 'cgs-july-11-2026';
+document.getElementById('results-link').href = 'https://eagleds.co.nz/results.html?event='+encodeURIComponent(eventId);
 
 let bouts = [], db = null;
 
@@ -102,6 +104,10 @@ function getBoutsForMat(mat){
   return bouts.filter(b=>b.area===mat&&b.status==='live')
     .concat(bouts.filter(b=>b.area===mat&&b.status==='scheduled'))
     .concat(bouts.filter(b=>b.area===mat&&b.status==='paused'));
+}
+
+function getRecentCompletedForMat(mat,n){
+  return bouts.filter(b=>b.area===mat&&b.status==='completed').slice(-n).reverse();
 }
 
 function detectClashes(){
@@ -151,7 +157,20 @@ function renderHotTable(matCfg,clashes){
     html+='</div>';
   });
   if(!shown.length)html+='<div style="padding:20px 12px;font-family:var(--mono);font-size:10px;color:var(--muted);text-align:center">No upcoming fights on '+matCfg.label+'</div>';
-  return html+'</div></div>';
+  html+='</div>';
+  const recent=getRecentCompletedForMat(matCfg.area,3);
+  if(recent.length){
+    html+='<div style="padding:8px;border-top:1px solid var(--border)"><div style="font-family:var(--mono);font-size:8px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:6px">Recent Results</div>';
+    recent.forEach(b=>{
+      const wname=b.winner==='draw'?'DRAW':b.winner==='red'?b.red.name:b.blue.name;
+      html+='<div style="background:#0d0d10;border:1px solid var(--border);border-radius:3px;padding:6px 8px;margin-bottom:4px;display:flex;align-items:center;gap:6px;flex-wrap:wrap">'
+        +'<div style="flex:1;min-width:120px;font-size:10px"><span style="color:var(--muted)">'+escH(b.id)+'</span> <span style="color:var(--green);font-weight:600">'+escH(wname)+'</span> <span style="font-family:var(--mono);color:var(--muted)">'+b.score.red+'-'+b.score.blue+'</span></div>'
+        +'<button class="btn btn-ghost btn-xs" style="color:var(--orange);border-color:#6a3800" data-bid="'+b.id+'" onclick="reopenBout(this.dataset.bid)">↺ REOPEN</button>'
+        +'</div>';
+    });
+    html+='</div>';
+  }
+  return html+'</div>';
 }
 
 window.hotPlay=function(boutId,sessionId){
@@ -222,6 +241,17 @@ window.hotForceComplete=function(boutId){
     set(ref(db,`sessions/${matCfg.session}/state/boutId`),'');
     set(ref(db,`sessions/${matCfg.session}/state/matchComplete`),false);
   }
+};
+
+window.reopenBout=function(id){
+  const b=bouts.find(x=>x.id===id);if(!b)return;
+  const currentResult=b.winner==='draw'?'DRAW':b.winner==='red'?b.red.name+' won':b.blue.name+' won';
+  if(!confirm('Reopen '+b.id+' ('+b.red.name+' vs '+b.blue.name+')?\n\nCurrent recorded result: '+currentResult+' ('+b.score.red+'-'+b.score.blue+').\n\nThis clears the result and sends the bout back to scheduled on '+b.area+' so it can be re-run or re-scored.'))return;
+  b.status='scheduled';
+  b.winner=null;
+  b.score={red:0,blue:0};
+  saveBouts();renderHeadOfTable();
+  toast(b.id+' reopened — result cleared','orange');
 };
 
 function listenSessionResults(){
