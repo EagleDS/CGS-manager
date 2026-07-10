@@ -101,7 +101,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
 #marshal-view{display:none;position:fixed;inset:0;background:#060608;z-index:290;overflow-y:auto}
 #marshal-view.show{display:block}
-.marshal-hdr{background:#0a0a0d;border-bottom:2px solid var(--gold);padding:10px 14px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:10}
+.marshal-hdr{background:#0a0a0d;border-bottom:2px solid var(--gold);padding:10px 14px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:10;-webkit-transform:translateZ(0);transform:translateZ(0);-webkit-backface-visibility:hidden;backface-visibility:hidden}
 .marshal-title{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:3px;color:var(--gold);flex:1}
 .setup-card{background:var(--surf);border:1px solid var(--border);border-radius:3px;padding:16px;margin-bottom:12px;max-width:500px;margin-left:auto;margin-right:auto}
 .setup-card h2{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:var(--gold);margin-bottom:4px}
@@ -137,7 +137,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
 .rdrop{width:100%;background:#0a0a0d;border:1px solid var(--border);color:var(--text);padding:5px 8px;border-radius:2px;font-family:var(--mono);font-size:10px;-webkit-appearance:none}
 @media(max-width:480px){.g2{grid-template-columns:1fr}.g3{grid-template-columns:1fr 1fr}}
 .queue-col{background:var(--surf);border:1px solid var(--border);border-radius:3px;flex:1;min-width:220px;max-width:400px}
-.queue-col-hdr{background:#0d0d10;border-bottom:1px solid var(--border);padding:8px 12px;display:flex;align-items:center;gap:8px;position:sticky;top:48px;z-index:10}
+.queue-col-hdr{background:#0d0d10;border-bottom:1px solid var(--border);padding:8px 12px;display:flex;align-items:center;gap:8px}
 .queue-mat-name{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;color:var(--gold)}
 .queue-count{font-family:var(--mono);font-size:9px;color:var(--muted);margin-left:auto}
 .queue-list{padding:6px}
@@ -1131,6 +1131,7 @@ function listenRegs(){
     updateRegsStatus();updateRegsMatchSummary();
     if(document.getElementById('view-home')?.classList.contains('on'))renderDashboard();
     if(document.getElementById('view-pools')?.classList.contains('on'))renderPools();
+    if(document.getElementById('view-draw')?.classList.contains('on'))renderDraw();
   });
   onValue(ref(db,'events/'+eventId+'/clubMap'),snap=>{if(snap.exists()){storedClubMap=snap.val()||{};Object.assign(clubMap,storedClubMap);}});
   onValue(ref(db,'events/'+eventId+'/payments'),snap=>{appliedPayments=snap.exists()?(snap.val()||{}):{};});
@@ -1975,12 +1976,23 @@ window.renderDraw=function(){
   attachBoutDragDrop(document.getElementById('draw-mat-cols'));
 };
 
+function isUnpaid(fullName){
+  if(!fullName||fullName==='TBC')return false;
+  const key=findRegKeyByFullName(fullName);
+  if(!key)return false;
+  const reg=storedRegs[key];
+  if(!reg)return false;
+  return !(reg.checkin&&reg.checkin.paid);
+}
+
 function drawBoutRow(b){
   const isLive=b.status==='live',isDone=b.status==='completed'||b.status==='cancelled',cls='draw-bout-row'+(isLive?' live':isDone?' done':b.notes==='Age Flag'?' flagged':''),bidAttr='data-bid="'+b.id+'"';
   const flags=[];if(b.noHead)flags.push('<span class="flag f-nh">⚠</span>');if(b.notes==='Exhibition')flags.push('<span class="flag f-ex">★</span>');if(b.notes==='Age Flag')flags.push('<span class="flag f-ag">⚠AGE</span>');if(isLive)flags.push('<span class="flag f-lv">●</span>');if(isDone)flags.push('<span class="flag f-dn">✓</span>');
   const fightLabel=b.matFightNum?'F'+b.matFightNum:b.id,hasUndo=boutHistory[b.id];
   const redDrop=buildInlineDrop(b,'red'),blueDrop=buildInlineDrop(b,'blue');
-  return '<div class="'+cls+'" id="dbr-'+b.id+'" '+bidAttr+'><div class="draw-bout-hdr">'+(!isDone?'<div class="draw-handle">⠿</div>':'')+'<div class="draw-fight-num">'+fightLabel+'</div><div class="draw-disc-tag">'+escH(b.disc)+' · '+b.ageGrp+'</div>'+flags.join('')+(hasUndo?'<button class="undo-btn" data-bid="'+b.id+'" onclick="undoBout(this.dataset.bid)">↩</button>':'')+'</div><div class="draw-bout-body"><div><div class="draw-name" style="color:var(--red)">'+escH(b.red.name)+'</div><div class="draw-club">'+escH(b.red.club||'')+'</div><div class="draw-club">'+(b.red.age?b.red.age+'yr':'')+' '+(b.red.wt?b.red.wt+'kg':'')+'</div></div><div class="draw-vs">VS</div><div style="text-align:right"><div class="draw-name" style="color:var(--blue)">'+escH(b.blue.name)+'</div><div class="draw-club">'+escH(b.blue.club||'')+'</div><div class="draw-club">'+(b.blue.age?b.blue.age+'yr':'')+' '+(b.blue.wt?b.blue.wt+'kg':'')+'</div></div></div>'+(!isDone?'<div class="draw-inline-replace"><select class="inline-sel" data-bid="'+b.id+'" data-corner="red" onchange="inlineReplace(this)">'+redDrop+'</select><select class="inline-sel" data-bid="'+b.id+'" data-corner="blue" onchange="inlineReplace(this)">'+blueDrop+'</select>'+(isLive?'<button class="btn btn-red btn-xs" data-bid="'+b.id+'" onclick="openScore(this.dataset.bid)">SCORE</button>':'<button class="btn btn-gold btn-xs" data-bid="'+b.id+'" onclick="startBout(this.dataset.bid)">▶</button>')+(!isLive?'<button class="undo-btn" style="color:var(--red);border-color:#5a0000" data-bid="'+b.id+'" onclick="withdrawBout(this.dataset.bid)">WITHDRAW</button>':'')+'</div>':(b.status==='completed'?'<div class="draw-inline-replace"><span style="font-family:var(--mono);font-size:9px;color:var(--muted)">Result: '+(b.winner==='draw'?'DRAW':(b.winner==='red'?escH(b.red.name):escH(b.blue.name))+' won '+b.score.red+'-'+b.score.blue)+'</span><button class="undo-btn" style="color:var(--orange);border-color:#6a3800" data-bid="'+b.id+'" onclick="reopenBout(this.dataset.bid)">↺ REOPEN</button></div>':''))+'</div>';
+  const redUnpaid=!isDone&&isUnpaid(b.red.name),blueUnpaid=!isDone&&isUnpaid(b.blue.name);
+  const unpaidBadge='<span style="display:inline-flex;align-items:center;justify-content:center;width:14px;height:14px;border-radius:50%;background:var(--red-bg);border:1px solid var(--red);color:var(--red);font-size:9px;font-weight:700;margin-left:4px;vertical-align:middle" title="Unpaid">$</span>';
+  return '<div class="'+cls+'" id="dbr-'+b.id+'" '+bidAttr+'><div class="draw-bout-hdr">'+(!isDone?'<div class="draw-handle">⠿</div>':'')+'<div class="draw-fight-num">'+fightLabel+'</div><div class="draw-disc-tag">'+escH(b.disc)+' · '+b.ageGrp+'</div>'+flags.join('')+(hasUndo?'<button class="undo-btn" data-bid="'+b.id+'" onclick="undoBout(this.dataset.bid)">↩</button>':'')+'</div><div class="draw-bout-body"><div><div class="draw-name" style="color:var(--red)">'+escH(b.red.name)+(redUnpaid?unpaidBadge:'')+'</div><div class="draw-club">'+escH(b.red.club||'')+'</div><div class="draw-club">'+(b.red.age?b.red.age+'yr':'')+' '+(b.red.wt?b.red.wt+'kg':'')+'</div></div><div class="draw-vs">VS</div><div style="text-align:right"><div class="draw-name" style="color:var(--blue)">'+(blueUnpaid?unpaidBadge:'')+escH(b.blue.name)+'</div><div class="draw-club">'+escH(b.blue.club||'')+'</div><div class="draw-club">'+(b.blue.age?b.blue.age+'yr':'')+' '+(b.blue.wt?b.blue.wt+'kg':'')+'</div></div></div>'+(!isDone?'<div class="draw-inline-replace"><select class="inline-sel" data-bid="'+b.id+'" data-corner="red" onchange="inlineReplace(this)">'+redDrop+'</select><select class="inline-sel" data-bid="'+b.id+'" data-corner="blue" onchange="inlineReplace(this)">'+blueDrop+'</select>'+(isLive?'<button class="btn btn-red btn-xs" data-bid="'+b.id+'" onclick="openScore(this.dataset.bid)">SCORE</button>':'<button class="btn btn-gold btn-xs" data-bid="'+b.id+'" onclick="startBout(this.dataset.bid)">▶</button>')+(!isLive?'<button class="undo-btn" style="color:var(--red);border-color:#5a0000" data-bid="'+b.id+'" onclick="withdrawBout(this.dataset.bid)">WITHDRAW</button>':'')+'</div>':(b.status==='completed'?'<div class="draw-inline-replace"><span style="font-family:var(--mono);font-size:9px;color:var(--muted)">Result: '+(b.winner==='draw'?'DRAW':(b.winner==='red'?escH(b.red.name):escH(b.blue.name))+' won '+b.score.red+'-'+b.score.blue)+'</span><button class="undo-btn" style="color:var(--orange);border-color:#6a3800" data-bid="'+b.id+'" onclick="reopenBout(this.dataset.bid)">↺ REOPEN</button></div>':''))+'</div>';
 }
 
 function buildInlineDrop(b,corner){const current=b[corner],other=corner==='red'?b.blue:b.red,pool=bouts.filter(x=>x.disc===b.disc&&x.div===b.div&&x.id!==b.id&&x.status!=='completed').flatMap(x=>[{name:x.red.name,club:x.red.club||'',age:x.red.age||0,weight:x.red.wt||0},{name:x.blue.name,club:x.blue.club||'',age:x.blue.age||0,weight:x.blue.wt||0}]).filter((f,i,a)=>a.findIndex(x=>x.name===f.name)===i&&f.name!==current.name&&f.name!=='TBC');pool.sort((a,x)=>Math.abs(a.weight-(other.wt||0))-Math.abs(x.weight-(other.wt||0)));const label='— '+(current.name||'TBC')+' —',opts=pool.slice(0,12).map(f=>{const val=encodeURIComponent(f.name)+'|'+encodeURIComponent(f.club)+'|'+f.age+'|'+f.weight;return '<option value="'+val+'">'+escH(f.name)+' · '+escH(f.club)+'</option>';}).join('');return '<option value="">'+escH(label)+'</option>'+opts+'<option value="__manual__">✎ Manual…</option>';}
@@ -2385,4 +2397,3 @@ window.goStep=function(n){_origGoStep(n);if(n===2)renderClubs();};
 </script>
 </body>
 </html>
-
