@@ -1099,6 +1099,7 @@ function normStyle(s){const u=s.trim().toUpperCase();return STYLE_NORM[u]||s.tri
 function ageGroup(age){if(!age||age<=0)return 'Adult';if(age<=12)return 'Under 12';if(age<=17)return '13-17';return 'Adult';}
 function validAgePair(a1,a2){if(!a1||!a2)return true;if((a1<=12&&a2>=13)||(a2<=12&&a1>=13))return false;if(a1>=18&&a2>=18)return true;if(a1>=13&&a2>=13)return Math.abs(a1-a2)<=4;if(a1<=12&&a2<=12)return true;return false;}
 function jaccardSim(a,b){const sa=new Set(a.split(' ').filter(x=>x.length>1));const sb=new Set(b.split(' ').filter(x=>x.length>1));if(!sa.size&&!sb.size)return 1;let inter=0;sa.forEach(w=>{if(sb.has(w))inter++;});return inter/(sa.size+sb.size-inter||1);}
+function ckey(s){return String(s||'').replace(/[.#$\/\[\]]/g,'_');}
 function fuzzyMatch(raw,list){const r=normS(raw);let best=null,bestScore=0;list.forEach(c=>{const s=jaccardSim(r,normS(c));if(s>bestScore){bestScore=s;best=c;}});return bestScore>0.35?best:null;}
 const _clubIdx={};let _clubIdxN=0;
 function clubIdx(raw){if(_clubIdx[raw]===undefined)_clubIdx[raw]=_clubIdxN++;return _clubIdx[raw];}
@@ -1137,9 +1138,9 @@ function listenRegs(){
   onValue(ref(db,'events/'+eventId+'/payments'),snap=>{appliedPayments=snap.exists()?(snap.val()||{}):{};});
 }
 
-function saveRegsToFirebase(){if(!db)return;set(ref(db,'events/'+eventId+'/registrations'),storedRegs).catch(e=>console.warn('Regs save failed:',e));}
-function saveClubMapToFirebase(){if(!db)return;set(ref(db,'events/'+eventId+'/clubMap'),storedClubMap).catch(e=>console.warn('ClubMap save failed:',e));}
-function saveAppliedPayments(){if(!db)return;set(ref(db,'events/'+eventId+'/payments'),appliedPayments).catch(e=>console.warn('Payments save failed:',e));}
+function saveRegsToFirebase(){if(!db)return;try{set(ref(db,'events/'+eventId+'/registrations'),storedRegs).catch(e=>console.warn('Regs save failed:',e));}catch(e){console.warn('Regs save failed (sync):',e);toast('Save error — check club/name for unusual characters','red');}}
+function saveClubMapToFirebase(){if(!db)return;try{set(ref(db,'events/'+eventId+'/clubMap'),storedClubMap).catch(e=>console.warn('ClubMap save failed:',e));}catch(e){console.warn('ClubMap save failed (sync):',e);toast('Save error — check club/name for unusual characters','red');}}
+function saveAppliedPayments(){if(!db)return;try{set(ref(db,'events/'+eventId+'/payments'),appliedPayments).catch(e=>console.warn('Payments save failed:',e));}catch(e){console.warn('Payments save failed (sync):',e);toast('Save error','red');}}
 function regsDedupeKey(a){return ((a.name||'')+(a.sur||'')+(a.gender||'')).toLowerCase().replace(/\s/g,'');}
 
 function updateRegsStatus(){
@@ -1165,8 +1166,8 @@ window.regsProcessImport=function(){
     const name=(r[iName]||'').trim(),sur=(r[iSur]||'').trim();
     if(!name)return;
     const gender=(r[iGender]||'').trim(),weight=parseFloat(r[iWeight])||0,dob=(r[iDOB]||'').trim(),age=calcAge(dob),stylesRaw=(r[iStyles]||'').trim(),styles=stylesRaw.split(',').map(s=>s.trim().toUpperCase()).filter(s=>s),clubRaw=(iClub>-1?(r[iClub]||''):'').trim(),email=(iEmail>-1?(r[iEmail]||''):'').trim().toLowerCase();
-    let club=storedClubMap[clubRaw]||clubMap[clubRaw]||'';
-    if(!club){if(isEagle(clubRaw))club='Eagle DS';else club=fuzzyMatch(clubRaw,CANONICAL_CLUBS)||clubRaw;if(clubRaw)storedClubMap[clubRaw]=club;}
+    let club=storedClubMap[ckey(clubRaw)]||clubMap[clubRaw]||'';
+    if(!club){if(isEagle(clubRaw))club='Eagle DS';else club=fuzzyMatch(clubRaw,CANONICAL_CLUBS)||clubRaw;if(clubRaw)storedClubMap[ckey(clubRaw)]=club;}
     const key=regsDedupeKey({name,sur,gender});
     const existing=storedRegs[key];
     if(existing){
@@ -1274,15 +1275,15 @@ window.editAthleteWeight=function(key){
 window.renderRegsClubs=function(){
   const rawClubs=[...new Set(Object.values(storedRegs).map(a=>a.clubRaw).filter(c=>c))];
   if(!rawClubs.length){document.getElementById('regs-club-body').innerHTML='<div style="color:var(--muted);font-size:11px">No athletes loaded yet.</div>';return;}
-  rawClubs.forEach(raw=>{if(!storedClubMap[raw]){if(isEagle(raw))storedClubMap[raw]='Eagle DS';else storedClubMap[raw]=fuzzyMatch(raw,CANONICAL_CLUBS)||raw;}});
+  rawClubs.forEach(raw=>{if(!storedClubMap[ckey(raw)]){if(isEagle(raw))storedClubMap[ckey(raw)]='Eagle DS';else storedClubMap[ckey(raw)]=fuzzyMatch(raw,CANONICAL_CLUBS)||raw;}});
   const groups={};
-  rawClubs.forEach(raw=>{const canon=storedClubMap[raw]||raw;if(!groups[canon])groups[canon]=[];groups[canon].push(raw);});
+  rawClubs.forEach(raw=>{const canon=storedClubMap[ckey(raw)]||raw;if(!groups[canon])groups[canon]=[];groups[canon].push(raw);});
   let html='<table class="club-tbl"><thead><tr><th>RAW (from form)</th><th>CANONICAL NAME</th><th>#</th></tr></thead><tbody>';
   Object.entries(groups).sort((a,b)=>a[0].localeCompare(b[0])).forEach(([canon,raws])=>{
     raws.forEach(raw=>{
       const count=Object.values(storedRegs).filter(a=>a.clubRaw===raw).length;
       const idx=clubIdx(raw);
-      const currentVal=storedClubMap[raw]||'';
+      const currentVal=storedClubMap[ckey(raw)]||'';
       const isCustom=currentVal&&!CANONICAL_CLUBS.includes(currentVal);
       const opts=CANONICAL_CLUBS.map(c=>'<option value="'+escA(c)+'"'+(c===currentVal?' selected':'')+'>'+escH(c)+'</option>').join('');
       html+='<tr><td style="color:var(--muted);font-family:var(--mono);font-size:9px">'+escH(raw)+'</td>'
@@ -1301,13 +1302,13 @@ window.renderRegsClubs=function(){
 window.handleRegsClubSel=function(sel){
   const raw=sel.dataset.raw;if(!raw)return;
   const inp=sel.parentElement.querySelector('input[data-raw="'+raw+'"]');
-  if(sel.value==='__other__'){if(inp){inp.style.display='inline-block';inp.focus();}storedClubMap[raw]='';}
-  else{if(inp)inp.style.display='none';storedClubMap[raw]=sel.value;}
+  if(sel.value==='__other__'){if(inp){inp.style.display='inline-block';inp.focus();}storedClubMap[ckey(raw)]='';}
+  else{if(inp)inp.style.display='none';storedClubMap[ckey(raw)]=sel.value;}
 };
-window.handleRegsClubCustom=function(inp){const raw=inp.dataset.raw;if(raw)storedClubMap[raw]=inp.value;};
+window.handleRegsClubCustom=function(inp){const raw=inp.dataset.raw;if(raw)storedClubMap[ckey(raw)]=inp.value;};
 
 window.regsApplyClubs=function(){
-  Object.values(storedRegs).forEach(a=>{const resolved=storedClubMap[a.clubRaw];if(resolved)a.club=resolved;});
+  Object.values(storedRegs).forEach(a=>{const resolved=storedClubMap[ckey(a.clubRaw)];if(resolved)a.club=resolved;});
   saveRegsToFirebase();saveClubMapToFirebase();Object.assign(clubMap,storedClubMap);
   toast('Club names saved','green');renderAthleteList();
 };
