@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Registration — CGS</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#08080a;--surf:#0f0f12;--surf2:#16161a;--border:#222228;--dim:#3a3a42;
+  --text:#f0f0f4;--muted:#64646e;
+  --gold:#f0b429;--gold-dk:#c89010;--gold-bg:#120e00;
+  --red:#e03030;--red-dk:#a02020;--red-bg:#120404;
+  --green:#20b040;--green-bg:#021008;
+  --orange:#f07020;
+  --mono:'IBM Plex Mono',monospace;--sans:'IBM Plex Sans',sans-serif;
+}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13px;min-height:100vh;-webkit-tap-highlight-color:transparent}
+::-webkit-scrollbar{width:2px;height:2px}::-webkit-scrollbar-thumb{background:#333}
+.hdr{background:#0a0a0d;border-bottom:2px solid var(--gold);padding:0 14px;height:48px;box-sizing:border-box;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:10}
+.hdr-title{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:3px;color:var(--gold);flex:1}
+.sync-dot{width:7px;height:7px;border-radius:50%;background:var(--dim);flex-shrink:0;transition:background .3s}
+.sync-dot.live{background:var(--green);box-shadow:0 0 6px var(--green)}
+.sync-dot.err{background:var(--red)}
+#toast{position:fixed;top:56px;right:10px;z-index:500;font-family:var(--mono);font-size:10px;padding:7px 12px;border-radius:2px;display:none;max-width:260px;line-height:1.5}
+#toast.show{display:block}
+.body{padding:12px;max-width:640px;margin:0 auto;padding-bottom:40px}
+.nav-btn{background:none;border:none;cursor:pointer;font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:1px;padding:8px 12px;color:var(--muted);border-radius:2px 2px 0 0;white-space:nowrap;-webkit-tap-highlight-color:transparent}
+.nav-btn.on{background:var(--surf2);color:var(--text)}
+.panel{background:var(--surf);border:1px solid var(--border);border-radius:3px;padding:14px;margin-bottom:12px}
+.panel-title{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;color:var(--gold);margin-bottom:6px}
+.panel-sub{font-size:11px;color:var(--muted);line-height:1.6;margin-bottom:10px}
+.btn{border:none;cursor:pointer;font-family:var(--mono);font-weight:600;letter-spacing:.8px;border-radius:2px;padding:7px 14px;font-size:11px;transition:all .12s;-webkit-tap-highlight-color:transparent;user-select:none}
+.btn:active{transform:scale(.95)}
+.btn-gold{background:var(--gold-dk);color:#000}.btn-gold:hover{background:var(--gold)}
+.btn-green{background:#156030;color:#fff}
+.btn-ghost{background:none;border:1px solid var(--border);color:var(--muted)}.btn-ghost:hover{border-color:#555;color:var(--text)}
+.btn-sm{padding:4px 9px;font-size:10px}
+.btn-xs{padding:3px 7px;font-size:9px}
+.row-btns{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;align-items:center}
+.fld{margin-bottom:10px}
+.fld input,.fld select,.fld textarea{width:100%;background:#0a0a0d;border:1px solid var(--border);color:var(--text);padding:7px 10px;border-radius:2px;font-family:var(--mono);font-size:11px;-webkit-appearance:none}
+.fld input:focus,.fld select:focus,.fld textarea:focus{outline:none;border-color:var(--gold)}
+.fld textarea{height:100px;resize:vertical}
+.stats{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.stat{background:var(--surf);border:1px solid var(--border);border-radius:3px;padding:8px 12px;min-width:70px}
+.stat-v{font-family:'Bebas Neue',sans-serif;font-size:24px;line-height:1}
+.stat-l{font-family:var(--mono);font-size:8px;letter-spacing:1.5px;color:var(--muted);margin-top:1px}
+.checkin-btn{padding:5px 10px;font-family:var(--mono);font-size:9px;border-radius:2px;border:1px solid var(--border);background:none;color:var(--muted);cursor:pointer;-webkit-tap-highlight-color:transparent}
+.checkin-btn.checked{background:var(--green-bg);border-color:var(--green);color:var(--green)}
+.csel{background:#0a0a0d;border:1px solid var(--border);color:var(--text);padding:4px 8px;border-radius:2px;font-family:var(--mono);font-size:10px;-webkit-appearance:none}
+.csel:focus{outline:none;border-color:var(--gold)}
+.cinp{background:#0a0a0d;border:1px solid var(--border);color:var(--text);padding:4px 8px;border-radius:2px;font-family:var(--mono);font-size:10px;width:140px}
+.cinp:focus{outline:none;border-color:var(--gold)}
+</style>
+</head>
+<body>
+
+<div id="toast"></div>
+
+<div class="hdr">
+  <div class="hdr-title">🏷 REGISTRATION</div>
+  <div class="sync-dot" id="sync-dot" title="Firebase sync"></div>
+</div>
+
+<div class="body">
+  <div style="display:flex;gap:2px;margin-bottom:12px;border-bottom:1px solid var(--border);padding-bottom:0">
+    <button id="weigh-tab-checkin" class="nav-btn on" onclick="goWeighTab('checkin')">CHECK-IN</button>
+    <button id="weigh-tab-payments" class="nav-btn" onclick="goWeighTab('payments')">PAYMENTS</button>
+  </div>
+
+  <div id="weigh-panel-checkin">
+    <input id="checkin-search" class="fld" style="margin:0 0 10px 0;background:#0a0a0d;border:1px solid var(--border);color:var(--text);padding:7px 10px;border-radius:2px;font-family:var(--mono);font-size:11px;width:100%" placeholder="Search name or club…" oninput="renderCheckin()"/>
+    <div class="stats" id="checkin-stats" style="margin-bottom:10px"></div>
+    <div id="checkin-body"></div>
+    <div id="checkin-empty" class="panel" style="text-align:center;color:var(--muted);font-family:var(--mono);font-size:10px;display:none">No registrations yet.</div>
+  </div>
+
+  <div id="weigh-panel-payments" style="display:none">
+    <div class="panel">
+      <div class="panel-title">PASTE BANK STATEMENT</div>
+      <div class="panel-sub">Paste three columns: Timestamp, Full Name, Amount Paid. Owed amount is calculated automatically — $40 first style, +$20 each additional style registered. Nothing is saved until you review matches below and tap APPLY ALL CONFIRMED.</div>
+      <div class="fld"><textarea id="payments-raw" placeholder="Paste timestamp, name, amount…" style="height:120px"></textarea></div>
+      <div class="row-btns">
+        <button class="btn btn-gold" onclick="parsePayments()">MATCH →</button>
+      </div>
+    </div>
+    <div id="payments-review"></div>
+    <div id="unassigned-payments"></div>
+    <div class="panel" style="border-color:var(--gold-dk)">
+      <div class="panel-title">EXPORT OUTSTANDING TO CRM</div>
+      <div class="panel-sub">Copies Name / Email / Balance for everyone who hasn't fully paid. Paste this straight into the CRM's Import tab — tag it with this event so you can broadcast a payment reminder with open tracking.</div>
+      <div id="outstanding-summary" style="font-family:var(--mono);font-size:10px;color:var(--muted);margin-bottom:10px"></div>
+      <div class="row-btns">
+        <button class="btn btn-gold" onclick="copyOutstandingList()">📋 COPY OUTSTANDING LIST</button>
+      </div>
+    </div>
+    <div class="panel" style="border-color:var(--green)">
+      <div class="panel-title" style="color:var(--green)">EXPORT ALL ENTRANTS TO CRM</div>
+      <div class="panel-sub">Copies Name / Email for every active (non-withdrawn) registration.</div>
+      <div class="row-btns">
+        <button class="btn btn-green" onclick="copyAllRegistrationsList()">📋 COPY ALL ENTRANTS</button>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-title">PRINT REPORT</div>
+      <div class="row-btns">
+        <button class="btn btn-ghost" onclick="printPaymentReport()">🖨 PRINT PAYMENT REPORT</button>
+      </div>
+    </div>
+    <div id="payments-log"></div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp, getApps } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getDatabase, ref, set, onValue } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
+
+const params = new URLSearchParams(location.search);
+const eventId = params.get('event') || 'cgs-july-11-2026';
+
+let bouts = [], storedRegs = {}, appliedPayments = {}, db = null;
+let pendingPayments = [];
+const SPECT_ADULT=10, SPECT_KID=5;
+
+function escH(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function escA(s){return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;');}
+function normS(s){return String(s||'').trim().toLowerCase().replace(/[^a-z0-9]/g,' ').replace(/\s+/g,' ').trim();}
+function jaccardSim(a,b){const sa=new Set(a.split(' ').filter(x=>x.length>1));const sb=new Set(b.split(' ').filter(x=>x.length>1));if(!sa.size&&!sb.size)return 1;let inter=0;sa.forEach(w=>{if(sb.has(w))inter++;});return inter/(sa.size+sb.size-inter||1);}
+function detectSep(line){const tabs=(line.match(/\t/g)||[]).length;const commas=(line.match(/,/g)||[]).length;return tabs>=commas?'\t':',';}
+function parseLine(line,sep){if(sep==='\t')return line.split('\t').map(s=>s.trim());const r=[];let cur='',inQ=false;for(let i=0;i<line.length;i++){const c=line[i];if(c==='"'){inQ=!inQ;}else if(c===','&&!inQ){r.push(cur.trim());cur='';}else cur+=c;}r.push(cur.trim());return r;}
+function parseCSV(raw){const lines=raw.replace(/\r\n/g,'\n').replace(/\r/g,'\n').split('\n').filter(l=>l.trim());if(lines.length<2)return{headers:[],rows:[]};const sep=detectSep(lines[0]);return{headers:parseLine(lines[0],sep).map(h=>h.trim()),rows:lines.slice(1).map(l=>parseLine(l,sep))};}
+
+function toast(msg,type='gold'){
+  const t=document.getElementById('toast');
+  const colors={gold:['#1a1000','var(--gold)'],green:['var(--green-bg)','var(--green)'],red:['var(--red-bg)','var(--red)'],orange:['#1a0e00','var(--orange)']};
+  const[bg,bc]=colors[type]||colors.gold;
+  t.textContent=msg;t.style.background=bg;t.style.border='1px solid '+bc;t.style.color='#fff';t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2800);
+}
+window.toast=toast;
+
+function updateSyncDot(state){const d=document.getElementById('sync-dot');if(d)d.className='sync-dot '+state;}
+function dashStat(val,label,color){return '<div class="stat" style="border-top:2px solid '+color+'"><div class="stat-v" style="color:'+color+'">'+val+'</div><div class="stat-l">'+label+'</div></div>';}
+
+function saveRegsToFirebase(){if(!db)return;set(ref(db,'events/'+eventId+'/registrations'),storedRegs).catch(e=>{updateSyncDot('err');console.warn('Regs save failed:',e);});}
+function saveAppliedPayments(){if(!db)return;set(ref(db,'events/'+eventId+'/payments'),appliedPayments).catch(e=>console.warn('Payments save failed:',e));}
+
+function calcOwed(a){const n=(a.styles||[]).length;return n<=0?0:40+20*(n-1);}
+
+function findRegKeyByFullName(fullName){
+  if(!fullName)return null;
+  const target=normS(fullName);
+  let best=null,bestScore=0;
+  Object.entries(storedRegs).forEach(([k,a])=>{const full=((a.name||'')+' '+(a.sur||'')).trim();const s=jaccardSim(target,normS(full));if(s>bestScore){bestScore=s;best=k;}});
+  return bestScore>0.5?best:null;
+}
+
+window.goWeighTab=function(tab){
+  ['checkin','payments'].forEach(t=>{
+    const panel=document.getElementById('weigh-panel-'+t);
+    const btn=document.getElementById('weigh-tab-'+t);
+    if(panel)panel.style.display=t===tab?'':'none';
+    if(btn)btn.classList.toggle('on',t===tab);
+  });
+  if(tab==='checkin')renderCheckin();
+  if(tab==='payments'){renderPaymentsReview();renderOutstandingSummary();}
+};
+
+function getMatNextFightNum(mat){
+  const ms=bouts.filter(b=>b.area===mat&&(b.status==='scheduled'||b.status==='live'));
+  if(!ms.length)return null;
+  return Math.min(...ms.map(b=>b.matFightNum||999));
+}
+
+function buildArrivalWarnings(){
+  const set=new Set();
+  const active=bouts.filter(b=>b.status==='scheduled'||b.status==='live');
+  const mats=[...new Set(active.map(b=>b.area))];
+  mats.forEach(mat=>{
+    const nextNum=getMatNextFightNum(mat);
+    active.filter(b=>b.area===mat).forEach(b=>{
+      const fightsOut=(b.matFightNum||0)-(nextNum||0);
+      if(fightsOut<=3){
+        ['red','blue'].forEach(corner=>{const f=b[corner];if(!f.name||f.name==='TBC')return;const key=findRegKeyByFullName(f.name);if(key)set.add(key);});
+      }
+    });
+  });
+  return set;
+}
+
+window.renderCheckin=function(){
+  const body=document.getElementById('checkin-body'),empty=document.getElementById('checkin-empty'),statsEl=document.getElementById('checkin-stats');
+  if(!body)return;
+  const search=(document.getElementById('checkin-search')?.value||'').toLowerCase();
+  let entries=Object.entries(storedRegs).filter(([k,a])=>!a.withdrawn);
+  if(search)entries=entries.filter(([k,a])=>((a.name||'')+' '+(a.sur||'')).toLowerCase().includes(search)||(a.club||a.clubRaw||'').toLowerCase().includes(search));
+  entries.sort((a,b)=>((a[1].name||'')+(a[1].sur||'')).localeCompare((b[1].name||'')+(b[1].sur||'')));
+  if(!entries.length){body.innerHTML='';if(empty){empty.style.display='block';empty.textContent=search?'No athletes match that search.':'No registrations yet.';}if(statsEl)statsEl.innerHTML='';return;}
+  if(empty)empty.style.display='none';
+  const warnSet=buildArrivalWarnings();
+  let totalArrived=0,totalWeighed=0,totalPaid=0;
+  Object.values(storedRegs).forEach(a=>{if(a.withdrawn)return;const ci=a.checkin||{};if(ci.arrived)totalArrived++;if(ci.weighedIn)totalWeighed++;if(ci.paid)totalPaid++;});
+  let html='';
+  entries.forEach(([key,a])=>{
+    const ci=a.checkin||{arrived:false,weighedIn:false,paid:false,paidAmount:0};
+    const owed=calcOwed(a);
+    const fullName=((a.name||'')+' '+(a.sur||'')).trim();
+    const warn=warnSet.has(key)&&!ci.arrived;
+    html+='<div style="background:var(--surf);border:1px solid '+(warn?'var(--orange)':'var(--border)')+';border-radius:3px;margin-bottom:5px;padding:8px 10px">'
+      +'<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px">'
+      +'<div style="flex:1;min-width:140px"><div style="font-weight:600;font-size:13px">'+escH(fullName)+'</div>'
+      +'<div style="font-size:9px;color:var(--muted)">'+escH(a.club||a.clubRaw||'')+' · '+(a.age||'?')+'yr'+(warn?' · <span style="color:var(--orange)">⚠ fighting soon</span>':'')+'</div></div>'
+      +'<div style="font-family:var(--mono);font-size:9px;color:'+(ci.paid?'var(--green)':(ci.paidAmount||0)>0?'var(--orange)':'var(--muted)')+'">$'+(ci.paidAmount||0)+' / $'+owed+(ci.spectatorFees&&ci.spectatorFees.totalAmount?' <span style="color:var(--gold)">+$'+ci.spectatorFees.totalAmount+' spect.</span>':'')+'</div>'
+      +'</div>'
+      +'<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">'
+      +'<input class="cinp" style="width:80px" type="number" value="'+(a.weight||'')+'" placeholder="kg" data-key="'+escA(key)+'" onchange="updateCheckinWeight(this)"/>'
+      +'<button class="checkin-btn'+(ci.arrived?' checked':'')+'" data-key="'+escA(key)+'" data-field="arrived" onclick="toggleCheckinField(this)">'+(ci.arrived?'✓ ARRIVED':'PENDING')+'</button>'
+      +'<button class="checkin-btn'+(ci.weighedIn?' checked':'')+'" data-key="'+escA(key)+'" data-field="weighedIn" onclick="toggleCheckinField(this)">'+(ci.weighedIn?'✓ WEIGHED':'WEIGH-IN')+'</button>'
+      +'<button class="checkin-btn'+(ci.paid?' checked':'')+'" data-key="'+escA(key)+'" data-field="paid" onclick="toggleCheckinField(this)">'+(ci.paid?'✓ PAID':'UNPAID')+'</button>'
+      +'<button class="btn btn-ghost btn-xs" data-key="'+escA(key)+'" onclick="quickCashPaid(this)">+ CASH</button>'
+      +'</div></div>';
+  });
+  body.innerHTML=html;
+  if(statsEl)statsEl.innerHTML=dashStat(entries.length,'SHOWN','var(--gold)')+dashStat(totalArrived,'ARRIVED','var(--green)')+dashStat(totalWeighed,'WEIGHED','var(--blue)')+dashStat(totalPaid,'PAID','var(--green)');
+};
+
+window.updateCheckinWeight=function(inp){
+  const key=inp.dataset.key,val=parseFloat(inp.value);
+  if(!storedRegs[key])return;
+  if(!val||val<10||val>200){toast('Invalid weight','red');inp.value=storedRegs[key].weight||'';return;}
+  storedRegs[key].weight=val;saveRegsToFirebase();
+  toast('Weight updated','green');
+};
+
+window.quickCashPaid=function(btn){
+  const key=btn.dataset.key;
+  if(!storedRegs[key])return;
+  const owed=calcOwed(storedRegs[key]);
+  const amt=prompt('Cash amount received:',owed);
+  if(amt===null)return;
+  const parsed=parseFloat(amt);
+  if(isNaN(parsed)||parsed<0){toast('Invalid amount','red');return;}
+  if(!storedRegs[key].checkin)storedRegs[key].checkin={arrived:false,weighedIn:false,paid:false,paidAmount:0};
+  storedRegs[key].checkin.paidAmount=(storedRegs[key].checkin.paidAmount||0)+parsed;
+  storedRegs[key].checkin.paid=storedRegs[key].checkin.paidAmount>=owed;
+  saveRegsToFirebase();renderCheckin();
+  toast('$'+parsed+' recorded','green');
+};
+
+window.toggleCheckinField=function(btn){
+  const key=btn.dataset.key,field=btn.dataset.field;
+  if(!key){toast('No registration match — cannot check in','red');return;}
+  if(!storedRegs[key])return;
+  if(!storedRegs[key].checkin)storedRegs[key].checkin={arrived:false,weighedIn:false,paid:false,paidAmount:0};
+  storedRegs[key].checkin[field]=!storedRegs[key].checkin[field];
+  saveRegsToFirebase();renderCheckin();
+};
+
+function paymentTxKey(timestamp,fullName,amount){return normS(timestamp)+'|'+normS(fullName)+'|'+amount;}
+function spectAmt(a){return (parseInt(a.spectAdults)||0)*SPECT_ADULT+(parseInt(a.spectKids)||0)*SPECT_KID;}
+
+window.parsePayments=function(){
+  const raw=document.getElementById('payments-raw').value.trim();
+  if(!raw){toast('Nothing pasted','red');return;}
+  const {headers,rows}=parseCSV(raw);
+  const looksLikeHeader=headers.length===3&&!/\d/.test(headers.join(''));
+  const allRows=looksLikeHeader?rows:[headers,...rows];
+  pendingPayments=[];
+  allRows.forEach(r=>{
+    if(r.length<3)return;
+    const timestamp=(r[0]||'').trim(),fullName=(r[1]||'').trim(),amountRaw=r[2]||'';
+    if(!fullName)return;
+    const amountPaid=parseFloat(String(amountRaw).replace(/[^0-9.]/g,''))||0;
+    const txKey=paymentTxKey(timestamp,fullName,amountPaid);
+    const already=!!appliedPayments[txKey];
+    const key=findRegKeyByFullName(fullName);
+    pendingPayments.push({timestamp,fullName,amountPaid,txKey,already,allocations:[{key:key||'__unassigned__',amount:amountPaid,spectAdults:0,spectKids:0,unassignedName:key?'':fullName}]});
+  });
+  renderPaymentsReview();
+  const newCount=pendingPayments.filter(p=>!p.already).length,seenCount=pendingPayments.length-newCount;
+  toast(newCount+' new · '+seenCount+' already imported — review below','gold');
+};
+
+function renderPaymentsReview(){
+  const el=document.getElementById('payments-review');
+  if(!el)return;
+  renderOutstandingSummary();
+  if(!pendingPayments.length){el.innerHTML='';renderUnassignedPayments();renderPaymentsLog();return;}
+  let html='<div class="panel"><div class="panel-title">REVIEW MATCHES</div><div class="panel-sub">Nothing is saved until you tap APPLY ALL CONFIRMED. Split a payment across multiple athletes if one parent paid for several kids at once.</div>';
+  pendingPayments.forEach((p,i)=>{
+    if(p.already){
+      html+='<div style="background:var(--surf2);border:1px solid var(--border);border-radius:3px;padding:8px 10px;margin-bottom:6px;opacity:.55">'
+        +'<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">'
+        +'<div style="flex:1"><div style="font-weight:600;font-size:12px">'+escH(p.fullName)+'</div><div style="font-family:var(--mono);font-size:9px;color:var(--muted)">'+escH(p.timestamp)+' · $'+p.amountPaid+'</div></div>'
+        +'<span style="font-family:var(--mono);font-size:9px;color:var(--muted)">ALREADY IMPORTED</span>'
+        +'</div></div>';
+      return;
+    }
+    const allocTotal=p.allocations.reduce((s,a)=>s+(parseFloat(a.amount)||0)+spectAmt(a),0);
+    const mismatch=Math.abs(allocTotal-p.amountPaid)>0.01;
+    html+='<div style="background:var(--surf2);border:1px solid '+(mismatch?'var(--orange)':'var(--border)')+';border-radius:3px;padding:8px 10px;margin-bottom:6px">'
+      +'<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px">'
+      +'<div style="flex:1"><div style="font-weight:600;font-size:12px">'+escH(p.fullName)+'</div><div style="font-family:var(--mono);font-size:9px;color:var(--muted)">'+escH(p.timestamp)+' · transaction $'+p.amountPaid+'</div></div>'
+      +'<span style="font-family:var(--mono);font-size:9px;color:'+(mismatch?'var(--orange)':'var(--green)')+'">'+(mismatch?'⚠ ALLOCATED $'+allocTotal.toFixed(0)+' / $'+p.amountPaid:'✓ FULLY ALLOCATED')+'</span>'
+      +'</div>';
+    p.allocations.forEach((a,ai)=>{
+      const opts=Object.entries(storedRegs).map(([k,reg])=>{const full=((reg.name||'')+' '+(reg.sur||'')).trim();return '<option value="'+escA(k)+'"'+(k===a.key?' selected':'')+'>'+escH(full)+' · '+escH(reg.club||'')+'</option>';}).join('');
+      const reg=a.key&&a.key!=='__unassigned__'?storedRegs[a.key]:null;
+      html+='<div style="background:var(--surf);border:1px solid '+(a.key==='__unassigned__'?'var(--orange)':'var(--border)')+';border-radius:2px;padding:6px 8px;margin-bottom:5px">'
+        +'<div style="display:flex;gap:5px;flex-wrap:wrap;align-items:center;margin-bottom:5px">'
+        +'<select class="csel" style="flex:1;min-width:140px" data-idx="'+i+'" data-aidx="'+ai+'" data-field="key" onchange="updateAllocation(this)"><option value="">— select athlete —</option>'+opts+'<option value="__unassigned__"'+(a.key==='__unassigned__'?' selected':'')+'>⚠ not registered yet</option></select>'
+        +'<input class="cinp" style="width:70px" type="number" value="'+a.amount+'" placeholder="$" data-idx="'+i+'" data-aidx="'+ai+'" data-field="amount" onchange="updateAllocation(this)"/>'
+        +(p.allocations.length>1?'<button class="btn btn-ghost btn-xs" style="color:var(--red)" data-idx="'+i+'" data-aidx="'+ai+'" onclick="removeAllocationRow(this)">✕</button>':'')
+        +'</div>'
+        +(reg?'<div style="font-family:var(--mono);font-size:9px;color:var(--muted);margin-bottom:4px">owes $'+calcOwed(reg)+' competition fee</div>':'')
+        +(a.key==='__unassigned__'?'<input class="cinp" style="width:100%;margin-bottom:4px" placeholder="name" value="'+escA(a.unassignedName||'')+'" data-idx="'+i+'" data-aidx="'+ai+'" data-field="unassignedName" onchange="updateAllocation(this)"/>':'')
+        +'<div style="display:flex;gap:5px;align-items:center;font-family:var(--mono);font-size:9px;color:var(--muted)">'
+        +'SPECTATORS: adults <input class="cinp" style="width:40px" type="number" min="0" value="'+(a.spectAdults||0)+'" data-idx="'+i+'" data-aidx="'+ai+'" data-field="spectAdults" onchange="updateAllocation(this)"/>'
+        +' kids <input class="cinp" style="width:40px" type="number" min="0" value="'+(a.spectKids||0)+'" data-idx="'+i+'" data-aidx="'+ai+'" data-field="spectKids" onchange="updateAllocation(this)"/>'
+        +(spectAmt(a)>0?' <span style="color:var(--gold)">+$'+spectAmt(a)+'</span>':'')
+        +'</div>'
+        +'</div>';
+    });
+    html+='<button class="btn btn-ghost btn-xs" data-idx="'+i+'" onclick="addAllocationRow(this)">+ SPLIT TO ANOTHER ATHLETE</button>'+'</div>';
+  });
+  html+='<div class="row-btns"><button class="btn btn-gold" onclick="applyAllConfirmedPayments()">APPLY ALL CONFIRMED</button><button class="btn btn-ghost btn-sm" onclick="pendingPayments=[];renderPaymentsReview();">✕ DISCARD</button></div></div>';
+  el.innerHTML=html;
+  renderUnassignedPayments();renderPaymentsLog();
+}
+
+window.updateAllocation=function(inp){
+  const idx=parseInt(inp.dataset.idx),aidx=parseInt(inp.dataset.aidx),field=inp.dataset.field,p=pendingPayments[idx];
+  if(!p||!p.allocations[aidx])return;
+  p.allocations[aidx][field]=(field==='key'||field==='unassignedName')?inp.value:(parseFloat(inp.value)||0);
+  renderPaymentsReview();
+};
+window.addAllocationRow=function(btn){
+  const idx=parseInt(btn.dataset.idx),p=pendingPayments[idx];
+  if(!p)return;
+  p.allocations.push({key:'',amount:0,spectAdults:0,spectKids:0});
+  renderPaymentsReview();
+};
+window.removeAllocationRow=function(btn){
+  const idx=parseInt(btn.dataset.idx),aidx=parseInt(btn.dataset.aidx),p=pendingPayments[idx];
+  if(!p)return;
+  p.allocations.splice(aidx,1);
+  renderPaymentsReview();
+};
+
+window.applyAllConfirmedPayments=function(){
+  let applied=0,skippedAlready=0,skippedInvalid=0,trackedUnassigned=0;
+  pendingPayments.forEach(p=>{
+    if(p.already){skippedAlready++;return;}
+    const matchedAllocs=p.allocations.filter(a=>a.key&&a.key!=='__unassigned__'&&storedRegs[a.key]);
+    const unassignedAllocs=p.allocations.filter(a=>a.key==='__unassigned__'&&((parseFloat(a.amount)||0)>0||spectAmt(a)>0));
+    if(!matchedAllocs.length&&!unassignedAllocs.length){skippedInvalid++;return;}
+    matchedAllocs.forEach(a=>{
+      const reg=storedRegs[a.key];
+      if(!reg.checkin)reg.checkin={arrived:false,weighedIn:false,paid:false,paidAmount:0};
+      if(!reg.checkin.spectatorFees)reg.checkin.spectatorFees={totalAmount:0,entries:[]};
+      reg.checkin.paidAmount=(reg.checkin.paidAmount||0)+(parseFloat(a.amount)||0);
+      reg.checkin.paid=reg.checkin.paidAmount>=calcOwed(reg);
+      reg.checkin.lastPaymentTimestamp=p.timestamp;
+      const sa=spectAmt(a);
+      if(sa>0){reg.checkin.spectatorFees.totalAmount=(reg.checkin.spectatorFees.totalAmount||0)+sa;reg.checkin.spectatorFees.entries.push({timestamp:p.timestamp,adults:parseInt(a.spectAdults)||0,kids:parseInt(a.spectKids)||0,amount:sa});}
+    });
+    if(unassignedAllocs.length)trackedUnassigned+=unassignedAllocs.length;
+    appliedPayments[p.txKey]={timestamp:p.timestamp,fullName:p.fullName,amount:p.amountPaid,allocations:[
+      ...matchedAllocs.map(a=>({key:a.key,amount:parseFloat(a.amount)||0,spectAdults:parseInt(a.spectAdults)||0,spectKids:parseInt(a.spectKids)||0})),
+      ...unassignedAllocs.map(a=>({key:'__unassigned__',unassignedName:a.unassignedName||p.fullName,amount:parseFloat(a.amount)||0,spectAdults:parseInt(a.spectAdults)||0,spectKids:parseInt(a.spectKids)||0}))
+    ]};
+    applied++;
+  });
+  saveRegsToFirebase();saveAppliedPayments();
+  pendingPayments=[];
+  const rawEl=document.getElementById('payments-raw');if(rawEl)rawEl.value='';
+  renderPaymentsReview();
+  toast(applied+' new payments applied'+(trackedUnassigned?' · '+trackedUnassigned+' tracked as unassigned':'')+(skippedAlready?' · '+skippedAlready+' already imported':'')+(skippedInvalid?' · '+skippedInvalid+' skipped':''),'green');
+  renderCheckin();
+};
+
+function getUnassignedList(){
+  const list=[];
+  Object.entries(appliedPayments).forEach(([txKey,rec])=>{
+    (rec.allocations||[]).forEach((a,ai)=>{if(a.key==='__unassigned__')list.push({txKey,allocIdx:ai,name:a.unassignedName||rec.fullName,amount:a.amount,spectAdults:a.spectAdults,spectKids:a.spectKids,timestamp:rec.timestamp});});
+  });
+  return list;
+}
+
+function renderUnassignedPayments(){
+  const el=document.getElementById('unassigned-payments');
+  if(!el)return;
+  const list=getUnassignedList();
+  if(!list.length){el.innerHTML='';return;}
+  const total=list.reduce((s,x)=>s+(parseFloat(x.amount)||0)+(x.spectAdults||0)*SPECT_ADULT+(x.spectKids||0)*SPECT_KID,0);
+  let html='<div class="panel" style="border-color:var(--orange)"><div class="panel-title" style="color:var(--orange)">⚠ UNASSIGNED PAYMENTS — '+list.length+' · $'+total.toFixed(0)+'</div><div class="panel-sub">Paid but registration not completed yet.</div>';
+  list.forEach(u=>{
+    const opts=Object.entries(storedRegs).map(([k,reg])=>{const full=((reg.name||'')+' '+(reg.sur||'')).trim();return '<option value="'+escA(k)+'">'+escH(full)+' · '+escH(reg.club||'')+'</option>';}).join('');
+    html+='<div style="background:var(--surf2);border:1px solid var(--border);border-radius:3px;padding:8px 10px;margin-bottom:6px">'
+      +'<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:6px">'
+      +'<div style="flex:1"><div style="font-weight:600;font-size:12px">'+escH(u.name)+'</div><div style="font-family:var(--mono);font-size:9px;color:var(--muted)">'+escH(u.timestamp)+' · $'+u.amount+'</div></div>'
+      +'</div>'
+      +'<select class="csel" style="width:100%" data-txkey="'+escA(u.txKey)+'" data-allocidx="'+u.allocIdx+'" onchange="assignUnassignedPayment(this)"><option value="">— assign to athlete —</option>'+opts+'</select>'
+      +'</div>';
+  });
+  html+='</div>';
+  el.innerHTML=html;
+}
+
+window.assignUnassignedPayment=function(sel){
+  const txKey=sel.dataset.txkey,allocIdx=parseInt(sel.dataset.allocidx),athleteKey=sel.value;
+  if(!athleteKey)return;
+  const rec=appliedPayments[txKey];if(!rec)return;
+  const alloc=rec.allocations[allocIdx];if(!alloc)return;
+  const reg=storedRegs[athleteKey];if(!reg){toast('Athlete not found','red');return;}
+  if(!reg.checkin)reg.checkin={arrived:false,weighedIn:false,paid:false,paidAmount:0};
+  if(!reg.checkin.spectatorFees)reg.checkin.spectatorFees={totalAmount:0,entries:[]};
+  reg.checkin.paidAmount=(reg.checkin.paidAmount||0)+(parseFloat(alloc.amount)||0);
+  reg.checkin.paid=reg.checkin.paidAmount>=calcOwed(reg);
+  const sa=spectAmt(alloc);
+  if(sa>0){reg.checkin.spectatorFees.totalAmount=(reg.checkin.spectatorFees.totalAmount||0)+sa;reg.checkin.spectatorFees.entries.push({timestamp:rec.timestamp,adults:parseInt(alloc.spectAdults)||0,kids:parseInt(alloc.spectKids)||0,amount:sa});}
+  alloc.key=athleteKey;
+  saveRegsToFirebase();saveAppliedPayments();renderUnassignedPayments();renderPaymentsLog();
+  renderCheckin();
+  toast('Assigned $'+alloc.amount+' to '+((reg.name||'')+' '+(reg.sur||'')).trim(),'green');
+};
+
+function renderPaymentsLog(){
+  const el=document.getElementById('payments-log');
+  if(!el)return;
+  const entries=Object.entries(appliedPayments);
+  if(!entries.length){el.innerHTML='<div class="panel" style="text-align:center;color:var(--muted);font-family:var(--mono);font-size:10px">No payments recorded yet.</div>';return;}
+  entries.sort((a,b)=>(b[1].timestamp||'').localeCompare(a[1].timestamp||''));
+  let html='<div class="panel"><div class="panel-title">PAYMENT LOG</div><div class="panel-sub">Edit reopens it above for correction. Delete removes it and reverses the amounts.</div>';
+  entries.forEach(([txKey,rec])=>{
+    const allocs=rec.allocations||[];
+    html+='<div style="background:var(--surf2);border:1px solid var(--border);border-radius:3px;padding:8px 10px;margin-bottom:6px">'
+      +'<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:4px">'
+      +'<div style="flex:1"><div style="font-weight:600;font-size:12px">'+escH(rec.fullName)+'</div><div style="font-family:var(--mono);font-size:9px;color:var(--muted)">'+escH(rec.timestamp)+' · $'+rec.amount+'</div></div>'
+      +'<button class="btn btn-ghost btn-xs" data-txkey="'+escA(txKey)+'" onclick="editAppliedPayment(this)">EDIT</button>'
+      +'<button class="btn btn-ghost btn-xs" style="color:var(--red)" data-txkey="'+escA(txKey)+'" onclick="deleteAppliedPayment(this)">DELETE</button>'
+      +'</div>';
+    allocs.forEach(a=>{
+      const isUnassigned=a.key==='__unassigned__';
+      const reg=(a.key&&!isUnassigned)?storedRegs[a.key]:null;
+      const full=isUnassigned?'⚠ UNASSIGNED — '+(a.unassignedName||''):(reg?((reg.name||'')+' '+(reg.sur||'')).trim():'(unmatched)');
+      const sa=spectAmt(a);
+      html+='<div style="font-family:var(--mono);font-size:9px;color:'+(isUnassigned?'var(--orange)':'var(--muted)')+';padding-left:4px">→ '+escH(full)+': $'+a.amount+(sa?' + $'+sa+' spectator':'')+'</div>';
+    });
+    html+='</div>';
+  });
+  el.innerHTML=html+'</div>';
+}
+
+function reverseAppliedPayment(txKey){
+  const rec=appliedPayments[txKey];
+  if(!rec)return null;
+  (rec.allocations||[]).forEach(a=>{
+    const reg=a.key?storedRegs[a.key]:null;
+    if(!reg)return;
+    if(!reg.checkin)reg.checkin={arrived:false,weighedIn:false,paid:false,paidAmount:0};
+    reg.checkin.paidAmount=Math.max(0,(reg.checkin.paidAmount||0)-(a.amount||0));
+    reg.checkin.paid=reg.checkin.paidAmount>=calcOwed(reg);
+    const sa=spectAmt(a);
+    if(sa>0&&reg.checkin.spectatorFees){
+      reg.checkin.spectatorFees.totalAmount=Math.max(0,(reg.checkin.spectatorFees.totalAmount||0)-sa);
+      const ei=reg.checkin.spectatorFees.entries.findIndex(e=>e.timestamp===rec.timestamp&&e.amount===sa&&e.adults===(a.spectAdults||0)&&e.kids===(a.spectKids||0));
+      if(ei>-1)reg.checkin.spectatorFees.entries.splice(ei,1);
+    }
+  });
+  delete appliedPayments[txKey];
+  return rec;
+}
+
+window.editAppliedPayment=function(btn){
+  const txKey=btn.dataset.txkey,rec=reverseAppliedPayment(txKey);
+  if(!rec)return;
+  saveRegsToFirebase();saveAppliedPayments();
+  pendingPayments.push({timestamp:rec.timestamp,fullName:rec.fullName,amountPaid:rec.amount,txKey,already:false,allocations:(rec.allocations||[{key:'',amount:rec.amount,spectAdults:0,spectKids:0}]).map(a=>({...a}))});
+  renderPaymentsReview();
+  renderCheckin();
+  toast('Reopened for editing above','gold');
+};
+
+window.deleteAppliedPayment=function(btn){
+  if(!confirm('Delete this payment record permanently? This reverses the amounts.'))return;
+  const txKey=btn.dataset.txkey,rec=reverseAppliedPayment(txKey);
+  if(!rec)return;
+  saveRegsToFirebase();saveAppliedPayments();renderPaymentsLog();
+  renderCheckin();
+  toast('Payment deleted','red');
+};
+
+function renderOutstandingSummary(){
+  const el=document.getElementById('outstanding-summary');
+  if(!el)return;
+  const list=getOutstandingList();
+  if(!list.length){el.innerHTML='<span style="color:var(--green)">✓ Everyone registered has paid in full.</span>';return;}
+  const total=list.reduce((s,x)=>s+x.balance,0);
+  const noEmail=list.filter(x=>!x.email).length;
+  el.innerHTML='<span style="color:var(--orange)">'+list.length+' outstanding</span> · <span style="color:var(--orange)">$'+total.toFixed(0)+' owing</span>'+(noEmail?' · <span style="color:var(--red)">⚠ '+noEmail+' missing email</span>':'');
+}
+
+function getOutstandingList(){
+  return Object.values(storedRegs).filter(a=>!a.withdrawn).map(a=>{const owed=calcOwed(a),paid=(a.checkin&&a.checkin.paidAmount)||0;return {name:((a.name||'')+' '+(a.sur||'')).trim(),email:a.email||'',balance:owed-paid};}).filter(x=>x.balance>0.01);
+}
+
+window.copyOutstandingList=function(){
+  const list=getOutstandingList();
+  if(!list.length){toast('Nobody is outstanding','green');return;}
+  const missing=list.filter(x=>!x.email).length;
+  const rows=['Name\tEmail\tBalance'].concat(list.map(x=>x.name+'\t'+x.email+'\t'+x.balance.toFixed(2)));
+  const text=rows.join('\n');
+  navigator.clipboard.writeText(text).then(()=>{toast('Copied '+list.length+' outstanding'+(missing?' · '+missing+' missing email':''),'gold');}).catch(()=>{toast('Copy failed — select and copy manually','red');});
+};
+
+function getAllActiveRegistrationsList(){return Object.values(storedRegs).filter(a=>!a.withdrawn).map(a=>{return {name:((a.name||'')+' '+(a.sur||'')).trim(),email:a.email||''};});}
+
+window.copyAllRegistrationsList=function(){
+  const list=getAllActiveRegistrationsList();
+  if(!list.length){toast('No registrations yet','red');return;}
+  const missing=list.filter(x=>!x.email).length;
+  const rows=['Name\tEmail'].concat(list.map(x=>x.name+'\t'+x.email));
+  const text=rows.join('\n');
+  navigator.clipboard.writeText(text).then(()=>{toast('Copied '+list.length+' registrations'+(missing?' · '+missing+' missing email':''),'gold');}).catch(()=>{toast('Copy failed — select and copy manually','red');});
+};
+
+window.printPaymentReport=function(){
+  const activeRegs=Object.values(storedRegs).filter(a=>!a.withdrawn);
+  if(!activeRegs.length){toast('No registrations yet','red');return;}
+  let totalOwed=0,totalPaid=0,totalSpect=0;
+  const rows=activeRegs.map(a=>{const owed=calcOwed(a),paid=(a.checkin&&a.checkin.paidAmount)||0,spect=(a.checkin&&a.checkin.spectatorFees&&a.checkin.spectatorFees.totalAmount)||0;totalOwed+=owed;totalPaid+=paid;totalSpect+=spect;return {name:((a.name||'')+' '+(a.sur||'')).trim(),club:a.club||a.clubRaw||'',owed,paid,spect,balance:owed-paid};}).sort((a,b)=>a.club.localeCompare(b.club)||a.name.localeCompare(b.name));
+  const outstanding=Math.max(0,totalOwed-totalPaid);
+  let html='<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Payment Report — '+escH(eventId)+'</title>'
+    +'<style>body{font-family:Arial,sans-serif;padding:24px;color:#111}h1{font-size:18px;margin-bottom:2px}h2{font-size:12px;color:#555;margin-bottom:16px;font-weight:normal}table{width:100%;border-collapse:collapse;font-size:12px}th,td{padding:6px 8px;border-bottom:1px solid #ccc;text-align:left}th{background:#f0f0f0;font-size:10px;letter-spacing:1px;text-transform:uppercase}.num{text-align:right}.bal-owe{color:#c0392b;font-weight:600}.bal-ok{color:#27ae60}.summary{margin:16px 0;font-size:13px}.summary b{font-size:15px}@media print{.no-print{display:none}}</style></head><body>'
+    +'<button class="no-print" onclick="window.print()" style="margin-bottom:14px;padding:8px 16px;cursor:pointer">PRINT / SAVE PDF</button>'
+    +'<h1>Eagle DS Combat Games Series — Payment Report</h1>'
+    +'<h2>'+escH(eventId)+' · Generated '+new Date().toLocaleString()+'</h2>'
+    +'<div class="summary"><b>$'+totalPaid.toFixed(2)+'</b> collected of <b>$'+totalOwed.toFixed(2)+'</b> owed'+(totalSpect?' · <b>$'+totalSpect.toFixed(2)+'</b> spectator fees':'')+' — <b style="color:'+(outstanding>0?'#c0392b':'#27ae60')+'">$'+outstanding.toFixed(2)+' outstanding</b></div>'
+    +'<table><thead><tr><th>Name</th><th>Club</th><th class="num">Owed</th><th class="num">Paid</th><th class="num">Spectator</th><th class="num">Balance</th></tr></thead><tbody>';
+  rows.forEach(r=>{html+='<tr><td>'+escH(r.name)+'</td><td>'+escH(r.club)+'</td><td class="num">$'+r.owed.toFixed(2)+'</td><td class="num">$'+r.paid.toFixed(2)+'</td><td class="num">'+(r.spect?'$'+r.spect.toFixed(2):'—')+'</td><td class="num '+(r.balance>0?'bal-owe':'bal-ok')+'">'+(r.balance>0?'$'+r.balance.toFixed(2)+' owing':'paid')+'</td></tr>';});
+  html+='</tbody></table></body></html>';
+  const w=window.open('','_blank');
+  if(!w){toast('Pop-up blocked — allow pop-ups to print','red');return;}
+  w.document.write(html);w.document.close();
+};
+
+function initFirebase(){
+  const cfg={
+    apiKey:"AIzaSyDKqodxFjM0EG_qu4zkCAQ37udwYTdSSQY",
+    authDomain:"cgs-manager.firebaseapp.com",
+    databaseURL:"https://cgs-manager-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId:"cgs-manager",
+    storageBucket:"cgs-manager.firebasestorage.app",
+    messagingSenderId:"928662574013",
+    appId:"1:928662574013:web:be540e308d022d28f678d4"
+  };
+  try{
+    const existing=getApps().find(a=>a.name==='cgs-reg');
+    const app=existing||initializeApp(cfg,'cgs-reg');
+    db=getDatabase(app);
+    updateSyncDot('live');
+    onValue(ref(db,'events/'+eventId+'/registrations'),snap=>{
+      storedRegs=snap.exists()?(snap.val()||{}):{};
+      if(document.getElementById('weigh-panel-checkin').style.display!=='none')renderCheckin();
+    });
+    onValue(ref(db,'events/'+eventId+'/payments'),snap=>{appliedPayments=snap.exists()?(snap.val()||{}):{};});
+    onValue(ref(db,'events/'+eventId+'/bouts'),snap=>{
+      if(!snap.exists())return;
+      const data=snap.val();
+      if(Array.isArray(data))bouts=data;
+    });
+  }catch(e){updateSyncDot('err');toast('Firebase connection failed','red');console.warn(e);}
+}
+
+initFirebase();
+</script>
+</body>
+</html>
