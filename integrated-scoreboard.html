@@ -660,6 +660,26 @@ function calcCard(r,b,lastSide){
 }
 function mkHash(c){return "#"+Object.entries(c).map(([k,v])=>`${k}=${encodeURIComponent(v)}`).join("&");}
 
+// ── FIGHT WINNER POLICY ────────────────────────────────────────────────────
+// The fight winner is whoever has the higher TOTAL POINTS summed across all
+// completed rounds. The final round is a tiebreaker ONLY — it decides the
+// fight solely when the two totals come out exactly equal after all rounds.
+// It never overrides a genuine points lead. (Round-level ties use the same
+// logic one level down: calcCard() gives a tied round to whoever scored last
+// within that round — unchanged, already correct.)
+function decideFightWinner(results){
+  let redTotal=0,blueTotal=0;
+  (results||[]).forEach(r=>{
+    if(!r)return;
+    redTotal+=r.red||0;
+    blueTotal+=r.blue||0;
+  });
+  if(redTotal>blueTotal)return "red";
+  if(blueTotal>redTotal)return "blue";
+  const last=(results||[]).filter(Boolean).pop();
+  return last?last.winner:"draw";
+}
+
 function fbApp(name){
   const existing=getApps().find(a=>a.name===name);
   return existing||initializeApp(FB,name);
@@ -1153,15 +1173,9 @@ async function endRoundNow(st){
   };
 
   if(isLastRound){
-    // ── NO-DRAW / "FINISH STRONGEST" FIGHT POLICY ─────────────
-    // The fight winner is simply whoever won the LAST round completed.
-    // Not majority-of-rounds, not point margin — finishing the fight
-    // strongest wins it outright, even if that means overturning a
-    // 2-rounds-to-1 deficit. Round-level no-draw policy above guarantees
-    // every round (including this last one) has a real winner, so this
-    // is never actually a tie needing a fallback.
-    const lastRoundResult=results[mr-1];
-    const fightWinner=lastRoundResult?lastRoundResult.winner:"draw";
+    // Fight winner = majority of rounds won. See decideFightWinner() above —
+    // last-round result is only used as a tiebreaker if round counts are equal.
+    const fightWinner=decideFightWinner(results);
     next.winner=fightWinner==="red"?(st.redName||"RED").toUpperCase()+" WINS!":
                 fightWinner==="blue"?(st.blueName||"BLUE").toUpperCase()+" WINS!":
                 "IT'S A DRAW!";
@@ -1237,10 +1251,8 @@ async function declareWinner(){
   const stSnap=await get(ref(db,`sessions/${SES}/state`));if(!stSnap.exists())return;
   const s=stSnap.val();
   const results=s.roundResults||[];
-  // Matches the same "finish strongest wins" fight policy as endRoundNow:
-  // the fight winner is whoever won the most recently completed round.
-  const lastRoundResult=results.length?results[results.length-1]:null;
-  const w=lastRoundResult?lastRoundResult.winner:"draw";
+  // Same majority-of-rounds fight policy as endRoundNow — see decideFightWinner().
+  const w=decideFightWinner(results);
   await set(ref(db,`sessions/${SES}/state/winner`),
     w==="red"?(s.redName||"RED").toUpperCase()+" WINS!":
     w==="blue"?(s.blueName||"BLUE").toUpperCase()+" WINS!":
