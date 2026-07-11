@@ -517,9 +517,10 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
   <div style="display:flex;gap:2px;margin-bottom:12px;border-bottom:1px solid var(--border);padding-bottom:0">
     <button id="results-tab-recent" class="nav-btn on" style="font-size:9px" onclick="goResultsTab('recent')">RECENT</button>
     <button id="results-tab-standings" class="nav-btn" style="font-size:9px" onclick="goResultsTab('standings')">STANDINGS</button>
-    <button id="results-tab-overall" class="nav-btn" style="font-size:9px" onclick="goResultsTab('overall')">OVERALL</button>
+    <button id="results-tab-overall" class="nav-btn" style="font-size:9px" onclick="goResultsTab('overall')">EAGLE CUP</button>
   </div>
   <div id="results-panel-recent">
+    <div id="tiebreak-fix-panel" style="display:none"></div>
     <div id="results-body"></div>
     <div id="results-empty" class="panel" style="text-align:center;color:var(--muted);font-family:var(--mono);font-size:10px;display:none">No completed bouts yet.</div>
   </div>
@@ -529,7 +530,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
     <div id="standings-empty" class="panel" style="text-align:center;color:var(--muted);font-family:var(--mono);font-size:10px;display:none">No completed bouts yet.</div>
   </div>
   <div id="results-panel-overall" style="display:none">
-    <div style="font-family:var(--mono);font-size:9px;color:var(--muted);margin-bottom:10px">Win 3pts · Loss 1pt · every discipline combined into one overall ranking</div>
+    <div style="font-family:var(--mono);font-size:9px;color:var(--muted);margin-bottom:10px">Win 3pts · Loss 1pt · every discipline combined · duplicate names auto-consolidated, tap 🔗 to merge manually</div>
     <div id="overall-body"></div>
     <div id="overall-empty" class="panel" style="text-align:center;color:var(--muted);font-family:var(--mono);font-size:10px;display:none">No completed bouts yet.</div>
   </div>
@@ -626,7 +627,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
 import { initializeApp, getApps, getApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
 import { getDatabase, ref, set, onValue, get } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
 
-let bouts=[],rawAthletes=[],athletes=[],clubMap={},matches=[],needsMatch=[],db=null,eventId='cgs-july-11-2026',pubTimer=null,procStep=1;
+let bouts=[],rawAthletes=[],athletes=[],clubMap={},matches=[],needsMatch=[],db=null,eventId='cgs-july-11-2026',pubTimer=null,procStep=1,nameMerges={};
 
 const CANONICAL_CLUBS=['Eagle DS','Auckland MMA','Shuriken NZ','Dynamic Martial Arts','TMAA','Shinobi Academy','Spartan Combat','Phoenix Rising','SACA','Resolve Fight Systems','Skillset','Flyger Combat Academy','Independent','Rogue Training Centre','Lions Den MMA','SMA Nelson','Nak Rop','Wimbledon Muay Thai','City Kickboxing','Xtreme MMA','Coast Academy','Oliver MMA','Fox Down Combat','China Sanda Club','Daredevil BJJ','GC Team','Tu Kaha NZ','Seishin Ryu','Modthai','Physical Fitness Gym'].sort();
 const EAGLE_VARIANTS=['eagle ds','eagle ds limited','eagleds','eagle ds combat','eagle-ds','eagleds.co.nz'];
@@ -674,7 +675,13 @@ function listenFirebase(){
     const data=snap.val();
     if(Array.isArray(data)&&data.length){bouts=data;localStorage.setItem('cgs-bouts',JSON.stringify(bouts));renderAll();}
   });
+  onValue(ref(db,`events/${eventId}/nameMerges`),snap=>{
+    nameMerges=snap.exists()?(snap.val()||{}):{};
+    if(document.getElementById('view-results')?.classList.contains('on'))renderResults();
+  });
 }
+
+function saveNameMerges(){if(!db)return;try{set(ref(db,'events/'+eventId+'/nameMerges'),nameMerges).catch(e=>console.warn('NameMerges save failed:',e));}catch(e){console.warn('NameMerges save failed (sync):',e);toast('Save error','red');}}
 
 function syncToFirebase(){if(!db)return;set(ref(db,`events/${eventId}/bouts`),bouts).catch(e=>{updateSyncDot('err');console.warn('Sync failed:',e);});}
 function updateConfigStatus(ok){const el=document.getElementById('config-status');if(!el)return;el.className='config-status '+(ok?'ok':'none');el.textContent=ok?'✓ Connected — CGS-Manager database':'No config — check setup.';}
@@ -2181,21 +2188,41 @@ window.closeModal=function(){document.getElementById('overlay').classList.remove
 
 function renderLive(){const lv=bouts.filter(b=>b.status==='live'),grid=document.getElementById('live-grid'),empty=document.getElementById('live-empty');if(!lv.length){if(grid)grid.innerHTML='';if(empty)empty.style.display='block';return;}if(empty)empty.style.display='none';if(grid)grid.innerHTML=lv.map(b=>'<div class="bout-card live" style="cursor:pointer;padding:0" onclick="openScore(\''+b.id+'\')"><div class="bout-top"><div class="bout-num">'+b.id+'</div><span class="flag f-lv">● LIVE</span><div class="bout-mat">'+b.area+'</div></div><div class="bout-body"><div class="bf"><div class="bf-name" style="color:var(--red)">'+escH(b.red.name)+'</div><div class="bf-club">'+escH(b.red.club||'')+'</div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:40px;color:var(--red);line-height:1">'+b.score.red+'</div></div><div class="vs-col"><div class="vs-txt">VS</div></div><div class="bf right"><div class="bf-name" style="color:var(--blue)">'+escH(b.blue.name)+'</div><div class="bf-club">'+escH(b.blue.club||'')+'</div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:40px;color:var(--blue);line-height:1">'+b.score.blue+'</div></div></div></div>').join('');}
 
-function computeOverallLeaderboard(){
+function computeEagleCupLeaderboard(){
   const completed=bouts.filter(b=>b.status==='completed'&&(b.winner==='red'||b.winner==='blue'));
-  const athletes={};
-  const ensure=(name,club)=>{if(!athletes[name])athletes[name]={name,club,points:0,w:0,l:0};return athletes[name];};
+  const raw={};
+  const ensure=(name,club)=>{if(!raw[name])raw[name]={name,club,points:0,w:0,l:0};return raw[name];};
   completed.forEach(b=>{
     const red=ensure(b.red.name,b.red.club);
     const blue=ensure(b.blue.name,b.blue.club);
     if(b.winner==='red'){red.points+=3;red.w++;blue.points+=1;blue.l++;}
     else{blue.points+=3;blue.w++;red.points+=1;red.l++;}
   });
-  return Object.values(athletes).sort((a,b)=>b.points-a.points||b.w-a.w);
+  const rawList=Object.values(raw);
+  const clusters=[];
+  rawList.forEach(entry=>{
+    const manualTarget=nameMerges[entry.name];
+    let matched=null;
+    if(manualTarget)matched=clusters.find(c=>c.canonicalName===manualTarget||c.members.includes(manualTarget));
+    if(!matched){
+      for(const c of clusters){
+        if(jaccardSim(normS(entry.name),normS(c.canonicalName))>=0.6){matched=c;break;}
+      }
+    }
+    if(matched){
+      matched.points+=entry.points;matched.w+=entry.w;matched.l+=entry.l;
+      matched.members.push(entry.name);
+      if(manualTarget)matched.canonicalName=manualTarget;
+      else if(entry.name.length>matched.canonicalName.length)matched.canonicalName=entry.name;
+    }else{
+      clusters.push({canonicalName:manualTarget||entry.name,club:entry.club,points:entry.points,w:entry.w,l:entry.l,members:[entry.name]});
+    }
+  });
+  return clusters.sort((a,b)=>b.points-a.points||b.w-a.w);
 }
 
-window.renderOverallLeaderboard=function(){
-  const list=computeOverallLeaderboard();
+window.renderEagleCupLeaderboard=function(){
+  const list=computeEagleCupLeaderboard();
   const body=document.getElementById('overall-body'),empty=document.getElementById('overall-empty');
   if(!body)return;
   if(!list.length){body.innerHTML='';if(empty)empty.style.display='block';return;}
@@ -2207,22 +2234,104 @@ window.renderOverallLeaderboard=function(){
     +'<th style="font-family:var(--mono);font-size:8px;color:var(--muted);padding:4px 10px;text-align:left;border-bottom:1px solid var(--border)">CLUB</th>'
     +'<th style="font-family:var(--mono);font-size:8px;color:var(--muted);padding:4px 10px;text-align:right;border-bottom:1px solid var(--border)">W-L</th>'
     +'<th style="font-family:var(--mono);font-size:8px;color:var(--muted);padding:4px 10px;text-align:right;border-bottom:1px solid var(--border)">PTS</th>'
+    +'<th style="font-family:var(--mono);font-size:8px;color:var(--muted);padding:4px 10px;border-bottom:1px solid var(--border)"></th>'
     +'</tr></thead><tbody>';
-  list.forEach((a,idx)=>{
+  list.forEach((c,idx)=>{
     const rank=idx+1,isTop3=rank<=3,medal=rank===1?'🥇':rank===2?'🥈':rank===3?'🥉':'';
+    const hasVariants=c.members.length>1;
     html+='<tr style="border-bottom:1px solid #111115'+(isTop3?';background:var(--gold-bg)':'')+'">'
       +'<td style="padding:5px 10px;font-family:var(--mono);color:var(--muted)">'+rank+'</td>'
-      +'<td style="padding:5px 10px;font-weight:600;color:'+(isTop3?'var(--gold)':'var(--text)')+'">'+medal+(medal?' ':'')+escH(a.name)+'</td>'
-      +'<td style="padding:5px 10px;font-size:10px;color:var(--muted)">'+escH(a.club||'')+'</td>'
-      +'<td style="padding:5px 10px;font-family:var(--mono);font-size:10px;text-align:right;color:var(--muted)">'+a.w+'-'+a.l+'</td>'
-      +'<td style="padding:5px 10px;font-family:\'Bebas Neue\',sans-serif;font-size:18px;text-align:right;color:'+(isTop3?'var(--gold)':'var(--text)')+'">'+a.points+'</td>'
+      +'<td style="padding:5px 10px;font-weight:600;color:'+(isTop3?'var(--gold)':'var(--text)')+'">'+medal+(medal?' ':'')+escH(c.canonicalName)+(hasVariants?'<div style="font-family:var(--mono);font-size:8px;color:var(--muted);font-weight:400;margin-top:2px;cursor:pointer" data-idx="'+idx+'" onclick="toggleVariants(this.dataset.idx)">'+c.members.length+' combined ▾</div>':'')+'</td>'
+      +'<td style="padding:5px 10px;font-size:10px;color:var(--muted)">'+escH(c.club||'')+'</td>'
+      +'<td style="padding:5px 10px;font-family:var(--mono);font-size:10px;text-align:right;color:var(--muted)">'+c.w+'-'+c.l+'</td>'
+      +'<td style="padding:5px 10px;font-family:\'Bebas Neue\',sans-serif;font-size:18px;text-align:right;color:'+(isTop3?'var(--gold)':'var(--text)')+'">'+c.points+'</td>'
+      +'<td style="padding:5px 10px"><button class="btn btn-ghost btn-xs" data-name="'+escA(c.canonicalName)+'" onclick="openMergeModal(this.dataset.name)">🔗</button></td>'
       +'</tr>';
+    if(hasVariants){
+      html+='<tr id="variants-'+idx+'" style="display:none"><td colspan="6" style="padding:4px 10px 10px 30px;background:#0a0a0d">'
+        +c.members.map(m=>'<span style="display:inline-flex;align-items:center;gap:4px;font-family:var(--mono);font-size:9px;color:var(--muted);background:var(--surf2);border:1px solid var(--border);border-radius:2px;padding:3px 8px;margin:2px">'+escH(m)+'<button style="background:none;border:none;color:var(--red);cursor:pointer;font-size:10px;padding:0" data-name="'+escA(m)+'" onclick="unmergeName(this.dataset.name)">✕</button></span>').join('')
+        +'</td></tr>';
+    }
   });
   html+='</tbody></table></div>';
   body.innerHTML=html;
 };
 
-function renderResults(){const dn=bouts.filter(b=>b.status==='completed').slice().reverse(),el=document.getElementById('results-body'),empty=document.getElementById('results-empty');if(!dn.length){if(el)el.innerHTML='';if(empty)empty.style.display='block';}else{if(empty)empty.style.display='none';if(el)el.innerHTML=dn.map(b=>{const wname=b.winner==='draw'?'DRAW':b.winner==='red'?b.red.name:b.blue.name;return '<div style="background:var(--surf);border:1px solid var(--border);border-left:3px solid var(--green);border-radius:3px;padding:8px 12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:5px"><div style="font-family:var(--mono);font-size:8px;color:var(--gold);min-width:70px">'+escH(b.disc)+'</div><div style="font-size:10px;color:var(--muted);min-width:60px">'+b.ageGrp+'</div><div style="flex:1;min-width:140px"><span style="font-weight:'+(b.winner==='red'?700:400)+';color:'+(b.winner==='red'?'var(--text)':'var(--muted)')+'">'+escH(b.red.name)+'</span><span style="font-family:\'Bebas Neue\',sans-serif;font-size:16px;color:var(--green);margin:0 6px">'+b.score.red+'–'+b.score.blue+'</span><span style="font-weight:'+(b.winner==='blue'?700:400)+';color:'+(b.winner==='blue'?'var(--text)':'var(--muted)')+'">'+escH(b.blue.name)+'</span></div><div style="font-family:var(--mono);font-size:9px;font-weight:700;color:var(--green)">'+escH(wname)+'</div><button class="btn btn-ghost btn-xs" style="color:var(--orange);border-color:#6a3800" data-bid="'+b.id+'" onclick="reopenBout(this.dataset.bid)">↺ REOPEN</button></div>';}).join('');}renderStandings();renderOverallLeaderboard();}
+window.toggleVariants=function(idx){const row=document.getElementById('variants-'+idx);if(row)row.style.display=row.style.display==='none'?'table-row':'none';};
+
+window.openMergeModal=function(canonicalName){
+  const list=computeEagleCupLeaderboard().filter(c=>c.canonicalName!==canonicalName);
+  if(!list.length){toast('No one else to merge with yet','orange');return;}
+  const opts=list.map(c=>'<button class="btn btn-ghost" style="width:100%;text-align:left;margin-bottom:4px;display:flex;justify-content:space-between" data-target="'+escA(c.canonicalName)+'" data-source="'+escA(canonicalName)+'" onclick="confirmMerge(this.dataset.source,this.dataset.target)"><span>'+escH(c.canonicalName)+' <span style="color:var(--muted);font-size:10px">'+escH(c.club||'')+'</span></span><span style="color:var(--gold)">'+c.points+'pts</span></button>').join('');
+  document.getElementById('modal-box').innerHTML='<div class="modal-title">MERGE</div><div class="panel-sub">"'+escH(canonicalName)+'" is actually the same person as which of these? All points combine into one total.</div>'+opts+'<button class="btn btn-ghost" style="width:100%;margin-top:10px" onclick="closeModal()">CANCEL</button>';
+  document.getElementById('overlay').classList.add('show');
+};
+
+window.confirmMerge=function(source,target){
+  const cluster=computeEagleCupLeaderboard().find(c=>c.canonicalName===source);
+  if(!cluster)return;
+  if(!confirm('Merge "'+source+'" into "'+target+'"?\n\nAll '+cluster.members.length+' name variant(s) and '+cluster.points+' points will combine under "'+target+'".'))return;
+  cluster.members.forEach(m=>{nameMerges[m]=target;});
+  saveNameMerges();
+  closeModal();
+  renderEagleCupLeaderboard();
+  toast('Merged into '+target,'green');
+};
+
+window.unmergeName=function(rawName){
+  delete nameMerges[rawName];
+  saveNameMerges();
+  renderEagleCupLeaderboard();
+  toast('Unmerged: '+rawName,'orange');
+};
+
+function renderResults(){
+  renderTiebreakFixPanel();
+  const dn=bouts.filter(b=>b.status==='completed').slice().reverse(),el=document.getElementById('results-body'),empty=document.getElementById('results-empty');
+  if(!dn.length){if(el)el.innerHTML='';if(empty)empty.style.display='block';}
+  else{if(empty)empty.style.display='none';if(el)el.innerHTML=dn.map(b=>{const wname=b.winner==='draw'?'DRAW':b.winner==='red'?b.red.name:b.blue.name;return '<div style="background:var(--surf);border:1px solid var(--border);border-left:3px solid var(--green);border-radius:3px;padding:8px 12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:5px"><div style="font-family:var(--mono);font-size:8px;color:var(--gold);min-width:70px">'+escH(b.disc)+'</div><div style="font-size:10px;color:var(--muted);min-width:60px">'+b.ageGrp+'</div><div style="flex:1;min-width:140px"><span style="font-weight:'+(b.winner==='red'?700:400)+';color:'+(b.winner==='red'?'var(--text)':'var(--muted)')+'">'+escH(b.red.name)+'</span><span style="font-family:\'Bebas Neue\',sans-serif;font-size:16px;color:var(--green);margin:0 6px">'+b.score.red+'–'+b.score.blue+'</span><span style="font-weight:'+(b.winner==='blue'?700:400)+';color:'+(b.winner==='blue'?'var(--text)':'var(--muted)')+'">'+escH(b.blue.name)+'</span></div><div style="font-family:var(--mono);font-size:9px;font-weight:700;color:var(--green)">'+escH(wname)+'</div><button class="btn btn-ghost btn-xs" style="color:var(--orange);border-color:#6a3800" data-bid="'+b.id+'" onclick="reopenBout(this.dataset.bid)">↺ REOPEN</button></div>';}).join('');}
+  renderStandings();renderEagleCupLeaderboard();
+}
+
+function findTiebreakErrors(){
+  return bouts.filter(b=>{
+    if(b.status!=='completed')return false;
+    if(b.winner!=='red'&&b.winner!=='blue')return false;
+    if(b.score.red===b.score.blue)return false;
+    const correctWinner=b.score.red>b.score.blue?'red':'blue';
+    return b.winner!==correctWinner;
+  }).map(b=>Object.assign(b,{_correctWinner:b.score.red>b.score.blue?'red':'blue'}));
+}
+
+window.renderTiebreakFixPanel=function(){
+  const panel=document.getElementById('tiebreak-fix-panel');
+  if(!panel)return;
+  const errors=findTiebreakErrors();
+  if(!errors.length){panel.style.display='none';panel.innerHTML='';return;}
+  panel.style.display='block';
+  let html='<div class="panel" style="border-color:var(--orange)"><div class="panel-title" style="color:var(--orange)">⚠ TIEBREAK ERRORS FOUND — '+errors.length+'</div><div class="panel-sub">These bouts have a recorded winner that doesn\'t match the higher score — the tiebreak bug awarded the win to whoever scored last, even when the totals weren\'t actually tied. Genuine ties resolved by tiebreak are not included here and won\'t be touched.</div>';
+  errors.forEach(b=>{
+    const currentWinnerName=b.winner==='red'?b.red.name:b.blue.name;
+    const correctWinnerName=b._correctWinner==='red'?b.red.name:b.blue.name;
+    html+='<div style="background:var(--surf2);border:1px solid var(--border);border-radius:3px;padding:8px 10px;margin-bottom:6px;font-size:11px">'
+      +'<div style="font-family:var(--mono);font-size:9px;color:var(--muted);margin-bottom:3px">'+b.id+' · '+escH(b.disc)+' · '+escH(b.ageGrp)+'</div>'
+      +'<div>'+escH(b.red.name)+' <span style="font-family:\'Bebas Neue\',sans-serif;font-size:15px;color:var(--gold)">'+b.score.red+'–'+b.score.blue+'</span> '+escH(b.blue.name)+'</div>'
+      +'<div style="margin-top:4px">Currently: <span style="color:var(--red);font-weight:600">'+escH(currentWinnerName)+' wins</span> → Should be: <span style="color:var(--green);font-weight:600">'+escH(correctWinnerName)+' wins</span></div>'
+      +'</div>';
+  });
+  html+='<div class="row-btns"><button class="btn btn-gold" onclick="fixAllTiebreakErrors()">FIX ALL '+errors.length+' — SET CORRECT WINNER</button></div></div>';
+  panel.innerHTML=html;
+};
+
+window.fixAllTiebreakErrors=function(){
+  const errors=findTiebreakErrors();
+  if(!errors.length)return;
+  if(!confirm('Reverse '+errors.length+' incorrect result(s) so the higher score wins each one?\n\nThis updates Recent Results, Standings, By Club, and Eagle Cup Leaderboard immediately, on both the admin app and the public results pages.'))return;
+  errors.forEach(b=>{b.winner=b._correctWinner;delete b._correctWinner;});
+  saveBouts();
+  renderResults();
+  toast(errors.length+' result(s) corrected','green');
+};
 
 window.goResultsTab=function(tab){
   ['recent','standings','overall'].forEach(t=>{
@@ -2470,4 +2579,3 @@ window.goStep=function(n){_origGoStep(n);if(n===2)renderClubs();};
 </script>
 </body>
 </html>
-
