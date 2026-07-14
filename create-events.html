@@ -35,7 +35,7 @@ button:disabled{opacity:.4}
   <label>Date</label><input value="Saturday September 5 2026"/>
   <label>Location</label><input value="17 Nandina Drive, East Tāmaki, Auckland"/>
   <label>Event ID</label><input value="cgs-september-5-2026"/>
-  <button onclick="createEvent(1)">CREATE THIS EVENT</button>
+  <button onclick="createCgsEvent(1)">CREATE THIS EVENT</button>
   <div class="status" id="status-1"></div>
 </div>
 
@@ -44,7 +44,7 @@ button:disabled{opacity:.4}
   <label>Date</label><input value="Saturday October 24 2026"/>
   <label>Location</label><input value="17 Nandina Drive, East Tāmaki, Auckland"/>
   <label>Event ID</label><input value="cgs-october-24-2026"/>
-  <button onclick="createEvent(2)">CREATE THIS EVENT</button>
+  <button onclick="createCgsEvent(2)">CREATE THIS EVENT</button>
   <div class="status" id="status-2"></div>
 </div>
 
@@ -53,7 +53,7 @@ button:disabled{opacity:.4}
   <label>Date</label><input value="Saturday December 5 2026"/>
   <label>Location</label><input value="17 Nandina Drive, East Tāmaki, Auckland"/>
   <label>Event ID</label><input value="cgs-december-5-2026"/>
-  <button onclick="createEvent(3)">CREATE THIS EVENT</button>
+  <button onclick="createCgsEvent(3)">CREATE THIS EVENT</button>
   <div class="status" id="status-3"></div>
 </div>
 
@@ -74,7 +74,7 @@ const FB = {
 const app = getApps().find(a=>a.name==='create-events') || initializeApp(FB,'create-events');
 const db = getDatabase(app);
 
-window.createEvent = async function(n){
+window.createCgsEvent = async function(n){
   const card = document.getElementById('card-'+n);
   const inputs = card.querySelectorAll('input');
   const [nameEl, dateEl, locEl, idEl] = inputs;
@@ -130,4 +130,3 @@ setTimeout(function(){
 </script>
 </body>
 </html>
-
