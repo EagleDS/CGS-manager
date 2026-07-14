@@ -28,6 +28,7 @@ button:disabled{opacity:.4}
 
 <h1>⚙ CREATE EVENTS — ONE-TIME TOOL</h1>
 <div class="warn">This writes directly to the cgs-manager Firebase database, same as SETUP → + NEW EVENT in index.html. Check each field before tapping Create. This page isn't linked from anywhere; open it once, use it, then you can delete it.</div>
+<div id="load-error" style="display:none;background:#120404;border:1px solid #e03030;color:#ff8080;font-family:'IBM Plex Mono',monospace;font-size:11px;padding:10px 12px;border-radius:3px;margin-bottom:20px;line-height:1.6">⚠ The script hasn't loaded — the buttons won't do anything. Most likely causes: (1) you're viewing GitHub's code page instead of the live eagleds.github.io/CGS-manager/create-events.html URL, (2) GitHub Pages hasn't finished publishing your last commit yet — wait a minute and reload, or (3) you're offline. This message means the tool has failed safely rather than pretending to work.</div>
 
 <div class="card" id="card-1">
   <label>Display Name</label><input value="Combat Games Series — Event Three"/>
@@ -114,6 +115,18 @@ window.createEvent = async function(n){
     btn.disabled = false;
   }
 };
+window.__cgsToolLoaded = true;
+</script>
+<script>
+// Classic (non-module) script — runs regardless of whether the module script above succeeded.
+// If the module never finished initializing after 2.5s, reveal the on-page error banner
+// instead of leaving the buttons silently dead.
+setTimeout(function(){
+  if(!window.__cgsToolLoaded){
+    var el = document.getElementById('load-error');
+    if(el) el.style.display = 'block';
+  }
+}, 2500);
 </script>
 </body>
 </html>
