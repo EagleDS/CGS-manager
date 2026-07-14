@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+<meta http-equiv="Pragma" content="no-cache"/>
+<meta http-equiv="Expires" content="0"/>
+<title>Edit Event Names — CGS Manager (one-time tool)</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#08080a;color:#f0f0f4;font-family:'IBM Plex Sans',sans-serif;padding:16px;padding-bottom:60px}
+h1{font-family:'IBM Plex Mono',monospace;font-size:16px;color:#f0b429;margin-bottom:6px}
+.warn{background:#1a0e00;border:1px solid #6a3800;color:#e09020;font-family:'IBM Plex Mono',monospace;font-size:11px;padding:10px 12px;border-radius:3px;margin-bottom:20px;line-height:1.6}
+#load-error{display:none;background:#120404;border:1px solid #e03030;color:#ff8080;font-family:'IBM Plex Mono',monospace;font-size:11px;padding:10px 12px;border-radius:3px;margin-bottom:20px;line-height:1.6}
+.card{background:#111116;border:1px solid #1e1e26;border-radius:4px;padding:16px;margin-bottom:14px}
+.card.done{border-color:#20b040;opacity:.65}
+.card.missing{border-color:#e03030}
+.eid{font-family:'IBM Plex Mono',monospace;font-size:9px;color:#64646e;letter-spacing:1px;margin-bottom:8px}
+.current{font-family:'IBM Plex Mono',monospace;font-size:11px;color:#64646e;margin-bottom:10px}
+.current b{color:#f0f0f4;font-weight:600}
+label{display:block;font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:#64646e;margin-bottom:3px;margin-top:6px}
+input{width:100%;background:#08080a;border:1px solid #1e1e26;color:#f0f0f4;padding:8px 10px;border-radius:2px;font-family:'IBM Plex Mono',monospace;font-size:12px}
+input:focus{outline:none;border-color:#f0b429}
+button{margin-top:14px;width:100%;background:#c89010;color:#08080a;border:none;padding:12px;border-radius:2px;font-family:'IBM Plex Mono',monospace;font-weight:600;letter-spacing:1px;font-size:12px;cursor:pointer}
+button:disabled{opacity:.4}
+.status{font-family:'IBM Plex Mono',monospace;font-size:11px;margin-top:8px}
+.status.ok{color:#20b040}
+.status.err{color:#ff8080}
+.status.checking{color:#64646e}
+</style>
+</head>
+<body>
+
+<h1>⚙ EDIT EVENT NAMES — ONE-TIME TOOL</h1>
+<div class="warn">This only updates the "name" field on each event's meta — date, location, status and every registration/bout underneath are left untouched. This page isn't linked from anywhere; open it once, use it, then delete it.</div>
+<div id="load-error">⚠ The script hasn't loaded — the buttons won't do anything. Most likely: you're viewing GitHub's code page instead of the live eagleds.github.io/CGS-manager/edit-events.html URL, or GitHub Pages hasn't finished publishing yet.</div>
+
+<div class="card" id="card-1" data-id="cgs-september-5-2026">
+  <div class="eid">cgs-september-5-2026</div>
+  <div class="current">Current name: <b id="cur-1">loading…</b></div>
+  <label>New Name</label><input id="new-1" value="Combat Games Series — Event Four"/>
+  <button onclick="renameCgsEvent(1)">UPDATE NAME</button>
+  <div class="status" id="status-1"></div>
+</div>
+
+<div class="card" id="card-2" data-id="cgs-october-24-2026">
+  <div class="eid">cgs-october-24-2026</div>
+  <div class="current">Current name: <b id="cur-2">loading…</b></div>
+  <label>New Name</label><input id="new-2" value="Combat Games Series — Event Five"/>
+  <button onclick="renameCgsEvent(2)">UPDATE NAME</button>
+  <div class="status" id="status-2"></div>
+</div>
+
+<div class="card" id="card-3" data-id="cgs-december-5-2026">
+  <div class="eid">cgs-december-5-2026</div>
+  <div class="current">Current name: <b id="cur-3">loading…</b></div>
+  <label>New Name</label><input id="new-3" value="Combat Games Series — Event Six"/>
+  <button onclick="renameCgsEvent(3)">UPDATE NAME</button>
+  <div class="status" id="status-3"></div>
+</div>
+
+<script type="module">
+import { initializeApp, getApps } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getDatabase, ref, get, update } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
+
+// Confirmed cgs-manager Firebase config — copied from index.html
+const FB = {
+  apiKey: "AIzaSyDKqodxFjM0EG_qu4zkCAQ37udwYTdSSQY",
+  authDomain: "cgs-manager.firebaseapp.com",
+  databaseURL: "https://cgs-manager-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "cgs-manager",
+  storageBucket: "cgs-manager.firebasestorage.app",
+  messagingSenderId: "928662574013",
+  appId: "1:928662574013:web:be540e308d022d28f678d4"
+};
+const app = getApps().find(a=>a.name==='edit-events') || initializeApp(FB,'edit-events');
+const db = getDatabase(app);
+
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+async function loadCurrentNames(){
+  for(const n of [1,2,3]){
+    const card = document.getElementById('card-'+n);
+    const id = card.dataset.id;
+    const curEl = document.getElementById('cur-'+n);
+    try{
+      const snap = await get(ref(db, 'events/'+id+'/meta'));
+      if(!snap.exists()){
+        card.classList.add('missing');
+        curEl.textContent = '⚠ not found in database';
+        card.querySelector('button').disabled = true;
+        continue;
+      }
+      curEl.textContent = snap.val().name || '(no name set)';
+    } catch(err){
+      curEl.textContent = 'error loading — '+err.message;
+    }
+  }
+}
+
+window.renameCgsEvent = async function(n){
+  const card = document.getElementById('card-'+n);
+  const id = card.dataset.id;
+  const newName = document.getElementById('new-'+n).value.trim();
+  const statusEl = document.getElementById('status-'+n);
+  const btn = card.querySelector('button');
+
+  if(!newName){ statusEl.textContent = 'Name cannot be blank.'; statusEl.className = 'status err'; return; }
+
+  statusEl.textContent = 'Updating…';
+  statusEl.className = 'status checking';
+  btn.disabled = true;
+
+  try{
+    await update(ref(db, 'events/'+id+'/meta'), { name: newName });
+    document.getElementById('cur-'+n).textContent = newName;
+    card.classList.add('done');
+    statusEl.textContent = '✓ Updated — name is now "'+newName+'". Date, location and status untouched.';
+    statusEl.className = 'status ok';
+    btn.textContent = 'UPDATED';
+  } catch(err){
+    console.error(err);
+    statusEl.textContent = 'Error: '+err.message;
+    statusEl.className = 'status err';
+    btn.disabled = false;
+  }
+};
+
+loadCurrentNames();
+window.__cgsToolLoaded = true;
+</script>
+<script>
+setTimeout(function(){
+  if(!window.__cgsToolLoaded){
+    var el = document.getElementById('load-error');
+    if(el) el.style.display = 'block';
+  }
+}, 2500);
+</script>
+</body>
+</html>
