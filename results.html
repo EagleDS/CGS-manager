@@ -3,749 +3,297 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
-<meta http-equiv="Pragma" content="no-cache"/>
-<meta http-equiv="Expires" content="0"/>
-<title>Competitor Registration — Combat Games Series | Eagle DS</title>
-<meta name="description" content="Register to compete in the Eagle DS Combat Games Series. Returning competitors: enter your Competitor ID to prefill your details."/>
-<link rel="icon" href="https://eagleds.co.nz/logo.PNG"/>
+<title>Results — CGS</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#0a0a0d;--surf:#111116;--surf2:#16161b;--border:#1e1e26;
-  --text:#f0f0f4;--muted:#64646e;--dim:#3a3a44;
-  --gold:#f0b429;--gold-dk:#c89010;--gold-bg:rgba(240,180,41,.06);
-  --red:#e03030;--red-dk:#a02020;--red-bg:#120404;
-  --green:#20b040;--green-bg:#021008;
-  --blue:#2a7fd4;
-  --mono:'IBM Plex Mono',monospace;--sans:'IBM Plex Sans',sans-serif;--bebas:'Bebas Neue',sans-serif;
+  --bg:#08080a;--surf:#0f0f12;--surf2:#16161a;--border:#222228;--dim:#3a3a42;
+  --text:#f0f0f4;--muted:#64646e;
+  --gold:#f0b429;--gold-dk:#c89010;--gold-bg:#120e00;
+  --red:#e03030;--green:#20b040;--green-bg:#021008;
+  --mono:'IBM Plex Mono',monospace;
+  --sans:'IBM Plex Sans',sans-serif;
 }
-html{scroll-behavior:smooth}
-body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14px;line-height:1.6;min-height:100vh;padding-bottom:60px}
-::-webkit-scrollbar{width:2px}::-webkit-scrollbar-thumb{background:#333}
-a{color:inherit;text-decoration:none}
-
-.nav{background:#0a0a0d;border-bottom:1px solid var(--border);padding:0 24px;height:56px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:100}
-.nav-logo{display:flex;align-items:center;gap:10px;flex-shrink:0}
-.nav-logo img{width:28px;height:28px;object-fit:contain}
-.nav-brand{font-family:var(--bebas);font-size:18px;letter-spacing:3px;color:var(--gold)}
-.nav-links{display:flex;gap:0;margin-left:auto;overflow-x:auto}
-.nav-link{font-family:var(--mono);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);padding:0 12px;height:56px;display:flex;align-items:center;white-space:nowrap}
-.nav-link:hover{color:var(--text)}
-
-.hero{background:linear-gradient(180deg,#0d0d10 0%,var(--bg) 100%);border-bottom:1px solid var(--border);padding:40px 24px 32px}
-.hero-inner{max-width:760px;margin:0 auto}
-.hero-eyebrow{font-family:var(--mono);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--red);margin-bottom:10px}
-.hero-title{font-family:var(--bebas);font-size:clamp(2rem,6vw,3.2rem);letter-spacing:3px;line-height:1;margin-bottom:8px}
-.hero-title em{color:var(--gold);font-style:normal}
-.hero-sub{font-size:13px;color:var(--muted);line-height:1.7;max-width:540px}
-.event-pill{display:inline-flex;align-items:center;gap:10px;background:var(--gold-bg);border:1px solid rgba(240,180,41,.25);border-radius:3px;padding:10px 16px;margin-top:16px}
-.event-pill .ed{font-family:var(--bebas);font-size:18px;color:var(--gold)}
-.event-pill .en{font-size:12px;color:var(--muted)}
-
-.main{max-width:760px;margin:0 auto;padding:28px 24px}
-
-.mode-switch{display:flex;gap:2px;margin-bottom:20px;background:var(--surf);border:1px solid var(--border);border-radius:3px;overflow:hidden}
-.mode-btn{flex:1;padding:12px;text-align:center;font-family:var(--mono);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);cursor:pointer;background:none;border:none}
-.mode-btn.active{background:var(--gold);color:#0a0a0d;font-weight:600}
-
-.card{background:var(--surf);border:1px solid var(--border);border-radius:3px;padding:20px;margin-bottom:16px}
-.card-title{font-family:var(--bebas);font-size:16px;letter-spacing:2px;color:var(--gold);margin-bottom:4px}
-.card-sub{font-size:11px;color:var(--muted);margin-bottom:14px;line-height:1.6}
-
-.lookup-row{display:flex;gap:8px;flex-wrap:wrap}
-.lookup-row input{flex:1;min-width:140px}
-label{display:block;font-family:var(--mono);font-size:9px;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-bottom:4px}
-.fld{margin-bottom:12px}
-input,select,textarea{width:100%;background:#08080a;border:1px solid var(--border);color:var(--text);padding:9px 11px;border-radius:2px;font-family:var(--mono);font-size:12px;-webkit-appearance:none}
-input:focus,select:focus,textarea:focus{outline:none;border-color:var(--gold)}
-textarea{resize:vertical;min-height:70px}
-.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
-@media(max-width:520px){.g2,.g3{grid-template-columns:1fr}}
-
-.style-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px}
-@media(max-width:520px){.style-grid{grid-template-columns:1fr}}
-.style-chip{display:flex;align-items:flex-start;gap:8px;background:#08080a;border:1px solid var(--border);border-radius:2px;padding:10px;cursor:pointer;font-size:11px}
-.style-chip input{width:auto;margin-top:2px}
-.style-chip.on{border-color:var(--gold);background:var(--gold-bg)}
-.style-name{font-weight:600;font-size:12px}
-.style-desc{color:var(--muted);font-size:10px;margin-top:2px;line-height:1.4}
-
-.btn{border:none;cursor:pointer;font-family:var(--mono);font-weight:600;letter-spacing:1px;border-radius:2px;padding:12px 20px;font-size:11px;text-transform:uppercase;transition:all .12s}
-.btn-gold{background:var(--gold);color:#0a0a0d;width:100%}
-.btn-gold:hover{background:#ffc74d}
-.btn-ghost{background:none;border:1px solid var(--border);color:var(--muted)}
-.btn-ghost:hover{border-color:#555;color:var(--text)}
-
-.id-result{display:none;background:var(--green-bg);border:1px solid var(--green);border-radius:3px;padding:16px;margin-top:10px;text-align:center}
-.id-result.show{display:block}
-.id-result .id-big{font-family:var(--bebas);font-size:28px;letter-spacing:4px;color:var(--green)}
-.id-result .id-note{font-size:11px;color:var(--muted);margin-top:6px;line-height:1.6}
-
-.status-msg{font-family:var(--mono);font-size:11px;padding:10px 12px;border-radius:2px;margin-bottom:14px;display:none}
-.status-msg.show{display:block}
-.status-msg.err{background:var(--red-bg);border:1px solid var(--red);color:#ff8080}
-.status-msg.ok{background:var(--green-bg);border:1px solid var(--green);color:var(--green)}
-
-.fee-box{background:#08080a;border:1px solid var(--gold-dk);border-radius:3px;padding:14px 16px;margin-bottom:16px}
-.fee-box .ft{font-family:var(--bebas);font-size:14px;letter-spacing:2px;color:var(--gold);margin-bottom:6px}
-.fee-box .fv{font-family:var(--bebas);font-size:26px;color:var(--text)}
-.fee-box .fs{font-size:10px;color:var(--muted);margin-top:4px;line-height:1.6}
-
-.divider{height:1px;background:var(--border);margin:20px 0}
-.section-label{font-family:var(--mono);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--red);margin-bottom:12px;padding-left:10px;border-left:2px solid var(--red)}
-
-.lookup-result-row{display:flex;justify-content:space-between;align-items:center;gap:10px;background:#08080a;border:1px solid var(--border);border-radius:2px;padding:10px 12px;margin-bottom:6px}
-.lookup-result-row .lname{font-weight:600;font-size:12px}
-.lookup-result-row .lclub{font-size:10px;color:var(--muted)}
-
-.waiver-text-wrap summary{cursor:pointer;font-family:var(--mono);font-size:10px;letter-spacing:1px;color:var(--gold);margin-bottom:10px;list-style:none}
-.waiver-text-wrap summary::-webkit-details-marker{display:none}
-.waiver-text{background:#08080a;border:1px solid var(--border);border-radius:2px;padding:16px;max-height:280px;overflow-y:auto;font-size:11px;line-height:1.7;color:var(--muted);margin-bottom:14px}
-.waiver-text p{margin-bottom:10px}
-.waiver-text strong{color:var(--text)}
-.guardian-note{background:var(--gold-bg);border:1px solid rgba(240,180,41,.3);color:var(--gold);border-radius:2px;padding:10px 12px;font-size:11px;line-height:1.6;margin-bottom:14px}
-.consent-row{display:flex;align-items:flex-start;gap:8px;background:#08080a;border:1px solid var(--border);border-radius:2px;padding:10px;font-size:11px;line-height:1.5;cursor:pointer}
-.consent-row input{width:auto;margin-top:2px;flex-shrink:0}
-.consent-row.on{border-color:var(--gold);background:var(--gold-bg)}
-
-.sig-wrap{background:#08080a;border:1px solid var(--border);border-radius:2px;padding:8px;margin-top:6px}
-.sig-canvas{width:100%;height:150px;background:#fff;border-radius:2px;touch-action:none;cursor:crosshair;display:block}
-.sig-controls{display:flex;justify-content:space-between;align-items:center;margin-top:6px}
-.sig-hint{font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:.5px}
-.sig-clear{background:none;border:1px solid var(--border);color:var(--muted);font-family:var(--mono);font-size:9px;letter-spacing:1px;text-transform:uppercase;padding:5px 10px;border-radius:2px;cursor:pointer}
-.sig-clear:hover{border-color:#555;color:var(--text)}
-
-.footer-note{font-family:var(--mono);font-size:10px;color:var(--dim);text-align:center;margin-top:30px;line-height:1.8}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13px;min-height:100vh;-webkit-tap-highlight-color:transparent}
+::-webkit-scrollbar{width:2px;height:2px}::-webkit-scrollbar-thumb{background:#333}
+.hdr{background:#0a0a0d;border-bottom:2px solid var(--gold);padding:0 14px;height:48px;box-sizing:border-box;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:10}
+.hdr-title{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;color:var(--gold);flex:1}
+.sync-dot{width:7px;height:7px;border-radius:50%;background:var(--dim);flex-shrink:0;transition:background .3s}
+.sync-dot.live{background:var(--green);box-shadow:0 0 6px var(--green)}
+.sync-dot.err{background:var(--red)}
+.tabs{display:flex;gap:2px;padding:12px 12px 0;border-bottom:1px solid var(--border)}
+.tab-btn{background:none;border:none;cursor:pointer;font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:1px;padding:8px 14px;color:var(--muted);border-radius:2px 2px 0 0;-webkit-tap-highlight-color:transparent}
+.tab-btn.on{background:var(--surf2);color:var(--gold)}
+.body{padding:12px;max-width:700px;margin:0 auto}
+.panel{display:none}
+.panel.on{display:block}
+.sec-hdr{background:#0d0d10;border-left:3px solid var(--gold);padding:8px 12px;margin-bottom:3px}
+.sec-name{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:var(--gold)}
+.res-row{background:var(--surf);border:1px solid var(--border);border-left:3px solid var(--green);border-radius:3px;padding:8px 12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:5px}
+.empty{text-align:center;color:var(--muted);font-family:var(--mono);font-size:10px;padding:30px 10px}
+.stand-card{background:var(--surf);border:1px solid var(--border);border-radius:3px;margin-bottom:6px;overflow:hidden}
+.stand-card-hdr{background:#0d0d10;padding:7px 12px}
+table{width:100%;border-collapse:collapse}
+th{font-family:var(--mono);font-size:8px;color:var(--muted);padding:4px 10px;text-align:left;border-bottom:1px solid var(--border)}
+td{padding:5px 10px;border-bottom:1px solid #111115}
+.note{font-family:var(--mono);font-size:9px;color:var(--muted);margin-bottom:10px}
 </style>
 </head>
 <body>
 
-<nav class="nav">
-  <a href="https://eagleds.co.nz/index.html" class="nav-logo">
-    <img src="https://eagleds.co.nz/logo.PNG" alt="Eagle DS" onerror="this.style.display='none'"/>
-    <span class="nav-brand">EAGLE DS</span>
-  </a>
-  <div class="nav-links">
-    <a href="https://eagleds.co.nz/cgs.html" class="nav-link">Combat Games</a>
-    <a href="https://eagleds.co.nz/pools.html" class="nav-link">Pool Lists</a>
-  </div>
-</nav>
-
-<div class="hero">
-  <div class="hero-inner">
-    <div class="hero-eyebrow">Combat Games Series · Competitor Registration</div>
-    <h1 class="hero-title">Register to <em>Compete.</em></h1>
-    <p class="hero-sub">First time here? Register below — you'll get a Competitor ID at the end. Keep it. Every time you enter a future event, that ID pulls up your details so you don't retype everything.</p>
-    <div class="event-pill" id="event-pill" style="display:none">
-      <div>
-        <div class="ed" id="event-pill-date"></div>
-        <div class="en" id="event-pill-name"></div>
-      </div>
-    </div>
-  </div>
+<div class="hdr">
+  <div class="hdr-title">🏆 RESULTS</div>
+  <div class="sync-dot" id="sync-dot" title="Firebase sync"></div>
+  <a id="hot-link" href="https://eagleds.github.io/CGS-manager/hot.html" style="text-decoration:none"><button style="font-family:var(--mono);font-size:9px;letter-spacing:1px;padding:5px 10px;border-radius:2px;background:none;border:1px solid var(--border);color:var(--muted);cursor:pointer">🎙 HEAD OF TABLE</button></a>
 </div>
 
-<div class="main">
+<div class="tabs">
+  <button id="tab-recent" class="tab-btn on" onclick="goTab('recent')">RECENT</button>
+  <button id="tab-standings" class="tab-btn" onclick="goTab('standings')">STANDINGS</button>
+  <button id="tab-byclub" class="tab-btn" onclick="goTab('byclub')">BY CLUB</button>
+  <button id="tab-overall" class="tab-btn" onclick="goTab('overall')">EAGLE CUP</button>
+</div>
 
-  <div id="event-picker-wrap" style="display:none" class="card">
-    <div class="card-title">Select Event</div>
-    <div class="card-sub">No event specified in the link — choose which event you're registering for.</div>
-    <select id="event-picker"></select>
+<div class="body">
+  <div id="panel-recent" class="panel on">
+    <div id="recent-body"></div>
+    <div id="recent-empty" class="empty" style="display:none">No completed bouts yet.</div>
   </div>
-
-  <div class="mode-switch">
-    <button class="mode-btn active" id="mode-new-btn" onclick="setMode('new')">New Competitor</button>
-    <button class="mode-btn" id="mode-return-btn" onclick="setMode('return')">Returning — I Have an ID</button>
+  <div id="panel-standings" class="panel">
+    <div class="note">Win 3pts · Loss 1pt · grouped by discipline / age group / division</div>
+    <div id="standings-body"></div>
+    <div id="standings-empty" class="empty" style="display:none">No completed bouts yet.</div>
   </div>
-
-  <div class="card" id="return-card" style="display:none">
-    <div class="card-title">Returning Competitor</div>
-    <div class="card-sub">Enter your Competitor ID and your details will prefill below. Change anything that's out of date — it updates your record.</div>
-    <div class="lookup-row">
-      <input type="text" id="lookup-id" placeholder="e.g. CGS-7K2X9" style="text-transform:uppercase"/>
-      <button class="btn btn-ghost" onclick="lookupById()">Load My Details</button>
-    </div>
-    <div id="lookup-status" class="status-msg"></div>
-
-    <div class="divider"></div>
-    <div class="card-sub" style="margin-bottom:8px">Lost your ID? Search by name + date of birth to find it, or email <a href="mailto:info@eagleds.co.nz" style="color:var(--gold)">info@eagleds.co.nz</a> and we'll send it to you.</div>
-    <div class="g2">
-      <div class="fld" style="margin-bottom:6px"><input type="text" id="find-name" placeholder="Full name"/></div>
-      <div class="fld" style="margin-bottom:6px"><input type="date" id="find-dob"/></div>
-    </div>
-    <button class="btn btn-ghost" style="width:100%" onclick="findMyId()">Find My ID</button>
-    <div id="find-results" style="margin-top:10px"></div>
+  <div id="panel-byclub" class="panel">
+    <div class="note">Winning fighters, grouped by club</div>
+    <div id="byclub-body"></div>
+    <div id="byclub-empty" class="empty" style="display:none">No completed bouts yet.</div>
   </div>
-
-  <div id="status-banner" class="status-msg"></div>
-
-  <form id="reg-form">
-    <div class="card">
-      <div class="section-label">Competitor Details</div>
-      <div class="g2">
-        <div class="fld"><label>First Name *</label><input type="text" id="f-name" required/></div>
-        <div class="fld"><label>Surname *</label><input type="text" id="f-sur" required/></div>
-      </div>
-      <div class="g3">
-        <div class="fld"><label>Gender *</label>
-          <select id="f-gender" required><option value="">—</option><option>Male</option><option>Female</option></select>
-        </div>
-        <div class="fld"><label>Weight (kg) *</label><input type="number" step="0.1" id="f-weight" required/></div>
-        <div class="fld"><label>Height (m)</label><input type="number" step="0.01" id="f-height"/></div>
-      </div>
-      <div class="g2">
-        <div class="fld"><label>Date of Birth *</label><input type="date" id="f-dob" required/></div>
-        <div class="fld"><label>Email *</label><input type="email" id="f-email" required/></div>
-      </div>
-      <div class="fld"><label>Phone *</label><input type="tel" id="f-phone" required placeholder="+64..."/></div>
-    </div>
-
-    <div class="card">
-      <div class="section-label">Martial Arts Background</div>
-      <div class="fld"><label>Background / discipline</label><input type="text" id="f-background" placeholder="e.g. MMA, Kickboxing, Taekwondo"/></div>
-      <div class="g2">
-        <div class="fld"><label>Organisation affiliations (N/A if none)</label><input type="text" id="f-org"/></div>
-        <div class="fld"><label>Style &amp; rank achieved</label><input type="text" id="f-rank"/></div>
-      </div>
-      <div class="g2">
-        <div class="fld"><label>Years competing</label>
-          <select id="f-experience"><option value="">—</option><option>First time (Beginner)</option><option>Under 2 years (Intermediate)</option><option>Over 2 years (Experienced)</option></select>
-        </div>
-        <div class="fld"><label>If 40+, competing as</label>
-          <select id="f-agecat"><option value="">N/A</option><option>Senior (18+)</option><option>Veteran (40+)</option></select>
-        </div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="section-label">Styles Entering This Event *</div>
-      <div class="style-grid" id="style-grid">
-        <label class="style-chip" data-style="MMA"><input type="checkbox" value="MMA"/><div><div class="style-name">MMA Light</div><div class="style-desc">Striking, grappling, submissions — light contact</div></div></label>
-        <label class="style-chip" data-style="K1 LIGHT"><input type="checkbox" value="K1 LIGHT"/><div><div class="style-name">K1 Light</div><div class="style-desc">Punches + light-contact kicks to head/body/legs</div></div></label>
-        <label class="style-chip" data-style="BOXING LIGHT"><input type="checkbox" value="BOXING LIGHT"/><div><div class="style-name">Boxing Light</div><div class="style-desc">Controlled boxing, designated target areas</div></div></label>
-        <label class="style-chip" data-style="HYBRID LIGHT"><input type="checkbox" value="HYBRID LIGHT"/><div><div class="style-name">Hybrid Light</div><div class="style-desc">R1 Boxing · R2 Kickboxing · R3 MMA</div></div></label>
-        <label class="style-chip" data-style="OLYMPIC TAEKWONDO"><input type="checkbox" value="OLYMPIC TAEKWONDO"/><div><div class="style-name">Olympic Taekwondo</div><div class="style-desc">Full-contact WT-style rules</div></div></label>
-      </div>
-      <div id="fee-box" class="fee-box" style="display:none;margin-top:14px">
-        <div class="ft">Entry Fee</div>
-        <div class="fv" id="fee-amount">$0</div>
-        <div class="fs">First style $50 · each additional style +$20. Pay by bank transfer — details below.</div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="section-label">Club</div>
-      <div class="fld"><label>Club name * (enter "Independent" if none)</label><input type="text" id="f-club" required/></div>
-      <div class="g3">
-        <div class="fld"><label>Club city</label><input type="text" id="f-clubcity"/></div>
-        <div class="fld"><label>Club phone</label><input type="text" id="f-clubphone"/></div>
-        <div class="fld"><label>Instructor / coach name</label><input type="text" id="f-instructor"/></div>
-      </div>
-    </div>
-
-    <div class="card" id="waiver-card">
-      <div class="section-label">Waiver &amp; Consent *</div>
-      <div class="card-sub" id="waiver-age-note">Enter your date of birth above to continue.</div>
-
-      <details class="waiver-text-wrap" id="waiver-text-wrap" style="display:none">
-        <summary>READ FULL WAIVER TEXT ▾</summary>
-        <div class="waiver-text" id="waiver-text-body"></div>
-      </details>
-
-      <div id="adult-waiver-section" style="display:none">
-        <label class="consent-row" id="adult-consent-row">
-          <input type="checkbox" id="f-waiver-agree"/>
-          <div>I have read and agree to the Eagle DS Combat Games Series Waiver and Release of Liability above.</div>
-        </label>
-        <div class="fld" style="margin-top:12px"><label>Printed Full Legal Name *</label><input type="text" id="f-signature" placeholder="Full legal name"/></div>
-        <label>Sign Here *</label>
-        <div class="sig-wrap">
-          <canvas class="sig-canvas" id="sig-pad-adult"></canvas>
-          <div class="sig-controls">
-            <span class="sig-hint">Draw your signature above with your finger or mouse</span>
-            <button type="button" class="sig-clear" onclick="clearSig('adult')">CLEAR</button>
-          </div>
-        </div>
-      </div>
-
-      <div id="guardian-waiver-section" style="display:none">
-        <div class="guardian-note">This competitor is under 18. A parent or legal guardian must read and sign this waiver on their behalf — the competitor cannot sign for themselves.</div>
-        <div class="fld"><label>Parent / Guardian Full Name *</label><input type="text" id="f-guardian-name" placeholder="Full legal name"/></div>
-        <label class="consent-row" id="guardian-consent-row">
-          <input type="checkbox" id="f-guardian-agree"/>
-          <div>I am the parent or legal guardian of the above-named competitor and I have read, understood, and agree to the Eagle DS Waiver and Release of Liability on their behalf.</div>
-        </label>
-        <div class="fld" style="margin-top:12px"><label>Printed Guardian Name (signature line) *</label><input type="text" id="f-guardian-signature" placeholder="Full legal name"/></div>
-        <label>Guardian Sign Here *</label>
-        <div class="sig-wrap">
-          <canvas class="sig-canvas" id="sig-pad-guardian"></canvas>
-          <div class="sig-controls">
-            <span class="sig-hint">Draw your signature above with your finger or mouse</span>
-            <button type="button" class="sig-clear" onclick="clearSig('guardian')">CLEAR</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="section-label">Payment</div>
-      <div style="font-family:var(--mono);font-size:11px;color:var(--muted);line-height:2">
-        Account Name: <span style="color:var(--text)">Eagle DS Limited</span><br>
-        Account Number: <span style="color:var(--text)">38-9024-0488910-03</span><br>
-        Reference: <span style="color:var(--text)">Your full name</span>
-      </div>
-      <p style="font-size:11px;color:var(--muted);margin-top:10px;line-height:1.7">Refunds available up to the night before the event — no refunds after that for withdrawal, non-attendance, or missing your bout.</p>
-    </div>
-
-    <button type="submit" class="btn btn-gold" id="submit-btn">Submit Registration →</button>
-  </form>
-
-  <div class="id-result" id="id-result">
-    <div style="font-family:var(--mono);font-size:9px;letter-spacing:2px;color:var(--muted);text-transform:uppercase">Your Competitor ID</div>
-    <div class="id-big" id="id-display"></div>
-    <div class="id-note">Save this. Use it next time you register for any Eagle DS Combat Games Series event and your details will prefill automatically.</div>
+  <div id="panel-overall" class="panel">
+    <div class="note">Win 3pts · Loss 1pt · every discipline combined, duplicate names consolidated</div>
+    <div id="overall-body"></div>
+    <div id="overall-empty" class="empty" style="display:none">No completed bouts yet.</div>
   </div>
-
-  <div class="footer-note">Eagle DS Combat &amp; Wellness · East Tāmaki, Auckland · info@eagleds.co.nz · 021 902 471</div>
 </div>
 
 <script type="module">
 import { initializeApp, getApps } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-import { getDatabase, ref, get, set, update } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
-
-// Firebase config — confirmed from index.html / pools.html / public.html (cgs-manager project)
-const FB = {
-  apiKey: "AIzaSyDKqodxFjM0EG_qu4zkCAQ37udwYTdSSQY",
-  authDomain: "cgs-manager.firebaseapp.com",
-  databaseURL: "https://cgs-manager-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "cgs-manager",
-  storageBucket: "cgs-manager.firebasestorage.app",
-  messagingSenderId: "928662574013",
-  appId: "1:928662574013:web:be540e308d022d28f678d4"
-};
-
-const existing = getApps().find(a => a.name === 'register-site');
-const app = existing || initializeApp(FB, 'register-site');
-const db = getDatabase(app);
+import { getDatabase, ref, onValue } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
 
 const params = new URLSearchParams(location.search);
-let eventId = params.get('event') || '';
-let mode = 'new';
-let loadedCompetitorId = null;
-let currentEventMeta = null;
+const eventId = params.get('event') || 'cgs-july-11-2026';
+document.getElementById('hot-link').href = 'https://eagleds.github.io/CGS-manager/hot.html?event='+encodeURIComponent(eventId);
+const STYLE_ORDER=['Hybrid Light','MMA','K1 Light','Boxing Light'];
 
-// Passed events explicitly excluded from the public registration form,
-// independent of their Firebase status field.
-const EXCLUDED_EVENTS = ['cgs-july-11-2026', 'test event'];
-function isExcluded(id){
-  const norm = String(id||'').trim().toLowerCase();
-  return EXCLUDED_EVENTS.some(x => x.trim().toLowerCase() === norm);
-}
+let bouts = [], nameMerges = {};
 
-function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-function normS(s){ return String(s||'').trim().toLowerCase().replace(/[^a-z0-9]/g,' ').replace(/\s+/g,' ').trim(); }
-function calcAge(dobStr){
-  if(!dobStr) return 0;
-  const d = new Date(dobStr);
-  if(isNaN(d.getTime())) return 0;
-  const now = new Date();
-  let age = now.getFullYear() - d.getFullYear();
-  if(now.getMonth() < d.getMonth() || (now.getMonth()===d.getMonth() && now.getDate() < d.getDate())) age--;
-  return age;
-}
-function regsDedupeKey(name, sur, gender){
-  return ((name||'')+(sur||'')+(gender||'')).toLowerCase().replace(/\s/g,'');
-}
-function showStatus(id, msg, type){
-  const el = document.getElementById(id);
-  el.textContent = msg;
-  el.className = 'status-msg show ' + (type||'');
-}
-function clearStatus(id){
-  const el = document.getElementById(id);
-  el.className = 'status-msg';
-}
+function escH(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function normS(s){return String(s||'').trim().toLowerCase().replace(/[^a-z0-9]/g,' ').replace(/\s+/g,' ').trim();}
+function jaccardSim(a,b){const sa=new Set(a.split(' ').filter(x=>x.length>1));const sb=new Set(b.split(' ').filter(x=>x.length>1));if(!sa.size&&!sb.size)return 1;let inter=0;sa.forEach(w=>{if(sb.has(w))inter++;});return inter/(sa.size+sb.size-inter||1);}
+function updateSyncDot(state){const d=document.getElementById('sync-dot');if(d)d.className='sync-dot '+state;}
 
-// ── EVENT RESOLUTION ──
-async function resolveEvent(){
-  if(eventId && !isExcluded(eventId)){
-    const snap = await get(ref(db, 'events/'+eventId+'/meta'));
-    if(snap.exists() && snap.val().status === 'active'){
-      showEventPill(snap.val());
-      return;
-    }
-    eventId = ''; // link pointed at a passed/archived/unknown event — fall through to picker
-  } else {
-    eventId = '';
-  }
-  // No event in URL or not found — list active events for manual pick
-  const snap = await get(ref(db, 'events'));
-  if(!snap.exists()){
-    showStatus('status-banner','No events are currently open for registration. Please check back soon.','err');
-    document.getElementById('reg-form').style.display = 'none';
-    return;
-  }
-  const events = snap.val();
-  const picker = document.getElementById('event-picker');
-  let html = '<option value="">— select an event —</option>';
-  let anyActive = false;
-  Object.entries(events).forEach(([id, data]) => {
-    if(!data || !data.meta) return;
-    if(data.meta.status !== 'active') return; // only list events not yet passed/archived
-    if(isExcluded(id)) return; // explicitly excluded (e.g. passed event)
-    anyActive = true;
-    html += '<option value="'+esc(id)+'">'+esc(data.meta.name||id)+' — '+esc(data.meta.date||'')+'</option>';
+window.goTab=function(tab){
+  ['recent','standings','byclub','overall'].forEach(t=>{
+    document.getElementById('panel-'+t).classList.toggle('on',t===tab);
+    document.getElementById('tab-'+t).classList.toggle('on',t===tab);
   });
-  if(!anyActive){
-    showStatus('status-banner','No events are currently open for registration. Please check back soon.','err');
-    document.getElementById('reg-form').style.display = 'none';
-    return;
-  }
-  picker.innerHTML = html;
-  document.getElementById('event-picker-wrap').style.display = 'block';
-  picker.onchange = () => {
-    eventId = picker.value;
-    if(eventId){
-      get(ref(db,'events/'+eventId+'/meta')).then(s => { if(s.exists()) showEventPill(s.val()); });
-      document.getElementById('event-picker-wrap').style.display = 'none';
+};
+
+function renderRecent(){
+  const dn=bouts.filter(b=>b.status==='completed').slice().reverse();
+  const el=document.getElementById('recent-body'),empty=document.getElementById('recent-empty');
+  if(!dn.length){el.innerHTML='';empty.style.display='block';return;}
+  empty.style.display='none';
+  el.innerHTML=dn.map(b=>{
+    const wname=b.winner==='draw'?'DRAW':b.winner==='red'?b.red.name:b.blue.name;
+    return '<div class="res-row">'
+      +'<div style="font-family:var(--mono);font-size:8px;color:var(--gold);min-width:70px">'+escH(b.disc)+'</div>'
+      +'<div style="font-size:10px;color:var(--muted);min-width:60px">'+escH(b.ageGrp)+'</div>'
+      +'<div style="flex:1;min-width:140px">'
+      +'<span style="font-weight:'+(b.winner==='red'?700:400)+';color:'+(b.winner==='red'?'var(--text)':'var(--muted)')+'">'+escH(b.red.name)+'</span>'
+      +'<span style="font-family:\'Bebas Neue\',sans-serif;font-size:16px;color:var(--green);margin:0 6px">'+b.score.red+'–'+b.score.blue+'</span>'
+      +'<span style="font-weight:'+(b.winner==='blue'?700:400)+';color:'+(b.winner==='blue'?'var(--text)':'var(--muted)')+'">'+escH(b.blue.name)+'</span>'
+      +'</div>'
+      +'<div style="font-family:var(--mono);font-size:9px;font-weight:700;color:var(--green)">'+escH(wname)+'</div>'
+      +'</div>';
+  }).join('');
+}
+
+function computeStandings(){
+  const completed=bouts.filter(b=>b.status==='completed');
+  const groups={};
+  completed.forEach(b=>{
+    const key=b.disc+'|'+b.ageGrp+'|'+b.div;
+    if(!groups[key])groups[key]={disc:b.disc,ageGrp:b.ageGrp,div:b.div,athletes:{}};
+    const g=groups[key];
+    const ensure=(name,club)=>{if(!g.athletes[name])g.athletes[name]={name,club,points:0,w:0,l:0,d:0};return g.athletes[name];};
+    const red=ensure(b.red.name,b.red.club);
+    const blue=ensure(b.blue.name,b.blue.club);
+    if(b.winner==='red'){red.points+=3;red.w++;blue.points+=1;blue.l++;}
+    else if(b.winner==='blue'){blue.points+=3;blue.w++;red.points+=1;red.l++;}
+    else{red.d++;blue.d++;}
+  });
+  return groups;
+}
+
+function renderStandings(){
+  const groups=computeStandings();
+  const body=document.getElementById('standings-body'),empty=document.getElementById('standings-empty');
+  const keys=Object.keys(groups);
+  if(!keys.length){body.innerHTML='';empty.style.display='block';return;}
+  empty.style.display='none';
+  const agO={'Under 12':0,'13-17':1,'Adult':2};
+  keys.sort((a,b)=>{
+    const ga=groups[a],gb=groups[b];
+    const di=STYLE_ORDER.indexOf(ga.disc)-STYLE_ORDER.indexOf(gb.disc);
+    if(di!==0)return di;
+    const ai=(agO[ga.ageGrp]??2)-(agO[gb.ageGrp]??2);
+    if(ai!==0)return ai;
+    return ga.div==='Female'?-1:1;
+  });
+  let html='',lastDisc='';
+  keys.forEach(key=>{
+    const g=groups[key];
+    if(g.disc!==lastDisc){html+='<div class="sec-hdr" style="margin-top:'+(lastDisc?'16px':'0')+'"><div class="sec-name">'+escH(g.disc)+'</div></div>';lastDisc=g.disc;}
+    const list=Object.values(g.athletes).sort((a,b)=>b.points-a.points||b.w-a.w);
+    html+='<div class="stand-card"><div class="stand-card-hdr"><div style="font-family:\'Bebas Neue\',sans-serif;font-size:15px;letter-spacing:1px;color:'+(g.div==='Female'?'#c060c0':'#4090d0')+'">'+escH(g.ageGrp)+' · '+escH(g.div)+'</div></div>'
+      +'<table><thead><tr><th>NAME</th><th>CLUB</th><th style="text-align:right">W-L</th><th style="text-align:right">PTS</th></tr></thead><tbody>';
+    list.forEach((a,idx)=>{
+      const isTop=idx===0&&a.points>0;
+      html+='<tr'+(isTop?' style="background:var(--gold-bg)"':'')+'>'
+        +'<td style="font-weight:600;color:'+(isTop?'var(--gold)':'var(--text)')+'">'+(isTop?'★ ':'')+escH(a.name)+'</td>'
+        +'<td style="font-size:10px;color:var(--muted)">'+escH(a.club||'')+'</td>'
+        +'<td style="font-family:var(--mono);font-size:10px;text-align:right;color:var(--muted)">'+a.w+'-'+a.l+(a.d?'-'+a.d+'D':'')+'</td>'
+        +'<td style="font-family:\'Bebas Neue\',sans-serif;font-size:16px;text-align:right;color:'+(isTop?'var(--gold)':'var(--text)')+'">'+a.points+'</td>'
+        +'</tr>';
+    });
+    html+='</tbody></table></div>';
+  });
+  body.innerHTML=html;
+}
+
+function computeWinnersByClub(){
+  const clubs={};
+  bouts.filter(b=>b.status==='completed'&&(b.winner==='red'||b.winner==='blue')).forEach(b=>{
+    const winner=b[b.winner],loser=b[b.winner==='red'?'blue':'red'];
+    const club=winner.club||'Independent';
+    if(!clubs[club])clubs[club]=[];
+    const wScore=b.winner==='red'?b.score.red:b.score.blue;
+    const lScore=b.winner==='red'?b.score.blue:b.score.red;
+    clubs[club].push({name:winner.name,disc:b.disc,ageGrp:b.ageGrp,div:b.div,score:wScore+'-'+lScore,beat:loser.name});
+  });
+  return clubs;
+}
+
+function renderWinnersByClub(){
+  const clubs=computeWinnersByClub();
+  const body=document.getElementById('byclub-body'),empty=document.getElementById('byclub-empty');
+  const names=Object.keys(clubs).sort((a,b)=>a.localeCompare(b));
+  if(!names.length){body.innerHTML='';empty.style.display='block';return;}
+  empty.style.display='none';
+  let html='';
+  names.forEach(club=>{
+    const wins=clubs[club].sort((a,b)=>a.disc.localeCompare(b.disc)||a.name.localeCompare(b.name));
+    html+='<div class="sec-hdr"><div class="sec-name">'+escH(club)+'</div><div style="font-family:var(--mono);font-size:9px;color:var(--muted);margin-top:2px">'+wins.length+' win'+(wins.length!==1?'s':'')+'</div></div>';
+    html+='<div class="stand-card"><table><thead><tr><th>FIGHTER</th><th>CATEGORY</th><th>BEAT</th><th style="text-align:right">SCORE</th></tr></thead><tbody>';
+    wins.forEach(w=>{
+      html+='<tr>'
+        +'<td style="font-weight:600;color:var(--gold)">★ '+escH(w.name)+'</td>'
+        +'<td style="font-size:10px;color:var(--muted)">'+escH(w.disc)+' · '+escH(w.ageGrp)+' · '+escH(w.div)+'</td>'
+        +'<td style="font-size:10px;color:var(--muted)">'+escH(w.beat)+'</td>'
+        +'<td style="font-family:var(--mono);font-size:10px;text-align:right;color:var(--green)">'+w.score+'</td>'
+        +'</tr>';
+    });
+    html+='</tbody></table></div>';
+  });
+  body.innerHTML=html;
+}
+
+function computeEagleCupLeaderboard(){
+  const completed=bouts.filter(b=>b.status==='completed'&&(b.winner==='red'||b.winner==='blue'));
+  const raw={};
+  const ensure=(name,club)=>{if(!raw[name])raw[name]={name,club,points:0,w:0,l:0};return raw[name];};
+  completed.forEach(b=>{
+    const red=ensure(b.red.name,b.red.club);
+    const blue=ensure(b.blue.name,b.blue.club);
+    if(b.winner==='red'){red.points+=3;red.w++;blue.points+=1;blue.l++;}
+    else{blue.points+=3;blue.w++;red.points+=1;red.l++;}
+  });
+  const rawList=Object.values(raw);
+  const clusters=[];
+  rawList.forEach(entry=>{
+    const manualTarget=nameMerges[entry.name];
+    let matched=null;
+    if(manualTarget)matched=clusters.find(c=>c.canonicalName===manualTarget||c.members.includes(manualTarget));
+    if(!matched){
+      for(const c of clusters){
+        if(jaccardSim(normS(entry.name),normS(c.canonicalName))>=0.6){matched=c;break;}
+      }
     }
+    if(matched){
+      matched.points+=entry.points;matched.w+=entry.w;matched.l+=entry.l;
+      matched.members.push(entry.name);
+      if(manualTarget)matched.canonicalName=manualTarget;
+      else if(entry.name.length>matched.canonicalName.length)matched.canonicalName=entry.name;
+    }else{
+      clusters.push({canonicalName:manualTarget||entry.name,club:entry.club,points:entry.points,w:entry.w,l:entry.l,members:[entry.name]});
+    }
+  });
+  return clusters.sort((a,b)=>b.points-a.points||b.w-a.w);
+}
+
+function renderEagleCupLeaderboard(){
+  const list=computeEagleCupLeaderboard();
+  const body=document.getElementById('overall-body'),empty=document.getElementById('overall-empty');
+  if(!list.length){body.innerHTML='';empty.style.display='block';return;}
+  empty.style.display='none';
+  let html='<div class="stand-card"><table><thead><tr><th>#</th><th>NAME</th><th>CLUB</th><th style="text-align:right">W-L</th><th style="text-align:right">PTS</th></tr></thead><tbody>';
+  list.forEach((c,idx)=>{
+    const rank=idx+1,isTop3=rank<=3,medal=rank===1?'🥇':rank===2?'🥈':rank===3?'🥉':'';
+    const hasVariants=c.members.length>1;
+    html+='<tr'+(isTop3?' style="background:var(--gold-bg)"':'')+'>'
+      +'<td style="font-family:var(--mono);color:var(--muted)">'+rank+'</td>'
+      +'<td style="font-weight:600;color:'+(isTop3?'var(--gold)':'var(--text)')+'">'+medal+(medal?' ':'')+escH(c.canonicalName)+(hasVariants?'<div style="font-family:var(--mono);font-size:8px;color:var(--muted);font-weight:400">'+c.members.length+' combined</div>':'')+'</td>'
+      +'<td style="font-size:10px;color:var(--muted)">'+escH(c.club||'')+'</td>'
+      +'<td style="font-family:var(--mono);font-size:10px;text-align:right;color:var(--muted)">'+c.w+'-'+c.l+'</td>'
+      +'<td style="font-family:\'Bebas Neue\',sans-serif;font-size:18px;text-align:right;color:'+(isTop3?'var(--gold)':'var(--text)')+'">'+c.points+'</td>'
+      +'</tr>';
+  });
+  html+='</tbody></table></div>';
+  body.innerHTML=html;
+}
+
+function renderAll(){renderRecent();renderStandings();renderWinnersByClub();renderEagleCupLeaderboard();}
+
+function initFirebase(){
+  const cfg={
+    apiKey:"AIzaSyDKqodxFjM0EG_qu4zkCAQ37udwYTdSSQY",
+    authDomain:"cgs-manager.firebaseapp.com",
+    databaseURL:"https://cgs-manager-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId:"cgs-manager",
+    storageBucket:"cgs-manager.firebasestorage.app",
+    messagingSenderId:"928662574013",
+    appId:"1:928662574013:web:be540e308d022d28f678d4"
   };
-}
-
-function showEventPill(meta){
-  document.getElementById('event-pill-date').textContent = meta.date || '';
-  document.getElementById('event-pill-name').textContent = meta.name || eventId;
-  document.getElementById('event-pill').style.display = 'inline-flex';
-  currentEventMeta = meta;
-  renderWaiverText();
-}
-
-// ── MODE SWITCH ──
-window.setMode = function(m){
-  mode = m;
-  document.getElementById('mode-new-btn').classList.toggle('active', m==='new');
-  document.getElementById('mode-return-btn').classList.toggle('active', m==='return');
-  document.getElementById('return-card').style.display = m==='return' ? 'block' : 'none';
-};
-
-// ── STYLE CHIPS ──
-document.querySelectorAll('.style-chip input').forEach(cb => {
-  cb.addEventListener('change', () => {
-    cb.closest('.style-chip').classList.toggle('on', cb.checked);
-    updateFee();
-  });
-});
-function getSelectedStyles(){
-  return Array.from(document.querySelectorAll('.style-chip input:checked')).map(cb => cb.value);
-}
-function updateFee(){
-  const n = getSelectedStyles().length;
-  const box = document.getElementById('fee-box');
-  if(n===0){ box.style.display='none'; return; }
-  box.style.display='block';
-  const fee = 50 + 20*(n-1);
-  document.getElementById('fee-amount').textContent = '$'+fee;
-}
-
-// ── WAIVER ──
-function waiverHtml(eventName, eventDate){
-  const en = esc(eventName||'the event');
-  const ed = esc(eventDate||'the scheduled date');
-  return ''
-    +'<p>I, the Participant (or the Participant\'s parent/guardian if under 18), in consideration of being permitted to compete in the Eagle DS Combat Games Series event <strong>'+en+' on '+ed+'</strong> at 17 Nandina Avenue, East Tāmaki, Auckland ("the Event"), and in consideration for the right to participate, knowingly and voluntarily enter into this waiver and release of liability. For myself, my heirs, executors, administrators and personal representatives, I waive any and all claims or causes of action arising out of my participation in the Event, and release and forever discharge Eagle DS Limited, its directors, coaches, officials, volunteers, contractors and agents (together "Eagle DS") from any physical or psychological injury — including illness, disability, or death — that I may suffer as a direct or indirect result of my participation, including travel to and from the Event venue.</p>'
-    +'<p><strong>I AM PARTICIPATING VOLUNTARILY AND ENTIRELY AT MY OWN RISK.</strong> I understand that light-contact combat sport carries an inherent risk of injury, including but not limited to bruising, sprains, fractures, concussion, or more serious harm, and that these risks exist even where Eagle DS\'s safety standards, rules, and officiating are properly followed. I confirm I am aware of these risks and choose to accept them.</p>'
-    +'<p>I agree to indemnify Eagle DS against any claim, suit, or action brought by me or on my behalf arising from my participation, including reasonable costs Eagle DS incurs in defending such a claim.</p>'
-    +'<p><strong>Accident Compensation (ACC):</strong> I understand that as a New Zealand event, injuries sustained during the Event may be covered in part by the Accident Compensation Corporation (ACC) scheme in accordance with New Zealand law. This waiver applies to the fullest extent the law allows to any loss, cost, or liability not covered by ACC.</p>'
-    +'<p><strong>Medical Costs:</strong> I understand I am responsible for my own health/medical insurance, and for any treatment costs not covered by ACC.</p>'
-    +'<p><strong>Media Consent:</strong> I consent to Eagle DS photographing, filming, and livestreaming me during the Event, and to Eagle DS using that footage or imagery — including my name — for promotional, educational, and archival purposes, in any format, without further compensation to me.</p>'
-    +'<p>I confirm I have read and understood this waiver in full before signing.</p>';
-}
-function renderWaiverText(){
-  const el = document.getElementById('waiver-text-body');
-  if(!el) return;
-  el.innerHTML = waiverHtml(currentEventMeta && currentEventMeta.name, currentEventMeta && currentEventMeta.date);
-}
-function updateWaiverSection(){
-  const dob = document.getElementById('f-dob').value;
-  const ageNote = document.getElementById('waiver-age-note');
-  const textWrap = document.getElementById('waiver-text-wrap');
-  const adultSec = document.getElementById('adult-waiver-section');
-  const guardianSec = document.getElementById('guardian-waiver-section');
-  if(!dob){
-    ageNote.style.display = 'block';
-    textWrap.style.display = 'none';
-    adultSec.style.display = 'none';
-    guardianSec.style.display = 'none';
-    return;
-  }
-  ageNote.style.display = 'none';
-  textWrap.style.display = 'block';
-  const age = calcAge(dob);
-  if(age < 18){
-    adultSec.style.display = 'none';
-    guardianSec.style.display = 'block';
-    setTimeout(() => initSigPad('guardian','sig-pad-guardian'), 0);
-  } else {
-    guardianSec.style.display = 'none';
-    adultSec.style.display = 'block';
-    setTimeout(() => initSigPad('adult','sig-pad-adult'), 0);
-  }
-}
-document.getElementById('f-dob').addEventListener('input', updateWaiverSection);
-document.getElementById('f-waiver-agree').addEventListener('change', function(){
-  document.getElementById('adult-consent-row').classList.toggle('on', this.checked);
-});
-document.getElementById('f-guardian-agree').addEventListener('change', function(){
-  document.getElementById('guardian-consent-row').classList.toggle('on', this.checked);
-});
-
-// ── SIGNATURE PADS ──
-const sigPads = {};
-function initSigPad(name, canvasId){
-  const canvas = document.getElementById(canvasId);
-  if(!canvas || sigPads[name]) return;
-  const rect = canvas.getBoundingClientRect();
-  if(rect.width===0 || rect.height===0) return; // not visible yet — try again next time section opens
-  const ctx = canvas.getContext('2d');
-  const dpr = window.devicePixelRatio || 1;
-  canvas.width = rect.width * dpr;
-  canvas.height = rect.height * dpr;
-  ctx.scale(dpr, dpr);
-  ctx.lineWidth = 2.2;
-  ctx.lineCap = 'round';
-  ctx.lineJoin = 'round';
-  ctx.strokeStyle = '#111';
-  const pad = { canvas, ctx, drawing:false, hasInk:false };
-  sigPads[name] = pad;
-
-  function pos(e){
-    const r = canvas.getBoundingClientRect();
-    const cx = e.touches ? e.touches[0].clientX : e.clientX;
-    const cy = e.touches ? e.touches[0].clientY : e.clientY;
-    return { x: cx - r.left, y: cy - r.top };
-  }
-  function start(e){ e.preventDefault(); pad.drawing = true; const p = pos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); }
-  function move(e){ if(!pad.drawing) return; e.preventDefault(); const p = pos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); pad.hasInk = true; }
-  function end(){ pad.drawing = false; }
-
-  canvas.addEventListener('mousedown', start);
-  canvas.addEventListener('mousemove', move);
-  window.addEventListener('mouseup', end);
-  canvas.addEventListener('touchstart', start, {passive:false});
-  canvas.addEventListener('touchmove', move, {passive:false});
-  canvas.addEventListener('touchend', end);
-}
-window.clearSig = function(name){
-  const pad = sigPads[name];
-  if(!pad) return;
-  pad.ctx.clearRect(0,0,pad.canvas.width,pad.canvas.height);
-  pad.hasInk = false;
-};
-function sigIsEmpty(name){ const pad = sigPads[name]; return !pad || !pad.hasInk; }
-function sigDataUrl(name){ const pad = sigPads[name]; return (pad && pad.hasInk) ? pad.canvas.toDataURL('image/png') : null; }
-
-// ── RETURNING COMPETITOR: LOAD BY ID ──
-window.lookupById = async function(){
-  const id = document.getElementById('lookup-id').value.trim().toUpperCase();
-  if(!id){ showStatus('lookup-status','Enter your Competitor ID.','err'); return; }
-  clearStatus('lookup-status');
-  const snap = await get(ref(db, 'competitors/'+id));
-  if(!snap.exists()){
-    showStatus('lookup-status','No competitor found with that ID. Check it and try again, or use the search below.','err');
-    return;
-  }
-  const c = snap.val();
-  loadedCompetitorId = id;
-  fillForm(c);
-  showStatus('lookup-status','Loaded — your details are prefilled below. Update anything that has changed.','ok');
-};
-
-function fillForm(c){
-  document.getElementById('f-name').value = c.name||'';
-  document.getElementById('f-sur').value = c.sur||'';
-  document.getElementById('f-gender').value = c.gender||'';
-  document.getElementById('f-weight').value = c.weight||'';
-  document.getElementById('f-height').value = c.height||'';
-  document.getElementById('f-dob').value = c.dob||'';
-  document.getElementById('f-email').value = c.email||'';
-  document.getElementById('f-phone').value = c.phone||'';
-  document.getElementById('f-background').value = c.background||'';
-  document.getElementById('f-org').value = c.org||'';
-  document.getElementById('f-rank').value = c.rank||'';
-  document.getElementById('f-experience').value = c.experience||'';
-  document.getElementById('f-agecat').value = c.ageCategory||'';
-  document.getElementById('f-club').value = c.club||c.clubRaw||'';
-  document.getElementById('f-clubcity').value = c.clubCity||'';
-  document.getElementById('f-clubphone').value = c.clubPhone||'';
-  document.getElementById('f-instructor').value = c.instructor||'';
-  updateWaiverSection();
-}
-
-// ── FIND MY ID (name + DOB, not name alone — avoids exposing another competitor's edit-key on a bare name search) ──
-window.findMyId = async function(){
-  const name = normS(document.getElementById('find-name').value);
-  const dob = document.getElementById('find-dob').value;
-  const resultsEl = document.getElementById('find-results');
-  if(!name || !dob){ resultsEl.innerHTML = '<div class="status-msg show err">Enter both your full name and date of birth.</div>'; return; }
-  const snap = await get(ref(db, 'competitors'));
-  if(!snap.exists()){ resultsEl.innerHTML = '<div class="status-msg show err">No competitors found.</div>'; return; }
-  const all = snap.val();
-  const matches = Object.entries(all).filter(([id,c]) => {
-    const full = normS((c.name||'')+' '+(c.sur||''));
-    return full === name && c.dob === dob;
-  });
-  if(!matches.length){
-    resultsEl.innerHTML = '<div class="status-msg show err">No match. Email info@eagleds.co.nz and we\'ll look it up for you.</div>';
-    return;
-  }
-  resultsEl.innerHTML = matches.map(([id,c]) =>
-    '<div class="lookup-result-row"><div><div class="lname">'+esc((c.name||'')+' '+(c.sur||''))+'</div><div class="lclub">'+esc(c.club||c.clubRaw||'')+'</div></div><div style="font-family:var(--mono);color:var(--gold);font-weight:600">'+esc(id)+'</div></div>'
-  ).join('');
-};
-
-// ── ID GENERATION ──
-async function generateId(){
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // no ambiguous 0/O/1/I
-  for(let attempt=0; attempt<20; attempt++){
-    let code = '';
-    for(let i=0;i<5;i++) code += chars[Math.floor(Math.random()*chars.length)];
-    const id = 'CGS-'+code;
-    const snap = await get(ref(db, 'competitors/'+id));
-    if(!snap.exists()) return id;
-  }
-  return 'CGS-'+Date.now().toString(36).toUpperCase();
-}
-
-// ── SUBMIT ──
-document.getElementById('reg-form').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  clearStatus('status-banner');
-
-  if(!eventId){ showStatus('status-banner','Select an event above before registering.','err'); return; }
-  const styles = getSelectedStyles();
-  if(!styles.length){ showStatus('status-banner','Select at least one style to enter.','err'); return; }
-
-  const name = document.getElementById('f-name').value.trim();
-  const sur = document.getElementById('f-sur').value.trim();
-  const gender = document.getElementById('f-gender').value;
-  const dob = document.getElementById('f-dob').value;
-  const weight = parseFloat(document.getElementById('f-weight').value)||0;
-  const email = document.getElementById('f-email').value.trim().toLowerCase();
-  const phone = document.getElementById('f-phone').value.trim();
-  const club = document.getElementById('f-club').value.trim();
-
-  if(!name||!sur||!gender||!dob||!weight||!email||!phone||!club){
-    showStatus('status-banner','Fill in all required fields (marked *).','err');
-    return;
-  }
-
-  const ageNow = calcAge(dob);
-  let waiverRecord = null;
-  if(ageNow < 18){
-    const guardianName = document.getElementById('f-guardian-name').value.trim();
-    const guardianAgree = document.getElementById('f-guardian-agree').checked;
-    const guardianPrintedName = document.getElementById('f-guardian-signature').value.trim();
-    if(!guardianName || !guardianAgree || !guardianPrintedName){
-      showStatus('status-banner','A parent or legal guardian must fill in their name and check the consent box before this can be submitted.','err');
-      return;
-    }
-    if(sigIsEmpty('guardian')){
-      showStatus('status-banner','The parent or legal guardian must draw their signature in the box before this can be submitted.','err');
-      return;
-    }
-    waiverRecord = {
-      signerType: 'guardian',
-      guardianName,
-      printedName: guardianPrintedName,
-      signatureImage: sigDataUrl('guardian'),
-      signedAt: new Date().toISOString()
-    };
-  } else {
-    const waiverAgree = document.getElementById('f-waiver-agree').checked;
-    const printedName = document.getElementById('f-signature').value.trim();
-    if(!waiverAgree || !printedName){
-      showStatus('status-banner','You must agree to the waiver and print your name before submitting.','err');
-      return;
-    }
-    if(sigIsEmpty('adult')){
-      showStatus('status-banner','You must draw your signature in the box before submitting.','err');
-      return;
-    }
-    waiverRecord = {
-      signerType: 'self',
-      printedName,
-      signatureImage: sigDataUrl('adult'),
-      signedAt: new Date().toISOString()
-    };
-  }
-
-  const btn = document.getElementById('submit-btn');
-  btn.disabled = true; btn.textContent = 'Submitting…';
-
-  const competitorData = {
-    name, sur, gender, dob, weight,
-    height: parseFloat(document.getElementById('f-height').value)||0,
-    age: calcAge(dob),
-    email, phone,
-    background: document.getElementById('f-background').value.trim(),
-    org: document.getElementById('f-org').value.trim(),
-    rank: document.getElementById('f-rank').value.trim(),
-    experience: document.getElementById('f-experience').value,
-    ageCategory: document.getElementById('f-agecat').value,
-    club, clubRaw: club,
-    clubCity: document.getElementById('f-clubcity').value.trim(),
-    clubPhone: document.getElementById('f-clubphone').value.trim(),
-    instructor: document.getElementById('f-instructor').value.trim(),
-    updatedAt: new Date().toISOString()
-  };
-
   try{
-    let competitorId = loadedCompetitorId;
-    if(competitorId){
-      await update(ref(db, 'competitors/'+competitorId), competitorData);
-    } else {
-      competitorId = await generateId();
-      await set(ref(db, 'competitors/'+competitorId), { ...competitorData, createdAt: new Date().toISOString() });
-    }
+    const existing=getApps().find(a=>a.name==='cgs-results');
+    const app=existing||initializeApp(cfg,'cgs-results');
+    const db=getDatabase(app);
+    updateSyncDot('live');
+    onValue(ref(db,`events/${eventId}/bouts`),snap=>{
+      if(!snap.exists())return;
+      const data=snap.val();
+      if(Array.isArray(data)){bouts=data;renderAll();}
+    });
+    onValue(ref(db,`events/${eventId}/nameMerges`),snap=>{
+      nameMerges=snap.exists()?(snap.val()||{}):{};
+      renderAll();
+    });
+  }catch(e){updateSyncDot('err');console.warn(e);}
+}
 
-    // Write into events/{eventId}/registrations in the exact shape index.html already reads —
-    // admin tool (matching, pools, weigh-in, payments) works unmodified.
-    const regKey = regsDedupeKey(name, sur, gender);
-    const existingSnap = await get(ref(db, 'events/'+eventId+'/registrations/'+regKey));
-    const existingReg = existingSnap.exists() ? existingSnap.val() : null;
-
-    const regRecord = {
-      name, sur, gender, weight,
-      age: calcAge(dob), dob,
-      styles,
-      clubRaw: club, club,
-      email,
-      competitorId,
-      waiver: waiverRecord,
-      withdrawn: existingReg ? (existingReg.withdrawn||false) : false,
-      inDraw: existingReg ? (existingReg.inDraw||false) : false,
-      weighIn: existingReg ? (existingReg.weighIn||'pending') : 'pending',
-      addedAt: existingReg ? existingReg.addedAt : new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    };
-    await set(ref(db, 'events/'+eventId+'/registrations/'+regKey), regRecord);
-
-    document.getElementById('reg-form').style.display = 'none';
-    document.getElementById('id-display').textContent = competitorId;
-    document.getElementById('id-result').classList.add('show');
-    showStatus('status-banner','Registration received. Your waiver has been recorded.','ok');
-    window.scrollTo({top:0, behavior:'smooth'});
-  } catch(err){
-    console.error(err);
-    showStatus('status-banner','Something went wrong submitting — please try again or email info@eagleds.co.nz.','err');
-    btn.disabled = false; btn.textContent = 'Submit Registration →';
-  }
-});
-
-resolveEvent();
+initFirebase();
 </script>
 </body>
 </html>
