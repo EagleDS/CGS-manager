@@ -63,6 +63,9 @@ tr.row:hover td{background:#14141a;cursor:pointer}
 <body>
 
 <div class="topbar">
+  <a href="https://eagleds.github.io/CGS-manager/index.html" style="text-decoration:none">
+    <button class="btn btn-ghost" style="color:var(--gold);border-color:var(--gold-dk)">← CGS MANAGER</button>
+  </a>
   <div class="title">⚔ COMPETITOR DIRECTORY</div>
 </div>
 <div class="load-error" id="load-error">⚠ Script hasn't loaded — check you're on the live eagleds.github.io/CGS-manager/competitors.html URL, and that GitHub Pages has finished publishing.</div>
@@ -126,7 +129,8 @@ async function loadAll(){
           styles: reg.styles||[], weighIn: reg.weighIn||'pending',
           withdrawn: !!reg.withdrawn,
           paid: !!(reg.checkin && reg.checkin.paid),
-          paidAmount: (reg.checkin && reg.checkin.paidAmount) || 0
+          paidAmount: (reg.checkin && reg.checkin.paidAmount) || 0,
+          waiver: reg.waiver || null
         });
       });
     });
@@ -214,10 +218,15 @@ window.openDetail = function(id){
     html += '<div class="muted" style="font-family:var(--mono);font-size:11px">No events entered yet.</div>';
   } else {
     history.forEach(h => {
+      const w = h.waiver;
+      const waiverLine = w
+        ? '✓ Signed by '+esc(w.signerType==='guardian' ? (w.guardianName+' (guardian)') : (w.signature||'competitor'))+(w.signedAt ? ' · '+new Date(w.signedAt).toLocaleDateString() : '')
+        : '⚠ Not signed';
       html += '<div class="event-row">'
         +'<div class="en">'+esc(h.eventName)+(h.withdrawn?' <span style="color:var(--red)">(withdrawn)</span>':'')+'</div>'
         +'<div class="ed">'+esc(h.eventDate)+'</div>'
         +'<div class="es">Styles: '+esc(h.styles.join(', ')||'—')+' · Weigh-in: '+esc(h.weighIn)+' · <span class="'+(h.paid?'paid':'unpaid')+'">'+(h.paid?'✓ Paid':'Unpaid'+(h.paidAmount?' ($'+h.paidAmount+' so far)':''))+'</span></div>'
+        +'<div class="es" style="margin-top:2px;color:'+(w?'var(--green)':'var(--red)')+'">'+waiverLine+'</div>'
         +'</div>';
     });
   }
@@ -232,15 +241,17 @@ window.openDetail = function(id){
 window.closeModal = function(){ document.getElementById('overlay').classList.remove('show'); };
 
 window.exportCSV = function(){
-  const rows = [['Competitor ID','Name','Surname','Gender','DOB','Age','Weight','Height','Email','Phone','Background','Org Affiliations','Rank','Experience','Age Category','Club','Club City','Club Phone','Instructor','First Registered','Last Updated','Events Entered','Event Count']];
+  const rows = [['Competitor ID','Name','Surname','Gender','DOB','Age','Weight','Height','Email','Phone','Background','Org Affiliations','Rank','Experience','Age Category','Club','Club City','Club Phone','Instructor','First Registered','Last Updated','Events Entered','Event Count','Waivers Signed']];
   Object.entries(competitors).forEach(([id,c]) => {
     const history = eventHistory[id] || [];
+    const waiversSigned = history.filter(h => h.waiver).length;
     rows.push([
       id, c.name||'', c.sur||'', c.gender||'', c.dob||'', c.age||'', c.weight||'', c.height||'',
       c.email||'', c.phone||'', c.background||'', c.org||'', c.rank||'', c.experience||'', c.ageCategory||'',
       c.club||'', c.clubCity||'', c.clubPhone||'', c.instructor||'',
       c.createdAt||'', c.updatedAt||'',
-      history.map(h=>h.eventName).join('; '), history.length
+      history.map(h=>h.eventName).join('; '), history.length,
+      waiversSigned+' / '+history.length
     ]);
   });
   const csv = rows.map(r => r.map(v => {
