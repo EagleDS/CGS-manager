@@ -220,13 +220,15 @@ window.openDetail = function(id){
     history.forEach(h => {
       const w = h.waiver;
       const waiverLine = w
-        ? '✓ Signed by '+esc(w.signerType==='guardian' ? (w.guardianName+' (guardian)') : (w.signature||'competitor'))+(w.signedAt ? ' · '+new Date(w.signedAt).toLocaleDateString() : '')
+        ? '✓ Signed by '+esc(w.signerType==='guardian' ? (w.guardianName+' (guardian)') : (w.printedName||'competitor'))+(w.signedAt ? ' · '+new Date(w.signedAt).toLocaleDateString() : '')
         : '⚠ Not signed';
+      const sigImg = (w && w.signatureImage) ? '<img src="'+w.signatureImage+'" alt="signature" style="background:#fff;border-radius:2px;height:40px;margin-top:4px;display:block"/>' : '';
       html += '<div class="event-row">'
         +'<div class="en">'+esc(h.eventName)+(h.withdrawn?' <span style="color:var(--red)">(withdrawn)</span>':'')+'</div>'
         +'<div class="ed">'+esc(h.eventDate)+'</div>'
         +'<div class="es">Styles: '+esc(h.styles.join(', ')||'—')+' · Weigh-in: '+esc(h.weighIn)+' · <span class="'+(h.paid?'paid':'unpaid')+'">'+(h.paid?'✓ Paid':'Unpaid'+(h.paidAmount?' ($'+h.paidAmount+' so far)':''))+'</span></div>'
         +'<div class="es" style="margin-top:2px;color:'+(w?'var(--green)':'var(--red)')+'">'+waiverLine+'</div>'
+        +sigImg
         +'</div>';
     });
   }
