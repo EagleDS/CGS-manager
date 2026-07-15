@@ -223,12 +223,14 @@ window.openDetail = function(id){
         ? '✓ Signed by '+esc(w.signerType==='guardian' ? (w.guardianName+' (guardian)') : (w.printedName||'competitor'))+(w.signedAt ? ' · '+new Date(w.signedAt).toLocaleDateString() : '')
         : '⚠ Not signed';
       const sigImg = (w && w.signatureImage) ? '<img src="'+w.signatureImage+'" alt="signature" style="background:#fff;border-radius:2px;height:40px;margin-top:4px;display:block"/>' : '';
+      const textBtn = (w && w.textAgreedTo) ? '<button class="btn btn-ghost btn-xs" style="margin-top:4px" onclick="showWaiverText(this)" data-text="'+escA(w.textAgreedTo)+'">VIEW WAIVER TEXT AGREED TO</button>' : '';
       html += '<div class="event-row">'
         +'<div class="en">'+esc(h.eventName)+(h.withdrawn?' <span style="color:var(--red)">(withdrawn)</span>':'')+'</div>'
         +'<div class="ed">'+esc(h.eventDate)+'</div>'
         +'<div class="es">Styles: '+esc(h.styles.join(', ')||'—')+' · Weigh-in: '+esc(h.weighIn)+' · <span class="'+(h.paid?'paid':'unpaid')+'">'+(h.paid?'✓ Paid':'Unpaid'+(h.paidAmount?' ($'+h.paidAmount+' so far)':''))+'</span></div>'
         +'<div class="es" style="margin-top:2px;color:'+(w?'var(--green)':'var(--red)')+'">'+waiverLine+'</div>'
         +sigImg
+        +textBtn
         +'</div>';
     });
   }
@@ -241,6 +243,16 @@ window.openDetail = function(id){
 };
 
 window.closeModal = function(){ document.getElementById('overlay').classList.remove('show'); };
+
+window.showWaiverText = function(btn){
+  const text = btn.dataset.text || '';
+  document.getElementById('modal-box').innerHTML =
+    '<div class="modal-title">Waiver Text Agreed To</div>'
+    +'<div class="modal-id">Exact wording shown at the moment of signing.</div>'
+    +'<div style="background:#0a0a0d;border:1px solid var(--border);border-radius:2px;padding:16px;max-height:400px;overflow-y:auto;font-size:12px;line-height:1.7;color:var(--muted)">'+text+'</div>'
+    +'<button class="btn btn-ghost close-btn" onclick="closeModal()">CLOSE</button>';
+  document.getElementById('overlay').classList.add('show');
+};
 
 window.exportCSV = function(){
   const rows = [['Competitor ID','Name','Surname','Gender','DOB','Age','Weight','Height','Email','Phone','Background','Org Affiliations','Rank','Experience','Age Category','Club','Club City','Club Phone','Instructor','First Registered','Last Updated','Events Entered','Event Count','Waivers Signed']];
@@ -283,4 +295,3 @@ setTimeout(function(){
 </script>
 </body>
 </html>
-
