@@ -264,6 +264,9 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
       <a href="https://eagleds.github.io/CGS-manager/results.html" target="_blank" style="text-decoration:none">
         <button class="btn btn-ghost" style="width:100%;text-align:left;color:var(--green);border-color:var(--green)">🏆 RESULTS</button>
       </a>
+      <a href="https://eagleds.github.io/CGS-manager/competitors.html" target="_blank" style="text-decoration:none">
+        <button class="btn btn-ghost" style="width:100%;text-align:left;color:#9070d0;border-color:#4a2a6a">🗂 COMPETITOR DIRECTORY</button>
+      </a>
       <a href="https://eagleds.github.io/CRM/eagle-os.html" target="_blank" style="text-decoration:none">
         <button class="btn btn-ghost" style="width:100%;text-align:left">🦅 EAGLE OS</button>
       </a>
@@ -273,7 +276,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
       <a href="https://eagleds.co.nz/pools.html" target="_blank" style="text-decoration:none">
         <button class="btn btn-ghost" style="width:100%;text-align:left;color:var(--orange);border-color:#4a2800">🏊 POOL LISTS</button>
       </a>
-      <a href="https://forms.gle/TcQCcid63rQQDiZF6" target="_blank" style="text-decoration:none">
+      <a href="https://eagleds.co.nz/register.html" target="_blank" style="text-decoration:none">
         <button class="btn btn-ghost" style="width:100%;text-align:left;grid-column:1/-1">📋 REGISTER FORM</button>
       </a>
     </div>
@@ -485,7 +488,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
   <div id="weigh-panel-payments" style="display:none">
     <div class="panel">
       <div class="panel-title">PASTE BANK STATEMENT</div>
-      <div class="panel-sub">Paste three columns: Timestamp, Full Name, Amount Paid. Owed amount is calculated automatically — $40 first style, +$20 each additional style registered. Nothing is saved until you review matches below and tap APPLY ALL CONFIRMED.</div>
+      <div class="panel-sub">Paste three columns: Timestamp, Full Name, Amount Paid. Owed amount is calculated automatically — $50 first style, +$20 each additional style registered. Nothing is saved until you review matches below and tap APPLY ALL CONFIRMED.</div>
       <div class="fld"><textarea id="payments-raw" placeholder="Paste timestamp, name, amount…" style="height:120px"></textarea></div>
       <div class="row-btns">
         <button class="btn btn-gold" onclick="parsePayments()">MATCH →</button>
@@ -1400,7 +1403,7 @@ function markAthletesAsDrawn(newBouts){
   saveRegsToFirebase();updateRegsStatus();updateRegsMatchSummary();
 }
 
-function calcOwed(a){const n=(a.styles||[]).length;return n<=0?0:40+20*(n-1);}
+function calcOwed(a){const n=(a.styles||[]).length;return n<=0?0:50+20*(n-1);}
 
 function findRegKeyByFullName(fullName){
   if(!fullName)return null;
