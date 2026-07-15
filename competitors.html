@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+<title>Competitor Directory — CGS Manager</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#08080a;--surf:#0f0f12;--surf2:#16161a;--border:#222228;--dim:#3a3a42;
+  --text:#f0f0f4;--muted:#64646e;
+  --gold:#f0b429;--gold-dk:#c89010;--gold-bg:#120e00;
+  --red:#e03030;--red-bg:#120404;
+  --green:#20b040;--green-bg:#021008;
+  --mono:'IBM Plex Mono',monospace;--sans:'IBM Plex Sans',sans-serif;--bebas:'Bebas Neue',sans-serif;
+}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13px;padding:14px;padding-bottom:60px}
+.topbar{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.title{font-family:var(--bebas);font-size:22px;letter-spacing:3px;color:var(--gold)}
+.load-error{display:none;background:var(--red-bg);border:1px solid var(--red);color:#ff8080;font-family:var(--mono);font-size:11px;padding:10px 12px;border-radius:3px;margin-bottom:14px;line-height:1.6}
+.stats{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.stat{background:var(--surf);border:1px solid var(--border);border-radius:3px;padding:8px 12px;min-width:70px}
+.stat-v{font-family:var(--bebas);font-size:22px;color:var(--gold);line-height:1}
+.stat-l{font-family:var(--mono);font-size:8px;letter-spacing:1.5px;color:var(--muted);margin-top:1px}
+.controls{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;align-items:center}
+input,select{background:#0a0a0d;border:1px solid var(--border);color:var(--text);padding:7px 10px;border-radius:2px;font-family:var(--mono);font-size:11px}
+input:focus,select:focus{outline:none;border-color:var(--gold)}
+#search{flex:1;min-width:160px}
+.btn{border:none;cursor:pointer;font-family:var(--mono);font-weight:600;letter-spacing:.8px;border-radius:2px;padding:8px 14px;font-size:10px}
+.btn-gold{background:var(--gold-dk);color:#000}
+.btn-ghost{background:none;border:1px solid var(--border);color:var(--muted)}
+table{width:100%;border-collapse:collapse;font-size:11px;background:var(--surf);border:1px solid var(--border);border-radius:3px;overflow:hidden}
+th{background:#0d0d10;color:var(--muted);font-family:var(--mono);font-size:8px;letter-spacing:1px;padding:7px 8px;text-align:left;border-bottom:1px solid var(--border)}
+td{padding:7px 8px;border-bottom:1px solid #111115;vertical-align:middle}
+tr.row:hover td{background:#14141a;cursor:pointer}
+.name-cell{font-weight:600}
+.id-cell{font-family:var(--mono);color:var(--gold);font-size:10px}
+.muted{color:var(--muted)}
+.empty{text-align:center;color:var(--muted);font-family:var(--mono);font-size:11px;padding:24px}
+
+#overlay{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:200;display:none;align-items:flex-start;justify-content:center;overflow-y:auto;padding:20px 12px}
+#overlay.show{display:flex}
+.modal{background:#0f0f12;border:1px solid var(--border);border-top:2px solid var(--gold);border-radius:4px;width:100%;max-width:600px;padding:20px}
+.modal-title{font-family:var(--bebas);font-size:22px;letter-spacing:2px;color:var(--gold);margin-bottom:2px}
+.modal-id{font-family:var(--mono);font-size:11px;color:var(--muted);margin-bottom:16px}
+.detail-section{margin-bottom:16px}
+.detail-label{font-family:var(--mono);font-size:8px;letter-spacing:1.5px;color:var(--red);text-transform:uppercase;margin-bottom:8px;padding-left:8px;border-left:2px solid var(--red)}
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+@media(max-width:480px){.detail-grid{grid-template-columns:1fr}}
+.detail-fld{background:#0a0a0d;border:1px solid var(--border);border-radius:2px;padding:6px 10px}
+.detail-fld .dl{font-family:var(--mono);font-size:8px;color:var(--muted);letter-spacing:1px;text-transform:uppercase}
+.detail-fld .dv{font-size:12px;margin-top:2px}
+.event-row{background:#0a0a0d;border:1px solid var(--border);border-radius:2px;padding:8px 10px;margin-bottom:6px}
+.event-row .en{font-weight:600;font-size:12px}
+.event-row .ed{font-family:var(--mono);font-size:9px;color:var(--muted);margin-top:2px}
+.event-row .es{font-family:var(--mono);font-size:9px;margin-top:4px}
+.paid{color:var(--green)}.unpaid{color:var(--red)}
+.close-btn{width:100%;margin-top:14px}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="title">⚔ COMPETITOR DIRECTORY</div>
+</div>
+<div class="load-error" id="load-error">⚠ Script hasn't loaded — check you're on the live eagleds.github.io/CGS-manager/competitors.html URL, and that GitHub Pages has finished publishing.</div>
+
+<div class="stats" id="stats"></div>
+
+<div class="controls">
+  <input id="search" placeholder="Search name, email, club…" oninput="renderTable()"/>
+  <select id="filter-club" onchange="renderTable()"><option value="">All Clubs</option></select>
+  <button class="btn btn-gold" onclick="exportCSV()">⬇ EXPORT CSV</button>
+  <button class="btn btn-ghost" onclick="loadAll()">↺ REFRESH</button>
+</div>
+
+<div id="table-wrap"></div>
+
+<div id="overlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal" id="modal-box"></div>
+</div>
+
+<script type="module">
+import { initializeApp, getApps } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getDatabase, ref, get } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
+
+const FB = {
+  apiKey: "AIzaSyDKqodxFjM0EG_qu4zkCAQ37udwYTdSSQY",
+  authDomain: "cgs-manager.firebaseapp.com",
+  databaseURL: "https://cgs-manager-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "cgs-manager",
+  storageBucket: "cgs-manager.firebasestorage.app",
+  messagingSenderId: "928662574013",
+  appId: "1:928662574013:web:be540e308d022d28f678d4"
+};
+const app = getApps().find(a=>a.name==='competitor-directory') || initializeApp(FB,'competitor-directory');
+const db = getDatabase(app);
+
+let competitors = {};      // { id: {...} }
+let eventHistory = {};     // { competitorId: [ {eventId, eventName, eventDate, styles, weighIn, withdrawn, checkin}, ... ] }
+let allClubs = [];
+
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function escA(s){ return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;'); }
+function fullName(c){ return ((c.name||'')+' '+(c.sur||'')).trim(); }
+
+async function loadAll(){
+  document.getElementById('table-wrap').innerHTML = '<div class="empty">Loading…</div>';
+  const compSnap = await get(ref(db, 'competitors'));
+  competitors = compSnap.exists() ? compSnap.val() : {};
+
+  eventHistory = {};
+  const eventsSnap = await get(ref(db, 'events'));
+  if(eventsSnap.exists()){
+    const events = eventsSnap.val();
+    Object.entries(events).forEach(([eventId, data]) => {
+      if(!data || !data.registrations) return;
+      const meta = data.meta || {};
+      Object.values(data.registrations).forEach(reg => {
+        if(!reg.competitorId) return;
+        if(!eventHistory[reg.competitorId]) eventHistory[reg.competitorId] = [];
+        eventHistory[reg.competitorId].push({
+          eventId, eventName: meta.name||eventId, eventDate: meta.date||'',
+          styles: reg.styles||[], weighIn: reg.weighIn||'pending',
+          withdrawn: !!reg.withdrawn,
+          paid: !!(reg.checkin && reg.checkin.paid),
+          paidAmount: (reg.checkin && reg.checkin.paidAmount) || 0
+        });
+      });
+    });
+  }
+
+  allClubs = [...new Set(Object.values(competitors).map(c => c.club).filter(Boolean))].sort();
+  const clubSel = document.getElementById('filter-club');
+  clubSel.innerHTML = '<option value="">All Clubs</option>' + allClubs.map(c => '<option value="'+escA(c)+'">'+esc(c)+'</option>').join('');
+
+  renderStats();
+  renderTable();
+  window.__cgsToolLoaded = true;
+}
+window.loadAll = loadAll;
+
+function renderStats(){
+  const total = Object.keys(competitors).length;
+  const withEvents = Object.keys(eventHistory).length;
+  const totalClubs = allClubs.length;
+  document.getElementById('stats').innerHTML =
+    '<div class="stat"><div class="stat-v">'+total+'</div><div class="stat-l">COMPETITORS</div></div>'
+    +'<div class="stat"><div class="stat-v">'+withEvents+'</div><div class="stat-l">HAVE ENTERED AN EVENT</div></div>'
+    +'<div class="stat"><div class="stat-v">'+totalClubs+'</div><div class="stat-l">CLUBS</div></div>';
+}
+
+window.renderTable = function(){
+  const search = (document.getElementById('search').value||'').toLowerCase();
+  const clubFilter = document.getElementById('filter-club').value;
+  let list = Object.entries(competitors);
+
+  if(search){
+    list = list.filter(([id,c]) =>
+      fullName(c).toLowerCase().includes(search) ||
+      (c.email||'').toLowerCase().includes(search) ||
+      (c.club||'').toLowerCase().includes(search) ||
+      id.toLowerCase().includes(search)
+    );
+  }
+  if(clubFilter) list = list.filter(([id,c]) => c.club === clubFilter);
+
+  list.sort((a,b) => fullName(a[1]).localeCompare(fullName(b[1])));
+
+  const wrap = document.getElementById('table-wrap');
+  if(!list.length){ wrap.innerHTML = '<div class="empty">No competitors match.</div>'; return; }
+
+  let html = '<table><thead><tr><th>Name</th><th>Club</th><th>Email</th><th>Events</th><th>ID</th></tr></thead><tbody>';
+  list.forEach(([id,c]) => {
+    const evCount = (eventHistory[id]||[]).length;
+    html += '<tr class="row" data-id="'+escA(id)+'" onclick="openDetail(this.dataset.id)">'
+      +'<td class="name-cell">'+esc(fullName(c))+'</td>'
+      +'<td class="muted">'+esc(c.club||'')+'</td>'
+      +'<td class="muted">'+esc(c.email||'')+'</td>'
+      +'<td>'+(evCount||'<span class="muted">0</span>')+'</td>'
+      +'<td class="id-cell">'+esc(id)+'</td>'
+      +'</tr>';
+  });
+  wrap.innerHTML = html + '</tbody></table>';
+};
+
+window.openDetail = function(id){
+  const c = competitors[id];
+  if(!c) return;
+  const history = eventHistory[id] || [];
+
+  const fields = [
+    ['Gender', c.gender], ['Date of Birth', c.dob], ['Age', c.age],
+    ['Weight (kg)', c.weight], ['Height (m)', c.height],
+    ['Email', c.email], ['Phone', c.phone],
+    ['Background', c.background], ['Org Affiliations', c.org],
+    ['Style & Rank', c.rank], ['Experience', c.experience], ['Age Category', c.ageCategory],
+    ['Club', c.club], ['Club City', c.clubCity], ['Club Phone', c.clubPhone],
+    ['Instructor', c.instructor],
+    ['First Registered', c.createdAt ? new Date(c.createdAt).toLocaleDateString() : ''],
+    ['Last Updated', c.updatedAt ? new Date(c.updatedAt).toLocaleDateString() : '']
+  ];
+
+  let html = '<div class="modal-title">'+esc(fullName(c))+'</div>'
+    +'<div class="modal-id">Competitor ID: '+esc(id)+'</div>'
+    +'<div class="detail-section"><div class="detail-label">Profile</div><div class="detail-grid">'
+    +fields.map(([l,v]) => '<div class="detail-fld"><div class="dl">'+esc(l)+'</div><div class="dv">'+(v!==undefined&&v!==null&&v!==''?esc(v):'<span class="muted">—</span>')+'</div></div>').join('')
+    +'</div></div>';
+
+  html += '<div class="detail-section"><div class="detail-label">Event History ('+history.length+')</div>';
+  if(!history.length){
+    html += '<div class="muted" style="font-family:var(--mono);font-size:11px">No events entered yet.</div>';
+  } else {
+    history.forEach(h => {
+      html += '<div class="event-row">'
+        +'<div class="en">'+esc(h.eventName)+(h.withdrawn?' <span style="color:var(--red)">(withdrawn)</span>':'')+'</div>'
+        +'<div class="ed">'+esc(h.eventDate)+'</div>'
+        +'<div class="es">Styles: '+esc(h.styles.join(', ')||'—')+' · Weigh-in: '+esc(h.weighIn)+' · <span class="'+(h.paid?'paid':'unpaid')+'">'+(h.paid?'✓ Paid':'Unpaid'+(h.paidAmount?' ($'+h.paidAmount+' so far)':''))+'</span></div>'
+        +'</div>';
+    });
+  }
+  html += '</div>';
+
+  html += '<button class="btn btn-ghost close-btn" onclick="closeModal()">CLOSE</button>';
+
+  document.getElementById('modal-box').innerHTML = html;
+  document.getElementById('overlay').classList.add('show');
+};
+
+window.closeModal = function(){ document.getElementById('overlay').classList.remove('show'); };
+
+window.exportCSV = function(){
+  const rows = [['Competitor ID','Name','Surname','Gender','DOB','Age','Weight','Height','Email','Phone','Background','Org Affiliations','Rank','Experience','Age Category','Club','Club City','Club Phone','Instructor','First Registered','Last Updated','Events Entered','Event Count']];
+  Object.entries(competitors).forEach(([id,c]) => {
+    const history = eventHistory[id] || [];
+    rows.push([
+      id, c.name||'', c.sur||'', c.gender||'', c.dob||'', c.age||'', c.weight||'', c.height||'',
+      c.email||'', c.phone||'', c.background||'', c.org||'', c.rank||'', c.experience||'', c.ageCategory||'',
+      c.club||'', c.clubCity||'', c.clubPhone||'', c.instructor||'',
+      c.createdAt||'', c.updatedAt||'',
+      history.map(h=>h.eventName).join('; '), history.length
+    ]);
+  });
+  const csv = rows.map(r => r.map(v => {
+    const s = String(v??'');
+    return /[",\n]/.test(s) ? '"'+s.replace(/"/g,'""')+'"' : s;
+  }).join(',')).join('\n');
+  const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'eagle-ds-competitors-'+new Date().toISOString().slice(0,10)+'.csv';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+};
+
+loadAll();
+</script>
+<script>
+setTimeout(function(){
+  if(!window.__cgsToolLoaded){
+    var el = document.getElementById('load-error');
+    if(el) el.style.display = 'block';
+  }
+}, 3000);
+</script>
+</body>
+</html>
