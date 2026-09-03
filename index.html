@@ -378,6 +378,13 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
         <button class="btn btn-red" onclick="rematchAll()">↺ CLEAR & REMATCH ALL</button>
       </div>
     </div>
+    <div class="panel" style="border-color:var(--red)">
+      <div class="panel-title" style="color:var(--red)">CLEAR ALL MATCHES</div>
+      <div class="panel-sub">Deletes every bout — <b>no exceptions</b>, including live and completed ones — and unmatches every athlete back to pending. Registrations, clubs, weights, and payments are untouched. Use this only before the event, when nothing is actually live, to fully redo matching and pools from scratch.</div>
+      <div class="row-btns">
+        <button class="btn btn-red" onclick="clearAllMatches()">🗑 CLEAR ALL MATCHES</button>
+      </div>
+    </div>
   </div>
   <div id="regs-panel-athletes" style="display:none">
     <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;align-items:center">
@@ -1361,6 +1368,17 @@ window.rematchAll=function(){
   saveBouts();saveRegsToFirebase();updateRegsStatus();updateRegsMatchSummary();renderDraw();
   document.getElementById('rematch-summary').innerHTML='<span style="color:var(--green)">Cleared '+scheduled.length+' bout(s) · '+unmatched+' athletes unmatched</span>'+(lockedKeys.size?' · <span style="color:var(--orange)">'+lockedKeys.size+' locked (already fighting)</span>':'');
   toast(unmatched+' athletes ready — go tap MATCH PENDING above','gold');
+};
+
+window.clearAllMatches=function(){
+  if(!bouts.length&&!Object.values(storedRegs).some(a=>a.inDraw)){toast('Nothing to clear — already empty','orange');return;}
+  const boutCount=bouts.length;
+  if(!confirm('Clear ALL '+boutCount+' bout(s) — including any live or completed — and unmatch every athlete back to pending?\n\nThis cannot be undone. Registrations, clubs, weights, and payments are NOT affected.\n\nOnly use this before the event, when nothing is actually live.'))return;
+  bouts=[];
+  let unmatched=0;
+  Object.keys(storedRegs).forEach(key=>{if(storedRegs[key].inDraw){storedRegs[key].inDraw=false;unmatched++;}});
+  saveBouts();saveRegsToFirebase();updateRegsStatus();updateRegsMatchSummary();renderDraw();renderAthleteList();
+  toast('Cleared '+boutCount+' bout(s) · '+unmatched+' athletes back to pending','green');
 };
 
 function markAthletesAsDrawn(newBouts){
@@ -2555,4 +2573,3 @@ window.goStep=function(n){_origGoStep(n);if(n===2)renderClubs();};
 </script>
 </body>
 </html>
-
