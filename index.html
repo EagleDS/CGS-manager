@@ -568,14 +568,6 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
       <button class="btn btn-ghost btn-sm" onclick="hideNewEventForm()">CANCEL</button>
     </div>
   </div>
-  <div class="setup-card" id="reset-event-card">
-    <h2>RESET EVENT</h2>
-    <p>Wipes all registrations, bouts, and results for the active event. Use for trial runs. Type the event ID to confirm.</p>
-    <div class="fld"><label>Type event ID to confirm</label><input id="reset-confirm-input" placeholder="cgs-july-11-2026"/></div>
-    <div class="row-btns">
-      <button class="btn btn-red" onclick="resetActiveEvent()">WIPE & RESET</button>
-    </div>
-  </div>
   <div class="setup-card">
     <h2>MARSHAL PIN</h2>
     <div class="fld"><label>PIN (4 digits)</label><input id="cfg-pin" type="number" placeholder="1234" maxlength="4"/></div>
@@ -735,6 +727,7 @@ window.switchEvent=function(id){
   if(!id||id===eventId)return;
   eventId=id;localStorage.setItem('cgs-eventId',id);
   bouts=[];storedRegs={};storedClubMap={};
+  localStorage.removeItem('cgs-bouts');
   listenFirebase();listenRegs();updateBanner();loadEventList();renderAll();
   toast('Switched to: '+id,'gold');
 };
@@ -759,6 +752,7 @@ window.createNewEvent=function(){
   set(ref(db,'events/'+id+'/meta'),{name,date,location,createdAt:new Date().toISOString(),status:'active'}).then(()=>{
     eventId=id;localStorage.setItem('cgs-eventId',id);
     bouts=[];storedRegs={};storedClubMap={};
+    localStorage.removeItem('cgs-bouts');
     listenFirebase();listenRegs();updateBanner();loadEventList();hideNewEventForm();renderAll();
     toast('Event created: '+name,'green');
   });
@@ -865,27 +859,6 @@ window.dbCopyOutput=function(){
   const el=document.getElementById('db-browser-output');
   if(!el)return;
   navigator.clipboard.writeText(el.innerText||el.textContent||'').then(()=>toast('Copied','gold'));
-};
-
-window.resetActiveEvent=function(){
-  const input=document.getElementById('reset-confirm-input').value.trim();
-  if(input!==eventId){toast('Type the event ID exactly to confirm','red');return;}
-  if(!confirm('This will wipe ALL registrations, bouts and results for '+eventId+'. This cannot be undone. Continue?'))return;
-  const promises=[
-    set(ref(db,'events/'+eventId+'/registrations'),null),
-    set(ref(db,'events/'+eventId+'/bouts'),null),
-    set(ref(db,'events/'+eventId+'/results'),null),
-    set(ref(db,'events/'+eventId+'/clubMap'),null),
-  ];
-  Promise.all(promises).then(()=>{
-    bouts=[];storedRegs={};storedClubMap={};clubMap={};
-    matches=[];needsMatch=[];athletes=[];rawAthletes=[];
-    localStorage.removeItem('cgs-bouts');
-    document.getElementById('reset-confirm-input').value='';
-    renderAll();
-    updateRegsStatus&&updateRegsStatus();
-    toast('Event reset — all data wiped','red');
-  });
 };
 
 window.renderPools=function(){
