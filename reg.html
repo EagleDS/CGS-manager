@@ -118,7 +118,7 @@ import { initializeApp, getApps } from 'https://www.gstatic.com/firebasejs/10.12
 import { getDatabase, ref, set, onValue } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
 
 const params = new URLSearchParams(location.search);
-const eventId = params.get('event') || 'cgs-july-11-2026';
+let eventId = params.get('event') || localStorage.getItem('cgs-eventId') || 'cgs-july-11-2026';
 
 let bouts = [], storedRegs = {}, appliedPayments = {}, db = null;
 let pendingPayments = [];
