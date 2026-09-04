@@ -82,6 +82,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
 
 <div class="hdr">
   <div class="hdr-title">📋 MARSHAL</div>
+  <select id="event-switcher" class="btn btn-ghost btn-xs" style="max-width:150px;font-family:var(--mono)" onchange="switchMarsEvent(this.value)"></select>
   <button class="btn btn-gold btn-xs" onclick="openAddMatch()">+ ADD MATCH</button>
   <div class="sync-dot" id="sync-dot" title="Firebase sync"></div>
   <a href="https://eagleds.github.io/CGS-manager/wd.html" style="text-decoration:none"><button class="btn btn-ghost btn-xs" style="color:var(--red);border-color:var(--red-dk)">WITHDRAWN</button></a>
@@ -96,11 +97,11 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
 <script type="module">
 import { initializeApp, getApps } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-import { getDatabase, ref, set, onValue } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
+import { getDatabase, ref, set, get, onValue } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
 
 // ── Same event as CGS Manager. Override with ?event=your-event-id if needed. ──
 const params = new URLSearchParams(location.search);
-const eventId = params.get('event') || 'cgs-july-11-2026';
+let eventId = params.get('event') || localStorage.getItem('cgs-eventId') || 'cgs-july-11-2026';
 
 let bouts = [], storedRegs = {}, db = null;
 
@@ -350,6 +351,47 @@ function attachDragDrop(container){
   });
 }
 
+let unsubBouts=null, unsubRegs=null;
+
+function attachEventListeners(){
+  if(unsubBouts)unsubBouts();
+  if(unsubRegs)unsubRegs();
+  bouts=[];storedRegs={};
+  unsubBouts=onValue(ref(db,`events/${eventId}/bouts`),snap=>{
+    if(!snap.exists()){bouts=[];renderDraw();return;}
+    const data=snap.val();
+    if(Array.isArray(data)){bouts=data;renderDraw();}
+  });
+  unsubRegs=onValue(ref(db,`events/${eventId}/registrations`),snap=>{
+    storedRegs=snap.exists()?(snap.val()||{}):{};
+    renderDraw();
+  });
+}
+
+window.switchMarsEvent=function(id){
+  if(!id||id===eventId)return;
+  eventId=id;localStorage.setItem('cgs-eventId',id);
+  attachEventListeners();
+  toast('Switched to: '+id,'gold');
+};
+
+function loadEventDropdown(){
+  if(!db)return;
+  get(ref(db,'events')).then(snap=>{
+    const sel=document.getElementById('event-switcher');
+    if(!sel||!snap.exists())return;
+    const events=snap.val();
+    sel.innerHTML=Object.entries(events).filter(([id,data])=>data&&data.meta).map(([id,data])=>'<option value="'+escA(id)+'"'+(id===eventId?' selected':'')+'>'+escH(data.meta.name||id)+'</option>').join('');
+  });
+}
+
+window.addEventListener('storage',function(e){
+  if(e.key==='cgs-eventId'&&e.newValue&&e.newValue!==eventId){
+    switchMarsEvent(e.newValue);
+    loadEventDropdown();
+  }
+});
+
 function initFirebase(){
   const cfg={
     apiKey:"AIzaSyDKqodxFjM0EG_qu4zkCAQ37udwYTdSSQY",
@@ -365,15 +407,8 @@ function initFirebase(){
     const app=existing||initializeApp(cfg,'cgs-marshal');
     db=getDatabase(app);
     updateSyncDot('live');
-    onValue(ref(db,`events/${eventId}/bouts`),snap=>{
-      if(!snap.exists())return;
-      const data=snap.val();
-      if(Array.isArray(data)){bouts=data;renderDraw();}
-    });
-    onValue(ref(db,`events/${eventId}/registrations`),snap=>{
-      storedRegs=snap.exists()?(snap.val()||{}):{};
-      renderDraw();
-    });
+    attachEventListeners();
+    loadEventDropdown();
   }catch(e){updateSyncDot('err');toast('Firebase connection failed','red');console.warn(e);}
 }
 
