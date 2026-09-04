@@ -61,6 +61,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
 
 <div class="hdr">
   <div class="hdr-title">🏷 REGISTRATION</div>
+  <select id="event-switcher" class="csel" style="max-width:180px" onchange="switchRegEvent(this.value)"></select>
   <div class="sync-dot" id="sync-dot" title="Firebase sync"></div>
 </div>
 
@@ -115,7 +116,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
 
 <script type="module">
 import { initializeApp, getApps } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-import { getDatabase, ref, set, onValue } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
+import { getDatabase, ref, set, get, onValue } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
 
 const params = new URLSearchParams(location.search);
 let eventId = params.get('event') || localStorage.getItem('cgs-eventId') || 'cgs-july-11-2026';
@@ -196,7 +197,12 @@ window.renderCheckin=function(){
   const search=(document.getElementById('checkin-search')?.value||'').toLowerCase();
   let entries=Object.entries(storedRegs).filter(([k,a])=>!a.withdrawn);
   if(search)entries=entries.filter(([k,a])=>((a.name||'')+' '+(a.sur||'')).toLowerCase().includes(search)||(a.club||a.clubRaw||'').toLowerCase().includes(search));
-  entries.sort((a,b)=>((a[1].name||'')+(a[1].sur||'')).localeCompare((b[1].name||'')+(b[1].sur||'')));
+  entries.sort((a,b)=>{
+    const aDone=(a[1].checkin&&a[1].checkin.arrived&&a[1].checkin.weighedIn)?1:0;
+    const bDone=(b[1].checkin&&b[1].checkin.arrived&&b[1].checkin.weighedIn)?1:0;
+    if(aDone!==bDone)return aDone-bDone;
+    return ((a[1].name||'')+(a[1].sur||'')).localeCompare((b[1].name||'')+(b[1].sur||''));
+  });
   if(!entries.length){body.innerHTML='';if(empty){empty.style.display='block';empty.textContent=search?'No athletes match that search.':'No registrations yet.';}if(statsEl)statsEl.innerHTML='';return;}
   if(empty)empty.style.display='none';
   const warnSet=buildArrivalWarnings();
@@ -547,6 +553,51 @@ window.printPaymentReport=function(){
   w.document.write(html);w.document.close();
 };
 
+let unsubRegs=null, unsubPayments=null, unsubBouts=null;
+
+function attachEventListeners(){
+  if(unsubRegs)unsubRegs();
+  if(unsubPayments)unsubPayments();
+  if(unsubBouts)unsubBouts();
+  storedRegs={};appliedPayments={};bouts=[];
+  unsubRegs=onValue(ref(db,'events/'+eventId+'/registrations'),snap=>{
+    storedRegs=snap.exists()?(snap.val()||{}):{};
+    if(document.getElementById('weigh-panel-checkin').style.display!=='none')renderCheckin();
+  });
+  unsubPayments=onValue(ref(db,'events/'+eventId+'/payments'),snap=>{appliedPayments=snap.exists()?(snap.val()||{}):{};});
+  unsubBouts=onValue(ref(db,'events/'+eventId+'/bouts'),snap=>{
+    if(!snap.exists()){bouts=[];return;}
+    const data=snap.val();
+    if(Array.isArray(data))bouts=data;
+  });
+}
+
+window.switchRegEvent=function(id){
+  if(!id||id===eventId)return;
+  eventId=id;localStorage.setItem('cgs-eventId',id);
+  attachEventListeners();
+  renderCheckin();
+  if(document.getElementById('weigh-panel-payments').style.display!=='none'){renderPaymentsReview();renderOutstandingSummary();}
+  toast('Switched to: '+id,'gold');
+};
+
+function loadEventDropdown(){
+  if(!db)return;
+  get(ref(db,'events')).then(snap=>{
+    const sel=document.getElementById('event-switcher');
+    if(!sel||!snap.exists())return;
+    const events=snap.val();
+    sel.innerHTML=Object.entries(events).filter(([id,data])=>data&&data.meta).map(([id,data])=>'<option value="'+escA(id)+'"'+(id===eventId?' selected':'')+'>'+escH(data.meta.name||id)+'</option>').join('');
+  });
+}
+
+window.addEventListener('storage',function(e){
+  if(e.key==='cgs-eventId'&&e.newValue&&e.newValue!==eventId){
+    switchRegEvent(e.newValue);
+    loadEventDropdown();
+  }
+});
+
 function initFirebase(){
   const cfg={
     apiKey:"AIzaSyDKqodxFjM0EG_qu4zkCAQ37udwYTdSSQY",
@@ -562,16 +613,8 @@ function initFirebase(){
     const app=existing||initializeApp(cfg,'cgs-reg');
     db=getDatabase(app);
     updateSyncDot('live');
-    onValue(ref(db,'events/'+eventId+'/registrations'),snap=>{
-      storedRegs=snap.exists()?(snap.val()||{}):{};
-      if(document.getElementById('weigh-panel-checkin').style.display!=='none')renderCheckin();
-    });
-    onValue(ref(db,'events/'+eventId+'/payments'),snap=>{appliedPayments=snap.exists()?(snap.val()||{}):{};});
-    onValue(ref(db,'events/'+eventId+'/bouts'),snap=>{
-      if(!snap.exists())return;
-      const data=snap.val();
-      if(Array.isArray(data))bouts=data;
-    });
+    attachEventListeners();
+    loadEventDropdown();
   }catch(e){updateSyncDot('err');toast('Firebase connection failed','red');console.warn(e);}
 }
 
@@ -579,4 +622,3 @@ initFirebase();
 </script>
 </body>
 </html>
-
