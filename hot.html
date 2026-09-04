@@ -58,6 +58,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
 
 <div class="hdr">
   <div class="hdr-title">🎙 HEAD OF TABLE</div>
+  <select id="event-switcher" class="btn btn-ghost btn-xs" style="max-width:160px;font-family:var(--mono)" onchange="switchHotEvent(this.value)"></select>
   <div class="live-status" id="hot-live-status"></div>
   <div class="sync-dot" id="sync-dot" title="Firebase sync"></div>
   <a id="results-link" href="https://eagleds.co.nz/results.html" style="text-decoration:none"><button class="btn btn-ghost btn-xs">🏆 RESULTS</button></a>
@@ -67,18 +68,22 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
 
 <script type="module">
 import { initializeApp, getApps } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-import { getDatabase, ref, set, onValue } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
+import { getDatabase, ref, set, get, onValue } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
 
 // ── Same event as CGS Manager. Override with ?event=your-event-id if needed. ──
 const params = new URLSearchParams(location.search);
-const eventId = params.get('event') || 'cgs-july-11-2026';
-document.getElementById('results-link').href = 'https://eagleds.co.nz/results.html?event='+encodeURIComponent(eventId);
+let eventId = params.get('event') || localStorage.getItem('cgs-eventId') || 'cgs-july-11-2026';
+function updateResultsLink(){
+  document.getElementById('results-link').href = 'https://eagleds.co.nz/results.html?event='+encodeURIComponent(eventId);
+}
+updateResultsLink();
 
 let bouts = [], db = null;
 
 const HOT_MATS=[{label:'Mat 1',area:'Mat 1',session:'mat-1'},{label:'Mat 2',area:'Mat 2',session:'mat-2'}];
 
 function escH(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function escA(s){return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;');}
 
 function discToStyle(disc){
   const d=(disc||'').toUpperCase();
@@ -276,6 +281,44 @@ function listenSessionResults(){
   });
 }
 
+let unsubBouts=null;
+
+function attachBoutsListener(){
+  if(unsubBouts)unsubBouts();
+  bouts=[];
+  unsubBouts=onValue(ref(db,`events/${eventId}/bouts`),snap=>{
+    if(!snap.exists()){bouts=[];renderHeadOfTable();return;}
+    const data=snap.val();
+    if(Array.isArray(data)){bouts=data;renderHeadOfTable();}
+  });
+}
+
+window.switchHotEvent=function(id){
+  if(!id||id===eventId)return;
+  eventId=id;localStorage.setItem('cgs-eventId',id);
+  updateResultsLink();
+  attachBoutsListener();
+  renderHeadOfTable();
+  toast('Switched to: '+id,'gold');
+};
+
+function loadEventDropdown(){
+  if(!db)return;
+  get(ref(db,'events')).then(snap=>{
+    const sel=document.getElementById('event-switcher');
+    if(!sel||!snap.exists())return;
+    const events=snap.val();
+    sel.innerHTML=Object.entries(events).filter(([id,data])=>data&&data.meta).map(([id,data])=>'<option value="'+escA(id)+'"'+(id===eventId?' selected':'')+'>'+escH(data.meta.name||id)+'</option>').join('');
+  });
+}
+
+window.addEventListener('storage',function(e){
+  if(e.key==='cgs-eventId'&&e.newValue&&e.newValue!==eventId){
+    switchHotEvent(e.newValue);
+    loadEventDropdown();
+  }
+});
+
 function initFirebase(){
   const cfg={
     apiKey:"AIzaSyDKqodxFjM0EG_qu4zkCAQ37udwYTdSSQY",
@@ -291,11 +334,8 @@ function initFirebase(){
     const app=existing||initializeApp(cfg,'cgs-hot');
     db=getDatabase(app);
     updateSyncDot('live');
-    onValue(ref(db,`events/${eventId}/bouts`),snap=>{
-      if(!snap.exists())return;
-      const data=snap.val();
-      if(Array.isArray(data)){bouts=data;renderHeadOfTable();}
-    });
+    attachBoutsListener();
+    loadEventDropdown();
     listenSessionResults();
   }catch(e){updateSyncDot('err');toast('Firebase connection failed','red');console.warn(e);}
 }
